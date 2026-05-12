@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプル釣りゲーム</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="game-screen">
+            
+            <div id="screen-start" class="screen">
+                <h1>釣りゲーム</h1>
+                <button id="start-btn">スタート</button>
+            </div>
+
+            <div id="screen-aim" class="screen hidden">
+                <p>スペースキーで投げる！</p>
+                <img id="rod-aim" src="images/rod_idle.png" class="rod-img">
+            </div>
+
+            <div id="screen-waiting" class="screen hidden">
+                <p id="status-text">魚を待っています...</p>
+                <img id="rod-waiting" src="images/rod_idle.png" class="rod-img">
+                <div id="bite-icon" class="hidden">！</div>
+            </div>
+
+            <div id="screen-reeling" class="screen hidden">
+                <p>左クリック長押しで巻き上げ！</p>
+                <img id="rod-reeling" src="images/rod_reel.png" class="rod-img">
+                <div class="gauge-container">
+                    <div id="gauge-bar"></div>
+                </div>
+            </div>
+
+            <div id="screen-success" class="screen hidden">
+                <h2 id="result-text">小魚を釣った！</h2>
+                <img id="fish-img" src="" class="fish-img">
+                <button onclick="location.reload()">もう一度遊ぶ</button>
+            </div>
+
+            <div id="screen-fail" class="screen hidden">
+                <h2>逃げられた…</h2>
+                <button onclick="location.reload()">リトライ</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
