@@ -1,0 +1,96 @@
+/* 全体のリセット */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1a1a1a;
+    font-family: sans-serif;
+}
+
+/* ゲームの外枠 */
+#game-container {
+    width: 1200px;
+    height: 700px;
+    border: 4px solid #3b82f6;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+/* ゲーム画面（ここに背景画像をセット） */
+#game-screen {
+    width: 100%;
+    height: 100%;
+    background-image: url('images/sea.png'); /* 画像パスをチェック */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+}
+
+/* 各画面のスタイル */
+.screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.4); /* 文字を見やすくするための半透明背景 */
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+}
+
+.hidden { display: none !important; }
+
+/* 釣竿と魚の画像 */
+.rod-img, .fish-img {
+    width: 200px;
+    user-select: none;
+}
+
+/* ゲージ */
+.gauge-container {
+    width: 300px;
+    height: 20px;
+    background: #4b5563;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#gauge-bar {
+    width: 50%;
+    height: 100%;
+    background: #10b981;
+    transition: width 0.1s linear;
+}
+
+/* ビッタリアニメーション */
+#bite-icon {
+    font-size: 60px;
+    color: #ef4444;
+    font-weight: bold;
+    animation: bounce 0.5s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+button {
+    padding: 10px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
