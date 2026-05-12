@@ -1,0 +1,27 @@
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    text-align: center;
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+#scoreBoard {
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+}
+
+#message {
+    font-size: 40px;
+    color: yellow;
+}
+
+canvas {
+    display: block;
+    margin: auto;
+}
