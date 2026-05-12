@@ -1,0 +1,241 @@
+/* ===== title.css ===== */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Noto+Sans+JP:wght@700&display=swap');
+
+:root {
+  --sky:     #49b8e5;
+  --orange:  #f5a623;
+  --line1:   #474747;   /* 1本目：薄グレー */
+  --line2:   #919191;   /* 2本目：中グレー（A押下でオレンジ） */
+  --line3:   #d8d8d8;   /* 3本目：やや薄グレー（B押下で水色） */
+  --circle-border: #888888; /* 円枠の初期色 */
+  --white:   #ffffff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ════════════════════════
+   画面全体
+════════════════════════ */
+.title-screen {
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+/* ════════════════════════
+   ロゴ
+════════════════════════ */
+.logo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(3rem, 10vw, 17rem);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 6vh;
+  animation: logoIn .8s cubic-bezier(.22,1,.36,1) both;
+}
+.logo-ait    { color: #7a7a7a; }
+.logo-sports { color: var(--sky); }
+
+@keyframes logoIn {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════════════════════
+   3本線 ＋ 円のラッパー
+════════════════════════ */
+.bottom-bar {
+  position: absolute; 
+  bottom: 200px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── 3本線 ── */
+.lines-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.line { 
+  width: 100%;
+  height: 32px;
+  min-height: 30px;
+  transition: background .2s; 
+}
+
+/* 初期状態：3本とも別グレー */
+.line-1 { height: 6px;  background: var(--line1); }
+.line-2 { height: 10px; background: var(--line2); }
+.line-3 { height: 6px;  background: var(--line3); }
+
+/* A押下 → 2本目オレンジ */
+.line-2.key-a { background: var(--orange); }
+/* B押下 → 3本目水色 */
+.line-3.key-b { background: var(--sky); }
+
+/* ── コントローラー円 ── */
+.ctrl-circle {
+  position: absolute;
+  top: -70px;
+  right: 12%;
+  width: clamp(140px, 18vw, 250px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #c8c8c8;
+  /* 枠の色を太くして変化を見やすく */
+  border: 24px solid var(--circle-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  transition: border-color .2s;
+}
+
+/* A押下 → 円枠オレンジ */
+.ctrl-circle.key-a { border-color: var(--orange); }
+/* B押下 → 円枠水色 */
+.ctrl-circle.key-b { border-color: var(--sky); }
+/* A+B両方 → どちらかを優先（A優先） */
+.ctrl-circle.key-a.key-b { border-color: var(--orange); }
+
+/* ── キーボード画像 ── */
+.keyboard-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ════════════════════════
+   吹き出し（共通）
+   初期：白背景＋黒文字
+   押下：黒背景＋白文字
+════════════════════════ */
+.bubble {
+  position: absolute;
+  background: #ffffff;
+  border: 4px solid #333333;
+  border-radius: 24px;
+  padding: 8px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, border-color .15s;
+  min-width: 45px;
+}
+
+.bubble-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(.9rem, 2.5vw, 1.5rem);
+  font-weight: 900;
+  color: #333333;
+  transition: color .15s;
+  line-height: 1;
+}
+
+/* ── Aの吹き出し：左上配置 ── */
+.bubble-a {
+  top: 47%;
+  left: 15%;
+  transform: translate(-50%, -100%);
+}
+
+/* ── Bの吹き出し：右下配置 ── */
+.bubble-b {
+  bottom: 36%;
+  right: 56%;
+  transform: translate(50%, 100%);
+}
+
+/* 吹き出しの尻尾（A：下向き） */
+.bubble-a::after {
+  content: '';
+  position: absolute;
+  bottom: -12px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 12px solid #333333;
+  transition: border-top-color .15s;
+}
+
+/* 吹き出しの尻尾（B：上向き） */
+.bubble-b::after {
+  content: '';
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 12px solid #333333;
+  transition: border-bottom-color .15s;
+}
+
+
+/* ── A押下：Aの吹き出し → 黒背景＋白文字 ── */
+.bubble-a.key-a               { background: #333333; border-color: #ffffff; }
+.bubble-a.key-a .bubble-label { color: #ffffff; }
+.bubble-a.key-a::after        { border-top-color: #ffffff;  }
+
+
+/* ── B押下：Bの吹き出し → 黒背景＋白文字 ── */
+.bubble-b.key-b               { background: #333333; border-color: #ffffff; }
+.bubble-b.key-b .bubble-label { color: #ffffff; }
+.bubble-b.key-b::after        { border-bottom-color: #ffffff; }
+
+/* ════════════════════════
+   プロンプトテキスト
+════════════════════════ */
+.prompt-text {
+  margin-top: 10vh;
+  font-size: clamp(.9rem, 2vw, 12rem);
+  font-weight: 700;
+  color: #333;
+  letter-spacing: .04em;
+}
+.prompt-text strong {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+}
+
+/* ════════════════════════
+   フッター
+════════════════════════ */
+.footer {
+  position: absolute;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #999;
+  white-space: nowrap;
+}
+
+/* ════════════════════════
+   遷移フラッシュ
+════════════════════════ */
+.flash-out { animation: flashOut .4s forwards; }
+@keyframes flashOut {
+  0%   { opacity: 1; }
+  60%  { opacity: 1; filter: brightness(2); }
+  100% { opacity: 0; }
+}

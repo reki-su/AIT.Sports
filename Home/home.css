@@ -1,0 +1,267 @@
+/* ===== home.css ===== */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+:root {
+  --sky: #49b8e5;
+  --sky-dark: #2a9bc7;
+  --white: #fff;
+  --dark: #2c3e50;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.18);
+  --shadow-md: 0 4px 20px rgba(0,0,0,.22);
+  --callout-w: clamp(80px, 12vw, 120px);
+  --bubble-r: 14px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #3a7d44;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ── Full screen wrapper ── */
+.home-screen {
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: flex;
+  align-items: stretch;
+}
+
+/* ── AIT.Sports badge ── */
+.home-logo {
+  position: absolute;
+  top: 1.1rem; left: 1.4rem;
+  z-index: 20;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(5rem, 2.5vw, 7rem);
+  font-weight: 900;
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(6px);
+  padding: .35em .7em;
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm);
+  line-height: 1;
+}
+
+.home-logo .logo-ait    { color: #444; }
+.home-logo .logo-sports { color: var(--sky); font-style: italic; }
+
+/* ═══════════════════════════════════
+   MAP CONTAINER
+   ─ position:relative is required so
+     callouts (.callout) can be
+     absolutely positioned inside.
+════════════════════════════════════ */
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.map-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #ffffff;
+  object-position: center center;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* fallback gradient campus when map img missing */
+.map-container.no-image {
+  background: linear-gradient(145deg, #4a9e5c 0%, #3a7d44 40%, #5ab068 70%, #2d6b38 100%);
+}
+
+/* ═══════════════════════════════════
+   CALLOUT TEMPLATE
+   ─ Each sport callout:
+     • positioned via CSS vars --x --y
+     • white rounded bubble + tail
+     • icon + label inside
+     • hover scale + glow
+════════════════════════════════════ */
+.callout {
+  /* Positioning via CSS custom properties set inline */
+  position: absolute;
+  left: var(--x, 50%);
+  top:  var(--y, 50%);
+  transform: translate(-50%, -100%);    /* anchor: bottom-center of callout → map point */
+
+  width: var(--callout-w);
+  text-decoration: none;
+  cursor: pointer;
+  z-index: 10;
+
+  /* Entrance animation */
+  animation: calloutIn .5s calc(var(--delay, 0s)) cubic-bezier(.34,1.56,.64,1) both;
+}
+
+/* stagger each callout */
+.callout:nth-child(2) { --delay: 0.05s; }
+.callout:nth-child(3) { --delay: 0.15s; }
+.callout:nth-child(4) { --delay: 0.25s; }
+.callout:nth-child(5) { --delay: 0.35s; }
+
+@keyframes calloutIn {
+  from { opacity: 0; transform: translate(-50%, -80%) scale(.6); }
+  to   { opacity: 1; transform: translate(-50%, -100%) scale(1); }
+}
+
+/* Hover: lift + enlarge */
+.callout:hover {
+  transform: translate(-50%, -100%) scale(1.12);
+  z-index: 15;
+}
+.callout:hover .callout__bubble {
+  box-shadow: 0 8px 28px rgba(73,184,229,.55), var(--shadow-md);
+  border-color: var(--sky);
+}
+
+/* ── Bubble ── */
+.callout__bubble {
+  background: var(--white);
+  border: 2.5px solid rgba(73,184,229,.6);
+  border-radius: var(--bubble-r);
+  padding: .5em .4em .4em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25em;
+  box-shadow: var(--shadow-md);
+  transition: box-shadow .18s, border-color .18s, transform .18s;
+  position: relative;
+}
+
+/* Speech-bubble tail (pointing downward) */
+.callout__bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 12px 9px 0 9px;
+  border-style: solid;
+  border-color: var(--white) transparent transparent transparent;
+  filter: drop-shadow(0 3px 2px rgba(0,0,0,.12));
+}
+
+/* Thin border on tail */
+.callout__bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 15px 11px 0 11px;
+  border-style: solid;
+  border-color: rgba(73,184,229,.5) transparent transparent transparent;
+  z-index: -1;
+}
+
+/* ── Icon area ── */
+.callout__icon {
+  width: 52%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.callout__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* emoji fallback */
+.callout__icon .icon-emoji {
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  line-height: 1;
+}
+
+/* ── Label ── */
+.callout__label {
+  font-size: clamp(.6rem, 1.4vw, .82rem);
+  font-weight: 700;
+  color: var(--dark);
+  text-align: center;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+/* ── Dot marker under tail (on map) ── */
+.callout::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px; height: 10px;
+  background: var(--sky);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,.3);
+}
+
+/* ═══════════════════════════════════
+   SCORE BUTTON (bottom-right)
+════════════════════════════════════ */
+.score-btn {
+  position: fixed;
+  bottom: 1.4rem;
+  right: 1.6rem;
+  z-index: 30;
+
+  display: flex;
+  align-items: center;
+  gap: .45em;
+
+  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-dark) 100%);
+  color: #fff;
+  text-decoration: none;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 900;
+  font-size: clamp(.9rem, 2vw, 1.15rem);
+  letter-spacing: .04em;
+
+  padding: .55em 1.2em .55em .9em;
+  border-radius: 50px;
+  box-shadow: 0 4px 18px rgba(73,184,229,.45), var(--shadow-sm);
+
+  transition: transform .15s, box-shadow .15s, filter .15s;
+}
+
+.score-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 28px rgba(73,184,229,.6);
+  filter: brightness(1.08);
+}
+
+.score-btn:active {
+  transform: scale(.96);
+}
+
+.score-btn__icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+/* ── Responsive fine-tuning ── */
+@media (max-width: 600px) {
+  :root { --callout-w: 68px; }
+
+  .home-logo {
+    font-size: .85rem;
+    padding: .3em .55em;
+  }
+
+  .score-btn {
+    font-size: .82rem;
+    padding: .45em 1em .45em .75em;
+  }
+}

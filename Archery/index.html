@@ -1,1 +1,286 @@
-print
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>愛工大アーチェリー - 弓道場ステージ</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { overflow:hidden; background:#333; }
+  #ui {
+    position:absolute; top:16px; left:16px; color:#fff;
+    font-family:sans-serif; font-size:14px; line-height:1.9;
+    background:rgba(0,0,0,0.65); padding:12px 16px; border-radius:8px;
+    pointer-events:none; z-index:10;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  #reticle {
+    position:absolute; top:50%; left:50%;
+    width:32px; height:32px;
+    border:2px solid #00ffcc; border-radius:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none; z-index:10;
+    box-shadow: 0 0 8px #00ffcc;
+  }
+  #powerWrap {
+    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
+    width:200px; display:none; z-index:10;
+  }
+  #powerLabel { color:#fff; font-family:sans-serif; font-size:12px; text-align:center; margin-bottom:4px; text-shadow: 0 1px 2px #000; }
+  #powerTrack { width:100%; height:10px; border:1px solid #fff; border-radius:4px; overflow:hidden; background:rgba(0,0,0,0.5); }
+  #powerBar   { width:0%; height:100%; background:#00ffcc; box-shadow: 0 0 5px #00ffcc; }
+  #hint {
+    position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
+    color:rgba(255,255,255,0.9); font-family:sans-serif; font-size:13px;
+    pointer-events:none; white-space:nowrap; z-index:10;
+    text-shadow: 0 1px 4px rgba(0,0,0,1);
+  }
+</style>
+</head>
+<body>
+<div id="reticle"></div>
+<div id="ui">
+  <b style="color:#00ffcc">愛工大アーチェリー</b><br>
+  ステージ: 弓道場<br>
+  スコア: <span id="score" style="color:#00ffcc">READY</span>
+</div>
+<div id="powerWrap">
+  <div id="powerLabel">POWER</div>
+  <div id="powerTrack"><div id="powerBar"></div></div>
+</div>
+<div id="hint">クリック長押し → 離して射出</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+// --- シーン ---
+const scene = new THREE.Scene();
+
+// --- 背景画像 (kyudo.png) の読み込み ---
+const texLoader = new THREE.TextureLoader();
+texLoader.load('kyudo.png', (texture) => {
+  scene.background = texture;
+});
+
+const camera = new THREE.PerspectiveCamera(50, W()/H(), 0.1, 500);
+camera.position.set(0, 1.6, 0); 
+camera.lookAt(0, 1.5, -10);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W(), H());
+document.body.appendChild(renderer.domElement);
+
+// --- 照明 ---
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+const sun = new THREE.DirectionalLight(0xfff5e0, 0.8);
+sun.position.set(5, 10, 7);
+scene.add(sun);
+
+// --- 的 (茶色い棒を削除しました) ---
+const TARGET = new THREE.Vector3(0, 1.4, -28); 
+const tg = new THREE.Group();
+[
+  { r:2.0, c:0xffffff }, { r:1.6, c:0x111111 },
+  { r:1.2, c:0x2255dd }, { r:0.8, c:0xdd2222 },
+  { r:0.4, c:0xffdd00 }
+].forEach(({ r, c }, i) => {
+  const m = new THREE.Mesh(
+    new THREE.CylinderGeometry(r, r, 0.05, 48),
+    new THREE.MeshPhongMaterial({ color: c })
+  );
+  m.rotation.x = Math.PI / 2;
+  m.position.z = i * 0.007;
+  tg.add(m);
+});
+
+// ★ 的を支える棒(post)の作成コードを削除しました
+
+tg.position.copy(TARGET);
+scene.add(tg);
+
+// --- 矢 ---
+const arrowG = new THREE.Group();
+arrowG.add(Object.assign(
+  new THREE.Mesh(
+    new THREE.CylinderGeometry(0.018, 0.018, 0.9, 6),
+    new THREE.MeshPhongMaterial({ color: 0xd4aa70 })
+  )
+));
+const tip = new THREE.Mesh(
+  new THREE.ConeGeometry(0.03, 0.12, 6),
+  new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 120 })
+);
+tip.position.y = 0.51;
+arrowG.add(tip);
+scene.add(arrowG);
+
+// ============================================================
+// ゲーム状態
+// ============================================================
+let state = 'idle';
+let power = 0;
+let mouseX = 0, mouseY = 0;
+let currentFov = 50;
+
+let aPos = new THREE.Vector3(0, 1.5, -0.5);
+let aVel = new THREE.Vector3();
+
+const CAM_HOME = new THREE.Vector3(0, 1.6, 0);
+const LOOK_HOME = new THREE.Vector3(0, 1.5, -10);
+let camLook = LOOK_HOME.clone();
+let flyTimer = null;
+
+function resetArrow() {
+  aPos.set(0, 1.5, -0.5);
+  aVel.set(0, 0, 0);
+}
+resetArrow();
+
+function resetGame(msg) {
+  if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+  state = 'idle';
+  resetArrow();
+  document.getElementById('score').textContent = msg || 'READY';
+}
+
+window.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / W()) * 2 - 1;
+  mouseY = -(e.clientY / H()) * 2 + 1;
+});
+
+window.addEventListener('mousedown', () => {
+  if (state !== 'idle') return;
+  state = 'charge';
+  power = 0;
+  document.getElementById('powerWrap').style.display = 'block';
+  document.getElementById('powerBar').style.width = '0%';
+  document.getElementById('powerBar').style.background = '#00ffcc';
+});
+
+window.addEventListener('mouseup', () => {
+  if (state !== 'charge') return;
+  shoot();
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+});
+
+function shoot() {
+  state = 'fly';
+  document.getElementById('powerWrap').style.display = 'none';
+
+  const yaw   = -mouseX * 0.4;
+  const pitch =  mouseY * 0.3;
+  const speed = power * 55 + 10;
+  const liftBias = power * 3.0;
+
+  aVel.set(
+    Math.sin(yaw) * speed,
+    Math.sin(pitch) * speed + liftBias,
+    -Math.cos(yaw) * speed
+  );
+
+  flyTimer = setTimeout(() => {
+    if (state === 'fly') {
+      document.getElementById('score').textContent = 'MISS';
+      setTimeout(() => resetGame(), 1500);
+    }
+  }, 7000);
+}
+
+// ============================================================
+// メインループ
+// ============================================================
+let prev = performance.now();
+
+function animate() {
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = Math.min((now - prev) / 1000, 0.05);
+  prev = now;
+
+  if (state === 'charge') {
+    power = Math.min(power + dt * 0.7, 1.0);
+    const pct = power * 100;
+    document.getElementById('powerBar').style.width = pct + '%';
+    document.getElementById('powerBar').style.background = pct > 75 ? '#ff4444' : '#00ffcc';
+
+    currentFov += (25 - currentFov) * 0.1;
+
+    camera.position.lerp(CAM_HOME, 0.15);
+    const lx = mouseX * 8;
+    const ly = 1.5 + mouseY * 3;
+    camLook.lerp(new THREE.Vector3(lx, ly, -15), 0.12);
+    camera.lookAt(camLook);
+
+    arrowG.position.copy(aPos);
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+
+  } else if (state === 'fly') {
+    aVel.y -= 9.8 * dt;
+    aPos.addScaledVector(aVel, dt);
+
+    arrowG.position.copy(aPos);
+
+    if (aVel.length() > 0.2) {
+      arrowG.quaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        aVel.clone().normalize()
+      );
+    }
+
+    const targetCamPos = aPos.clone().add(new THREE.Vector3(0, 0.4, 2.5));
+    camera.position.lerp(targetCamPos, 0.1);
+    camera.lookAt(aPos);
+    currentFov += (50 - currentFov) * 0.06;
+
+    const d = aPos.distanceTo(TARGET);
+    if (d < 2.1 && aPos.z <= TARGET.z + 0.5) {
+      let msg = '3点 WHITE';
+      if      (d < 0.4) msg = '10点 ★ GOLD!';
+      else if (d < 0.8) msg = '9点 RED';
+      else if (d < 1.2) msg = '7点 BLUE';
+      else if (d < 1.6) msg = '5点 BLACK';
+      document.getElementById('score').textContent = msg;
+      aVel.set(0, 0, 0);
+      aPos.z = TARGET.z; 
+      if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+      state = 'hit';
+      setTimeout(() => resetGame(), 2800);
+    }
+    
+    if (aPos.y < -1 || aPos.z < TARGET.z - 10) {
+      document.getElementById('score').textContent = 'MISS';
+      if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+      state = 'miss';
+      setTimeout(() => resetGame(), 1500);
+    }
+
+  } else {
+    currentFov += (50 - currentFov) * 0.06;
+    camera.position.lerp(CAM_HOME, 0.08);
+    camLook.lerp(LOOK_HOME, 0.08);
+    camera.lookAt(camLook);
+
+    arrowG.position.copy(aPos);
+    arrowG.quaternion.setFromUnitVectors(
+      new THREE.Vector3(0, 1, 0),
+      new THREE.Vector3(0, 0, -1)
+    );
+  }
+
+  camera.fov = currentFov;
+  camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
