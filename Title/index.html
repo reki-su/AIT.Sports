@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIT.Sports</title>
+  <link rel="stylesheet" href="title.css">
+</head>
+<body>
+  <div class="title-screen">
+
+    <!-- ロゴ -->
+    <div class="logo">
+      <span class="logo-ait">AIT.</span><span class="logo-sports">Sports</span>
+    </div>
+
+        <!-- プロンプトテキスト -->
+    <p class="prompt-text">Please press <strong>A</strong> and <strong>B</strong>.</p>
+
+    <!-- 3本線 + コントローラー円 エリア -->
+    <div class="bottom-bar">
+
+      <!-- 3本線 -->
+      <div class="lines-wrap">
+        <div class="line line-1"></div>
+        <div class="line line-2" id="line2"></div>
+        <div class="line line-3" id="line3"></div>
+      </div>
+
+      <!-- コントローラー円 -->
+      <div class="ctrl-circle" id="ctrlCircle">
+
+        <!-- キーボード画像（background-transparentで入れ替え可） -->
+        <img class="keyboard-img" src="../img/keyboard.png" alt="keyboard"
+             onerror="this.style.display='none'">
+
+        <!-- Aの吹き出し -->
+        <div class="bubble bubble-a" id="bubbleA">
+          <span class="bubble-label">A</span>
+          <div class="bubble-tail tail-a"></div>
+        </div>
+
+        <!-- Bの吹き出し -->
+        <div class="bubble bubble-b" id="bubbleB">
+          <span class="bubble-label">B</span>
+          <div class="bubble-tail tail-b"></div>
+        </div>
+
+      </div>
+    </div>
+
+
+
+    <!-- フッター -->
+    <div class="footer">© 2026 プロジェクト演習　A班</div>
+
+  </div>
+
+  <script src="title.js"></script>
+</body>
+</html>
