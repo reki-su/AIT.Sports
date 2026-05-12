@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>3Dボーリング（完全版）</title>
+<style>
+body { margin:0; background:black; }
+canvas { display:block; }
+#ui {
+    position:absolute;
+    top:10px;
+    right:20px;
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<div id="ui">
+    <div id="score">Score: 0</div>
+    <div id="msg"></div>
+</div>
+
+<canvas id="game"></canvas>
+
+<!-- ライブラリ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script type="module" src="main.js"></script>
+
+</body>
+</html>
