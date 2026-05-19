@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>和風弓道場アーチェリー - Wii Style Extreme X2 Fixed</title>
+<title>和風弓道場アーチェリー - Wii Style Extreme X2 Premium</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { overflow:hidden; background:#2a1f0e; font-family:'Noto Sans JP', sans-serif; user-select: none; }
+  body { overflow:hidden; background:#d8d8d8; font-family:'Noto Sans JP', sans-serif; user-select: none; }
 
   .screen {
     position:absolute; inset:0; z-index:200;
@@ -18,54 +18,160 @@
 
   /* START SCREEN */
   #startScreen {
-    background: radial-gradient(ellipse at 50% 30%, #5c2a00 0%, #1a0a00 60%, #0d0500 100%);
+    background: rgba(255, 255, 255, 0.01); 
+    justify-content: flex-start;
   }
-  .wa-frame {
-    border: 3px solid #c8a96e; border-radius: 4px;
-    padding: 40px 56px; position: relative; text-align: center;
-    background: rgba(20,8,0,0.7);
-    box-shadow: 0 0 0 8px rgba(120,70,10,0.15), 0 20px 60px rgba(0,0,0,0.8);
-    max-width: 480px; width:90%;
+
+  .wii-title-wrapper {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    text-align: center;
+    padding: 35px 0;
+    margin-top: 5%;             
+    margin-bottom: 8vh;          
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
-  .wa-frame::before { content:''; position:absolute; top:-2px; left:-2px; width:20px; height:20px; border-top:2px solid #c8a96e; border-left:2px solid #c8a96e; }
-  .wa-frame::after  { content:''; position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-bottom:2px solid #c8a96e; border-right:2px solid #c8a96e; }
-  .start-kamon { width:60px; height:60px; margin:0 auto 18px; border-radius:50%; border:2px solid #c8a96e; display:flex; align-items:center; justify-content:center; font-size:26px; background:rgba(200,169,110,0.08); }
-  .start-title-jp { font-size:clamp(22px,5vw,34px); font-weight:900; color:#f0ddb0; letter-spacing:0.25em; text-shadow:0 2px 12px rgba(200,169,110,0.5); margin-bottom:6px; }
-  .start-title-sub { font-size:13px; color:#a07840; letter-spacing:0.3em; margin-bottom:28px; }
-  .wa-divider { height:1px; background:linear-gradient(90deg,transparent,#c8a96e,transparent); margin:18px 0; }
-  .wa-btn-group { display:flex; gap:10px; flex-direction:column; align-items:center; width:100%; }
-  .wa-btn { width:220px; padding:13px 0; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.18em; border:none; border-radius:2px; cursor:pointer; transition:all 0.2s; }
-  .wa-btn-primary { background:linear-gradient(135deg,#c8a96e,#a07840); color:#1a0a00; box-shadow:0 3px 12px rgba(200,169,110,0.4); }
-  .wa-btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(200,169,110,0.55); }
-  .wa-btn-secondary { background:transparent; color:#c8a96e; border:1px solid #c8a96e55; }
-  .wa-btn-secondary:hover { border-color:#c8a96e; background:rgba(200,169,110,0.08); }
+  .wii-title {
+    font-size: clamp(48px, 9vw, 76px); 
+    font-weight: 900;
+    color: #1c4e4d; 
+    letter-spacing: 0.15em;
+    text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+  }
+
+  .wii-btn-center-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    margin-top: 18vh;            
+    margin-bottom: 40px;
+  }
+
+  .wii-btn {
+    width: 340px;          
+    padding: 18px 0;       
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 26px;       
+    font-weight: 900;
+    color: #1c4e4d;
+    background: rgba(214, 247, 244, 0.9);
+    border: 5px solid #ffffff; 
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    text-align: center;
+    outline: none;
+  }
+  .wii-btn:hover {
+    transform: scale(1.05);
+    background: rgba(180, 245, 240, 0.98);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  
+  .wii-footer {
+    position: absolute;
+    bottom: 45px;
+    left: 45px;
+    right: 45px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .wii-btn-side {
+    pointer-events: auto;
+    width: 280px;          
+    font-size: 22px;       
+    padding: 15px 0;
+    border-radius: 35px;
+  }
+  .wii-user-status {
+    font-size: 14px;
+    font-weight: 900;
+    color: #1c4e4d;
+    margin-top: 6px;
+    text-align: center;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+  }
+
+  /* 【新規】Wii風 ユーザー選択カスタムモーダルUI */
+  #userModal {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  #userModal.show { opacity: 1; pointer-events: auto; }
+  .modal-box {
+    background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
+    padding: 30px; width: 90%; max-width: 460px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
+  }
+  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+  .user-list-container {
+    max-height: 160px; overflow-y: auto; margin-bottom: 20px;
+    border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
+  }
+  .user-item-btn {
+    width: 100%; padding: 10px; margin: 4px 0; font-size: 16px; font-weight: 700;
+    color: #1c4e4d; background: rgba(214, 247, 244, 0.4); border: 2px solid #ffffff;
+    border-radius: 15px; cursor: pointer; text-align: left; transition: all 0.15s;
+  }
+  .user-item-btn:hover { background: rgba(214, 247, 244, 0.9); border-color: #1c4e4d; }
+  .user-item-btn.active { background: #1c4e4d; color: #ffffff; border-color: #1c4e4d; }
+  
+  .modal-input-group {
+    display: flex; gap: 8px; margin-bottom: 20px; justify-content: center;
+  }
+  .modal-input {
+    width: 70%; padding: 10px 15px; font-size: 16px; font-weight: 700;
+    border: 3px solid rgba(28, 78, 77, 0.3); border-radius: 20px; color: #1c4e4d; outline: none;
+  }
+  .modal-input:focus { border-color: #1c4e4d; }
+  .modal-action-btn {
+    padding: 8px 16px; font-size: 15px; font-weight: 900; border-radius: 20px;
+    border: 2px solid #1c4e4d; cursor: pointer; background: #ffffff; color: #1c4e4d;
+  }
+  .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
 
   /* INSTRUCTIONS */
-  #instrScreen { background:rgba(12,5,0,0.96); }
-  .instr-box { background:rgba(28,12,2,0.92); border:1px solid #c8a96e44; border-radius:4px; padding:34px 42px; max-width:520px; width:90%; text-align:center; }
-  .instr-box h2 { font-size:19px; font-weight:900; color:#f0ddb0; letter-spacing:0.3em; margin-bottom:22px; }
-  .instr-list { list-style:none; text-align:left; margin-bottom:22px; }
-  .instr-list li { font-size:13px; color:rgba(240,221,176,0.8); padding:8px 0; border-bottom:1px solid rgba(200,169,110,0.1); display:flex; gap:10px; line-height:1.7; }
-  .instr-num { color:#c8a96e; font-weight:900; font-size:14px; min-width:18px; }
+  #instrScreen { background: rgba(230, 235, 235, 0.95); }
+  .instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  .instr-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
+  .instr-box h3 { font-size: 15px; font-weight: 900; text-align: left; margin: 12px 0 6px 0; padding-left: 6px; border-left: 4px solid #1c4e4d; }
+  .instr-list { list-style: none; text-align: left; margin-bottom: 10px; }
+  .instr-list li { font-size: 13px; font-weight: 700; padding: 6px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
+  .instr-num { font-weight: 900; min-width: 16px; }
   
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+  .score-cell { display: flex; align-items: center; gap: 8px; background: rgba(28, 78, 77, 0.04); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 6px 10px; font-size: 12.5px; font-weight: 700; }
+  .zone-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2); }
+
+  .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
+  .rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
+  .rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
+  .rank-pts { font-size: 11px; font-weight: 700; color: #557776; }
+  .r-s { color: #ffaa00; }
+  .r-a { color: #ff4444; }
+  .r-b { color: #3377ff; }
+  .r-c { color: #555555; }
+  .r-d { color: #888888; }
+
   /* RESULT */
-  #resultScreen { background:rgba(10,4,0,0.97); }
-  .result-box { text-align:center; max-width:520px; width:90%; }
-  .result-lbl { font-size:12px; letter-spacing:0.45em; color:#a07840; margin-bottom:4px; }
-  .result-total { font-size:clamp(68px,13vw,110px); font-weight:900; color:#f0ddb0; line-height:1; text-shadow:0 0 40px rgba(200,169,110,0.4); }
-  .result-max { font-size:12px; color:#a07840; margin-bottom:26px; letter-spacing:0.2em; }
-  .result-rounds { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
-  .rnd-card { background:rgba(200,169,110,0.06); border:1px solid rgba(200,169,110,0.18); border-radius:3px; padding:10px 14px; min-width:80px; text-align:center; }
-  .rnd-card .rc-n { font-size:10px; letter-spacing:0.18em; color:#a07840; margin-bottom:3px; }
-  .rnd-card .rc-s { font-size:24px; font-weight:900; color:#f0ddb0; }
-  .rnd-card .rc-l { font-size:10px; color:#c8a96e; }
-  .result-rank { font-size:30px; font-weight:900; margin-bottom:4px; }
-  .result-comment { font-size:13px; color:rgba(240,221,176,0.5); margin-bottom:30px; }
-  .rank-S { color:#ffd700; text-shadow:0 0 16px rgba(255,215,0,0.6); }
-  .rank-A { color:#c8a96e; }
-  .rank-B { color:#88b0ff; }
-  .rank-C { color:#ff9955; }
-  .rank-D { color:#888; }
+  #resultScreen { background: rgba(230, 235, 235, 0.98); color: #1c4e4d; }
+  .result-box { text-align: center; max-width: 520px; width: 90%; background: #ffffff; padding: 40px; border-radius: 20px; border: 4px solid #1c4e4d; }
+  .result-lbl { font-size: 14px; letter-spacing: 0.2em; color: #779998; margin-bottom: 4px; font-weight: 700; }
+  .result-total { font-size: clamp(68px, 13vw, 110px); font-weight: 900; line-height: 1; margin-bottom: 5px; }
+  .result-max { font-size: 14px; color: #779998; margin-bottom: 26px; font-weight: 700; }
+  .result-rounds { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 26px; }
+  .rnd-card { background: rgba(214, 247, 244, 0.4); border: 2px solid #ffffff; border-radius: 10px; padding: 10px 14px; min-width: 80px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  .rnd-card .rc-n { font-size: 11px; font-weight: 700; color: #779998; margin-bottom: 3px; }
+  .rnd-card .rc-s { font-size: 22px; font-weight: 900; }
+  .result-rank { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+  .result-comment { font-size: 14px; font-weight: 700; margin-bottom: 30px; }
 
   /* WII-STYLE HUD — Top Left */
   #hudLeft { position:absolute; top:14px; left:14px; display:none; pointer-events:none; z-index:10; }
@@ -120,30 +226,71 @@
 <body>
 
 <div class="screen" id="startScreen">
-  <div class="wa-frame">
-    <div class="start-kamon">🎯</div>
-    <div class="start-title-jp">弓道場アーチェリー</div>
-    <div class="start-title-sub">3ステージ × 3試射 (計9本)</div>
-    <div class="wa-divider"></div>
-    <div class="wa-btn-group">
-      <button class="wa-btn wa-btn-primary" onclick="startGame()">ゲームスタート</button>
-      <button class="wa-btn wa-btn-secondary" onclick="showScreen('instrScreen')">遊び方を見る</button>
+  <div class="wii-title-wrapper">
+    <div class="wii-title">アーチェリー</div>
+  </div>
+  
+  <div class="wii-btn-center-group">
+    <button class="wii-btn" onclick="startGame()">はじめる</button>
+    <button class="wii-btn" onclick="showScreen('instrScreen')">操作方法</button>
+  </div>
+  
+  <div class="wii-footer">
+    <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
+    <div>
+      <button class="wii-btn wii-btn-side" onclick="openUserModal()">ユーザー選択</button>
+      <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+    </div>
+  </div>
+</div>
+
+<div id="userModal">
+  <div class="modal-box">
+    <h2>ユーザー設定</h2>
+    <div class="user-list-container" id="modalUserList"></div>
+    
+    <div class="modal-input-group">
+      <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
+      <button class="modal-action-btn primary" onclick="addAndSelectNewUser()">追加</button>
+    </div>
+    
+    <div>
+      <button class="modal-action-btn" style="width: 100px;" onclick="closeUserModal()">閉じる</button>
     </div>
   </div>
 </div>
 
 <div class="screen hidden" id="instrScreen">
   <div class="instr-box">
-    <h2>遊び方</h2>
+    <h2>操作方法</h2>
     <ul class="instr-list">
       <li><span class="instr-num">1</span>クリック長押しで弓を引き、狙いを定めます。</li>
       <li><span class="instr-num">2</span>外側から中心へと縮んでくる、白い点線サークルが消える一瞬を見極めましょう。</li>
-      <li><span class="instr-num">3</span>マウスの移動方向（右＝右、上＝上）にまっすぐ飛ぶように修正されました！</li>
-      <li><span class="instr-num">4</span>距離は 35m ➔ 50m ➔ 70m。超強風を計算して狙いをずらしてください。</li>
+      <li><span class="instr-num">3</span>マウスの移動方向にまっすぐ飛びます。35m ➔ 50m ➔ 70mの全3ステージ。</li>
     </ul>
-    <div class="wa-btn-group" style="flex-direction:row; justify-content:center;">
-      <button class="wa-btn wa-btn-primary" onclick="startGame()">スタート</button>
-      <button class="wa-btn wa-btn-secondary" onclick="showScreen('startScreen')">戻る</button>
+    
+    <h3>的な得点</h3>
+    <div class="score-grid">
+      <div class="score-cell"><div class="zone-dot" style="background:#ffdd00"></div>GOLD : 10点</div>
+      <div class="score-cell"><div class="zone-dot" style="background:#dd2222"></div>RED : 9点</div>
+      <div class="score-cell"><div class="zone-dot" style="background:#2255dd"></div>BLUE : 7点</div>
+      <div class="score-cell"><div class="zone-dot" style="background:#111111"></div>BLACK : 5点</div>
+      <div class="score-cell"><div class="zone-dot" style="background:#eeeeee; border:1px solid #ccc;"></div>WHITE : 3点</div>
+      <div class="score-cell"><div class="zone-dot" style="background:#777777"></div>MISS : 0点</div>
+    </div>
+
+    <h3>総合評価ランク</h3>
+    <div class="rank-grid">
+      <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">75点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-a">A</div><div class="rank-pts">55点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-b">B</div><div class="rank-pts">35点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">15点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-d">D</div><div class="rank-pts">14点以下</div></div>
+    </div>
+
+    <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+      <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">スタート</button>
+      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">戻る</button>
     </div>
   </div>
 </div>
@@ -156,9 +303,9 @@
     <div class="result-rounds" id="rRounds"></div>
     <div class="result-rank" id="rRank"></div>
     <div class="result-comment" id="rComment"></div>
-    <div class="wa-btn-group" style="flex-direction:row; justify-content:center;">
-      <button class="wa-btn wa-btn-primary" onclick="startGame()">もう一度</button>
-      <button class="wa-btn wa-btn-secondary" onclick="showScreen('startScreen')">タイトル</button>
+    <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+      <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">もう一度</button>
+      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">タイトル</button>
     </div>
   </div>
 </div>
@@ -185,7 +332,7 @@
 <div id="hudRight">
   <div class="hud-dist-wind">
     <div class="hud-dist-text">
-      <div class="hud-dist-lbl">적まで</div>
+      <div class="hud-dist-lbl">的まで</div>
       <div><span class="hud-dist-val" id="hudDist">35</span><span class="hud-dist-m"> m</span></div>
     </div>
     <div class="hud-wind">
@@ -211,7 +358,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ============================================================
-// SYSTEM CONFIG
+// SYSTEM & GRAPHICS SETUP
+// ============================================================
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xd8d8d8); 
+
+const camera = new THREE.PerspectiveCamera(50, W()/H(), 0.1, 600);
+camera.position.set(0, 1.6, 0);
+camera.lookAt(0, 1.5, -10);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(W(), H());
+renderer.domElement.style.cssText = 'position:absolute;inset:0;z-index:1;';
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+const sun = new THREE.DirectionalLight(0xfff5e0, 0.5);
+sun.position.set(5, 10, 7); scene.add(sun);
+
+const texLoader = new THREE.TextureLoader();
+texLoader.load('kyudo.png', function(texture) {
+  scene.background = texture;
+}, undefined, function(err) {
+  console.error("Texture error.", err);
+});
+
+// ============================================================
+// CONFIG STAGES & GAME PARAMETERS
 // ============================================================
 const TOTAL_ROUNDS = 3;
 const SHOTS_PER_ROUND = 3;
@@ -229,7 +405,6 @@ function newWind() {
   const maxWind = currentDistM >= 70 ? 9.5 : currentDistM >= 50 ? 7.5 : 5.0;
   windSpeedVal = Math.random() * maxWind + 0.6;
   
-  // 究極強化された風圧（左右の流されやすさ）
   windForceX = Math.cos(angle) * windSpeedVal * 2.70; 
   windForceY = Math.sin(angle) * windSpeedVal * 0.70;
 
@@ -265,7 +440,6 @@ function updateHudShots() {
 
 function updateHudScore() {
   document.getElementById('hudScore').textContent = totalScore;
-  const pct = totalScore / 90;
   let rank = 'Rank D';
   if (totalScore >= 75) rank = 'Rank S';
   else if (totalScore >= 55) rank = 'Rank A';
@@ -275,7 +449,95 @@ function updateHudScore() {
 }
 
 // ============================================================
-// GAME STATES
+// 【全面改良】Wii風 モーダル式ユーザー管理ロジック
+// ============================================================
+let currentUser = "ゲスト";
+
+function loadUserStatus() {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  if (localData) {
+    const data = JSON.parse(localData);
+    if (data.currentUser) currentUser = data.currentUser;
+  }
+  document.getElementById('wiiUserStatus').textContent = "選択中: " + currentUser;
+}
+
+function openUserModal() {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { archery_score: 0, archery_rank: "D" } } };
+  
+  const listContainer = document.getElementById('modalUserList');
+  listContainer.innerHTML = "";
+  
+  // 登録ユーザー一覧をボタンとして生成
+  Object.keys(data.users).forEach(user => {
+    const btn = document.createElement('button');
+    btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
+    btn.textContent = `👤 ${user} (Best: ${data.users[user].archery_score || 0}点 / Rank ${data.users[user].archery_rank || 'D'})`;
+    btn.onclick = function() { selectUser(user); };
+    listContainer.appendChild(btn);
+  });
+  
+  document.getElementById('userModal').classList.add('show');
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('show');
+  document.getElementById('newUserNameInput').value = "";
+}
+
+function selectUser(name) {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = JSON.parse(localData);
+  data.currentUser = name;
+  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  currentUser = name;
+  loadUserStatus();
+  closeUserModal();
+}
+
+function addAndSelectNewUser() {
+  const input = document.getElementById('newUserNameInput');
+  let name = input.value.trim();
+  if (name === "") return;
+  
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
+  
+  if (data.users[name]) {
+    alert("その名前はすでに登録されています。");
+    return;
+  }
+  
+  // 新規ユーザー枠を追加
+  data.users[name] = { archery_score: 0, archery_rank: "D" };
+  data.currentUser = name;
+  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  
+  currentUser = name;
+  loadUserStatus();
+  closeUserModal();
+}
+
+function saveGameResult(finalScore, finalRank) {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
+
+  if (!data.users[currentUser]) {
+    data.users[currentUser] = { archery_score: 0, archery_rank: "D" };
+  }
+
+  if (finalScore > data.users[currentUser].archery_score) {
+    data.users[currentUser].archery_score = finalScore;
+    data.users[currentUser].archery_rank = finalRank;
+    localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadUserStatus);
+
+// ============================================================
+// GAME LOGIC CONTROLS
 // ============================================================
 let allScores = [];
 let totalScore = 0;
@@ -303,6 +565,7 @@ function onChargeStart() {
 }
 
 function startGame() {
+  loadUserStatus();
   allScores = []; currentRound = 0; currentShotInRound = 0; totalScore = 0; gameActive = true;
   showScreen(null);
   setHudVisible(true);
@@ -340,18 +603,22 @@ function showResult() {
     rc.innerHTML += `<div class="rnd-card"><div class="rc-n">STAGE ${r + 1}</div><div class="rc-s">${rTotal}点</div></div>`;
   }
   
-  const pct = totalScore / 90;
-  let rank, rcls, comment;
-  if      (totalScore === 0) { rank='D'; rcls='rank-D'; comment='超強風大どんまい！風向きの真逆の空間をエイムしよう！'; }
-  else if (pct>=0.82) { rank='S'; rcls='rank-S'; comment='神話級の腕前！嵐を制する大達人です！'; }
-  else if (pct>=0.65) { rank='A'; rcls='rank-A'; comment='素晴らしい！超偏差アーチェリーを見事に攻略しました！'; }
-  else if (pct>=0.40) { rank='B'; rcls='rank-B'; comment='グッジョブ！この激しい風の中での素晴らしい適応力です。'; }
-  else                { rank='C'; rcls='rank-C'; comment='風に激しく押し流される軌道を計算して狙いをずらそう。'; }
+  let rank = 'D';
+  let rcls = 'rank-D';
+  let comment = '';
+
+  if (totalScore >= 75) { rank='S'; rcls='rank-S'; comment='神話級の腕前！嵐を制する大達人です！'; }
+  else if (totalScore >= 55) { rank='A'; rcls='rank-A'; comment='素晴らしい！超偏差アーチェリーを見事に攻略しました！'; }
+  else if (totalScore >= 35) { rank='B'; rcls='rank-B'; comment='グッジョブ！この激しい風の中での素晴らしい適応力です。'; }
+  else if (totalScore >= 15) { rank='C'; rcls='rank-C'; comment='風に激しく押し流される軌道を計算して狙いをずらそう。'; }
+  else { rank='D'; rcls='rank-D'; comment='超強風大どんまい！風向きの真逆の空間をエイムしよう！'; }
   
   const re = document.getElementById('rRank');
   re.className = 'result-rank '+rcls;
   re.textContent = 'RANK '+rank;
   document.getElementById('rComment').textContent = comment;
+
+  saveGameResult(totalScore, rank);
 }
 
 let hitGuard = false;
@@ -397,33 +664,8 @@ function handleShotEnd(pts, label) {
 }
 
 // ============================================================
-// THREE.JS SCENE SETUP
+// THREE.JS OBJECT CREATIONS
 // ============================================================
-const W = () => window.innerWidth;
-const H = () => window.innerHeight;
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x191107); 
-
-const texLoader = new THREE.TextureLoader();
-texLoader.load('kyudo.png', function(texture) {
-  scene.background = texture;
-});
-
-const camera = new THREE.PerspectiveCamera(50, W()/H(), 0.1, 600);
-camera.position.set(0, 1.6, 0);
-camera.lookAt(0, 1.5, -10);
-
-const renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(W(), H());
-renderer.domElement.style.cssText = 'position:absolute;inset:0;z-index:1;';
-document.body.appendChild(renderer.domElement);
-
-scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-const sun = new THREE.DirectionalLight(0xfff5e0, 0.5);
-sun.position.set(5, 10, 7); scene.add(sun);
-
-// 的
 const tg = new THREE.Group();
 [{r:2.0,c:0xeeeeee},{r:1.6,c:0x111111},{r:1.2,c:0x2255dd},{r:0.8,c:0xdd2222},{r:0.4,c:0xffdd00}]
 .forEach(({r,c},i) => {
@@ -434,7 +676,6 @@ const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,3.2,8), new TH
 stand.position.set(0, -1.6, -0.05); tg.add(stand);
 tg.position.copy(targetPos); scene.add(tg);
 
-// 矢
 const arrowG = new THREE.Group();
 arrowG.add(new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.95,6), new THREE.MeshPhongMaterial({color:0xd4aa70})));
 const tipM = new THREE.Mesh(new THREE.ConeGeometry(0.025,0.12,6), new THREE.MeshPhongMaterial({color:0x555555}));
@@ -456,7 +697,7 @@ function resetArrow() {
 }
 
 // ============================================================
-// SCOPE OVERLAY (収縮点線リングのみ)
+// SCOPE OVERLAY
 // ============================================================
 const scopeCanvas = document.getElementById('scopeCanvas');
 const scopeCtx = scopeCanvas.getContext('2d');
@@ -487,25 +728,23 @@ function drawScope(tx, ty) {
   scopeCtx.strokeStyle = 'rgba(255,255,255,0.75)';
   scopeCtx.lineWidth = 3.5;
   scopeCtx.beginPath(); scopeCtx.arc(cx, cy, r, 0, Math.PI*2); scopeCtx.stroke();
+  scopeCtx.restore();
 
-  // 外側から出てくる白い点線リング
   const maxRadius = Math.max(w, h) * 0.75;
   const currentShrinkR = maxRadius * (1 - shrinkProgress);
 
   if (shrinkProgress > 0 && currentShrinkR > 1.5) {
+    scopeCtx.save();
     scopeCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
     scopeCtx.lineWidth = 3.5;
     scopeCtx.setLineDash([12, 6]); 
     scopeCtx.beginPath();
     scopeCtx.arc(cx, cy, currentShrinkR, 0, Math.PI*2);
     scopeCtx.stroke();
+    scopeCtx.restore();
   }
-  scopeCtx.restore();
 }
 
-// ============================================================
-// USER INPUT ACTIONS
-// ============================================================
 window.addEventListener('mousemove', e => {
   mouseX = (e.clientX/W())*2-1;
   mouseY = -(e.clientY/H())*2+1;
@@ -542,7 +781,6 @@ function shoot() {
   const finalX = mouseX + releaseTremorX;
   const finalY = mouseY + releaseTremorY;
 
-  // 【修正】マイナス設定を外し、マウス移動方向と飛翔左右ベクトルを完全に同期
   const yaw   = finalX * 0.52;
   const pitch = finalY * 0.38 + 0.05; 
   
@@ -559,15 +797,6 @@ function shoot() {
     if (state === 'fly') handleShotEnd(0, 'MISS');
   }, 25000);
 }
-
-// ============================================================
-// CORE ANIMATION FRAME TICK
-// ============================================================
-let prev = performance.now();
-let currentFov = 50, targetFov = 50;
-const CAM_HOME = new THREE.Vector3(0, 1.6, 0);
-const LOOK_HOME = new THREE.Vector3(0, 1.5, -10);
-let camLook = LOOK_HOME.clone();
 
 function animate() {
   requestAnimationFrame(animate);
@@ -591,7 +820,6 @@ function animate() {
     targetFov = 50 - power * 20;
     currentFov += (targetFov - currentFov) * 0.06;
 
-    // 【同期調整】チャージ中のカメラの首振りも、射出時の進行ベクトルに合うよう極性を揃えました
     const lx = (mouseX + tremorX) * 6;
     const ly = 1.5 + (mouseY + tremorY) * 2;
     camLook.lerp(new THREE.Vector3(lx, ly, targetZ), 0.1);
@@ -623,7 +851,6 @@ function animate() {
     camera.lookAt(aPos);
     currentFov += (54 - currentFov) * 0.03;
 
-    // 着弾検出
     if (aPos.z <= targetPos.z) {
       const d = aPos.distanceTo(targetPos);
       if (d < 2.0) {
@@ -661,6 +888,12 @@ function animate() {
   camera.updateProjectionMatrix();
   renderer.render(scene, camera);
 }
+
+let prev = performance.now();
+let currentFov = 50, targetFov = 50;
+const CAM_HOME = new THREE.Vector3(0, 1.6, 0);
+const LOOK_HOME = new THREE.Vector3(0, 1.5, -10);
+let camLook = LOOK_HOME.clone();
 
 resetArrow();
 animate();
