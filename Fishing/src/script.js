@@ -1,103 +1,128 @@
-// 状態管理用変数
 let screen = "start";
 let gauge = 50;
+let points = 0; 
 let isHolding = false;
 let currentFish = null;
 let fishBite = false;
-let biteTimer = null;
 let gameInterval = null;
+let biteReactionTimer = null; 
 
 const fishes = [
-    { name: "小魚", img: "images/fish_small.png", speed: 1 },
-    { name: "中魚", img: "images/fish_medium.png", speed: 2 },
-    { name: "大物", img: "images/fish_big.png", speed: 4 }
+    { name: "小魚", img: "images/fish_small.png", speed: 1.2, points: 100 },
+    { name: "中魚", img: "images/fish_medium.png", speed: 2.2, points: 500 },
+    { name: "大物", img: "images/fish_big.png", speed: 4.0, points: 2000 }
 ];
 
-// 画面切り替え関数
-function showScreen(screenId) {
+const rodImg = document.getElementById('rod-display');
+const reelingUI = document.getElementById('reeling-ui');
+const pointsDisplay = document.getElementById('current-points');
+
+function updateState(newScreen, rodState = 'idle') {
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-    document.getElementById(`screen-${screenId}`).classList.remove('hidden');
-    screen = screenId;
+    const target = document.getElementById(`screen-${newScreen}`);
+    if (target) target.classList.remove('hidden');
+    
+    screen = newScreen;
+    rodImg.src = `images/rod_${rodState}.png`;
+
+    if (newScreen === 'reeling') {
+        reelingUI.classList.remove('hidden');
+    } else {
+        reelingUI.classList.add('hidden');
+    }
 }
 
-// スタートボタン
+function resetToAim() {
+    fishBite = false;
+    gauge = 50;
+    if (biteReactionTimer) clearTimeout(biteReactionTimer);
+    document.getElementById('bite-icon').classList.add('hidden');
+    updateState('aim', 'idle');
+}
+
+function quitGame() {
+    window.location.href = '../../Home/home.html';
+}
+
+// イベントリスナー
 document.getElementById('start-btn').addEventListener('click', () => {
-    showScreen('aim');
+    updateState('aim', 'idle');
 });
 
-// スペースキーでキャスト
+document.getElementById('next-btn').addEventListener('click', resetToAim);
+document.getElementById('retry-btn').addEventListener('click', resetToAim);
+
+// 新しく追加したスタート画面の終了ボタンを含め、すべての終了ボタンにイベントを設定
+document.getElementById('quit-btn-start').addEventListener('click', quitGame);
+document.getElementById('quit-btn-success').addEventListener('click', quitGame);
+document.getElementById('quit-btn-fail').addEventListener('click', quitGame);
+
 window.addEventListener('keydown', (e) => {
     if (screen === "aim" && e.code === "Space") {
-        showScreen('waiting');
-        
-        // 魚をランダムに決定
+        updateState('waiting', 'cast');
         currentFish = fishes[Math.floor(Math.random() * fishes.length)];
         
-        // 数秒後に当たりが来る
-        biteTimer = setTimeout(() => {
-            fishBite = true;
-            document.getElementById('bite-icon').classList.remove('hidden');
+        setTimeout(() => {
+            if (screen === "waiting") {
+                fishBite = true;
+                document.getElementById('bite-icon').classList.remove('hidden');
+
+                biteReactionTimer = setTimeout(() => {
+                    if (fishBite && screen === "waiting") {
+                        fishBite = false;
+                        document.getElementById('bite-icon').classList.add('hidden');
+                        finishGame("fail");
+                    }
+                }, 1000); 
+            }
         }, 2000 + Math.random() * 2000);
     }
 });
 
-// クリック（ヒット判定と巻き上げ）
 const gameScreen = document.getElementById('game-screen');
-
 gameScreen.addEventListener('mousedown', (e) => {
     if (e.button !== 0) return;
-
     if (fishBite && screen === "waiting") {
+        if (biteReactionTimer) clearTimeout(biteReactionTimer);
         fishBite = false;
         document.getElementById('bite-icon').classList.add('hidden');
         startReeling();
     }
-
     if (screen === "reeling") {
         isHolding = true;
+        rodImg.src = "images/rod_reel.png";
     }
 });
 
 window.addEventListener('mouseup', () => {
-    isHolding = false;
+    if (screen === "reeling") {
+        isHolding = false;
+        rodImg.src = "images/rod_stop.png";
+    }
 });
 
-// 巻き上げ開始
 function startReeling() {
-    showScreen('reeling');
+    updateState('reeling', 'reel');
     gauge = 50;
-
     gameInterval = setInterval(() => {
         if (screen !== "reeling") {
             clearInterval(gameInterval);
             return;
         }
+        gauge += isHolding ? 2.5 : -currentFish.speed;
+        document.getElementById('gauge-bar').style.width = `${Math.max(0, Math.min(100, gauge))}%`;
 
-        // ゲージの計算
-        let speed = currentFish.speed;
-        if (isHolding) {
-            gauge += 2;
-        } else {
-            gauge -= speed;
-        }
-
-        // 反映
-        const bar = document.getElementById('gauge-bar');
-        bar.style.width = `${gauge}%`;
-
-        // 判定
-        if (gauge >= 100) {
-            finishGame("success");
-        } else if (gauge <= 0) {
-            finishGame("fail");
-        }
+        if (gauge >= 100) finishGame("success");
+        else if (gauge <= 0) finishGame("fail");
     }, 100);
 }
 
 function finishGame(result) {
-    clearInterval(gameInterval);
-    showScreen(result);
+    if (gameInterval) clearInterval(gameInterval);
+    updateState(result, 'idle');
     if (result === "success") {
+        points += currentFish.points; 
+        pointsDisplay.innerText = points; 
         document.getElementById('result-text').innerText = `${currentFish.name}を釣った！`;
         document.getElementById('fish-img').src = currentFish.img;
     }
