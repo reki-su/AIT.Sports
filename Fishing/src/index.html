@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル釣りゲーム</title>
+    <title>釣りゲーム</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,39 +10,63 @@
     <div id="game-container">
         <div id="game-screen">
             
-            <div id="screen-start" class="screen">
-                <h1>釣りゲーム</h1>
-                <button id="start-btn">スタート</button>
-            </div>
-
-            <div id="screen-aim" class="screen hidden">
-                <p>スペースキーで投げる！</p>
-                <img id="rod-aim" src="images/rod_idle.png" class="rod-img">
-            </div>
-
-            <div id="screen-waiting" class="screen hidden">
-                <p id="status-text">魚を待っています...</p>
-                <img id="rod-waiting" src="images/rod_idle.png" class="rod-img">
-                <div id="bite-icon" class="hidden">！</div>
-            </div>
-
-            <div id="screen-reeling" class="screen hidden">
-                <p>左クリック長押しで巻き上げ！</p>
-                <img id="rod-reeling" src="images/rod_reel.png" class="rod-img">
-                <div class="gauge-container">
-                    <div id="gauge-bar"></div>
+            <div id="ui-top" class="ui-layer">
+                <div id="reeling-ui" class="reeling-ui-container hidden">
+                    <div class="gauge-outline">
+                        <div id="gauge-bar"></div>
+                    </div>
+                    <p class="guide-text">左クリック長押しで巻け！</p>
                 </div>
             </div>
 
-            <div id="screen-success" class="screen hidden">
-                <h2 id="result-text">小魚を釣った！</h2>
-                <img id="fish-img" src="" class="fish-img">
-                <button onclick="location.reload()">もう一度遊ぶ</button>
+            <div id="ui-right" class="ui-layer">
+                <div class="score-panel">
+                    <span class="score-label">現在のポイント</span><br>
+                    <span id="current-points" class="score-value">0</span>
+                </div>
             </div>
 
-            <div id="screen-fail" class="screen hidden">
-                <h2>逃げられた…</h2>
-                <button onclick="location.reload()">リトライ</button>
+            <div id="main-content">
+                <div id="screen-start" class="screen start-screen-content">
+                    <h1 class="title">FISHING GAME</h1>
+                    
+                    <div class="instructions">
+                        <p style="margin-top: 0; color: #60a5fa; font-weight: bold;">【遊び方】</p>
+                        <p>① <b>スペースキー</b>でルアーを投げる</p>
+                        <p>② 「！」が出たら素早く<b>左クリック</b></p>
+                        <p>③ <b>左クリック長押し</b>でゲージを保ち魚を釣り上げろ！</p>
+                    </div>
+
+                    <button id="start-btn">スタート</button>
+                </div>
+
+                <div id="screen-aim" class="screen hidden">
+                    <p class="status-msg">スペースキーで投げる！</p>
+                </div>
+
+                <div id="screen-waiting" class="screen hidden">
+                    <div id="bite-icon" class="hidden">！</div>
+                    <p class="status-msg">魚を待っています...</p>
+                </div>
+
+                <div id="screen-success" class="screen hidden">
+                    <h2 id="result-text" class="result-title">ゲット！</h2>
+                    <img id="fish-img" src="" class="fish-display-img">
+                    <div class="button-group">
+                        <button id="next-btn">ネクストステージ</button>
+                        <button id="quit-btn-success" class="btn-secondary quit-btn">ゲームを終わる</button>
+                    </div>
+                </div>
+
+                <div id="screen-fail" class="screen hidden">
+                    <h2 class="result-title">逃げられた…</h2>
+                    <div class="button-group" style="margin-top: 40px;">
+                        <button id="retry-btn">リトライ</button>
+                        <button id="quit-btn-fail" class="btn-secondary quit-btn">ゲームを終わる</button>
+                    </div>
+                </div>
+
+                <img id="rod-display" src="images/rod_idle.png" class="rod-img">
             </div>
 
         </div>

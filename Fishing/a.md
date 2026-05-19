@@ -19,7 +19,7 @@ Fishing Game（釣りゲーム仕様書
 --
 画面構成
 背景
-海の画像（sea_custom.png）
+海の画像（sea.png）
 画面全体に表示
 
 --
