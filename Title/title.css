@@ -233,9 +233,8 @@ html, body {
 /* ════════════════════════
    遷移フラッシュ
 ════════════════════════ */
-.flash-out { animation: flashOut .4s forwards; }
+.flash-out { animation: flashOut .45s forwards; }
 @keyframes flashOut {
-  0%   { opacity: 1; }
-  60%  { opacity: 1; filter: brightness(2); }
-  100% { opacity: 0; }
+  0%   { opacity: 1; filter: brightness(1); }
+  100% { opacity: 0; filter: brightness(1); }
 }
