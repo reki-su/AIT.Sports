@@ -2,277 +2,659 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>愛工大アーチェリー - 弓道場ステージ</title>
+<title>和風弓道場アーチェリー - Wii Style Extreme X2 Fixed</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { overflow:hidden; background:#333; }
-  #ui {
-    position:absolute; top:16px; left:16px; color:#fff;
-    font-family:sans-serif; font-size:14px; line-height:1.9;
-    background:rgba(0,0,0,0.65); padding:12px 16px; border-radius:8px;
-    pointer-events:none; z-index:10;
-    border: 1px solid rgba(255,255,255,0.2);
+  body { overflow:hidden; background:#2a1f0e; font-family:'Noto Sans JP', sans-serif; user-select: none; }
+
+  .screen {
+    position:absolute; inset:0; z-index:200;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    transition: opacity 0.4s ease;
   }
-  #reticle {
-    position:absolute; top:50%; left:50%;
-    width:32px; height:32px;
-    border:2px solid #00ffcc; border-radius:50%;
-    transform:translate(-50%,-50%);
-    pointer-events:none; z-index:10;
-    box-shadow: 0 0 8px #00ffcc;
+  .screen.hidden { opacity:0; pointer-events:none; }
+
+  /* START SCREEN */
+  #startScreen {
+    background: radial-gradient(ellipse at 50% 30%, #5c2a00 0%, #1a0a00 60%, #0d0500 100%);
   }
-  #powerWrap {
-    position:absolute; bottom:36px; left:50%; transform:translateX(-50%);
-    width:200px; display:none; z-index:10;
+  .wa-frame {
+    border: 3px solid #c8a96e; border-radius: 4px;
+    padding: 40px 56px; position: relative; text-align: center;
+    background: rgba(20,8,0,0.7);
+    box-shadow: 0 0 0 8px rgba(120,70,10,0.15), 0 20px 60px rgba(0,0,0,0.8);
+    max-width: 480px; width:90%;
   }
-  #powerLabel { color:#fff; font-family:sans-serif; font-size:12px; text-align:center; margin-bottom:4px; text-shadow: 0 1px 2px #000; }
-  #powerTrack { width:100%; height:10px; border:1px solid #fff; border-radius:4px; overflow:hidden; background:rgba(0,0,0,0.5); }
-  #powerBar   { width:0%; height:100%; background:#00ffcc; box-shadow: 0 0 5px #00ffcc; }
-  #hint {
-    position:absolute; bottom:70px; left:50%; transform:translateX(-50%);
-    color:rgba(255,255,255,0.9); font-family:sans-serif; font-size:13px;
-    pointer-events:none; white-space:nowrap; z-index:10;
-    text-shadow: 0 1px 4px rgba(0,0,0,1);
+  .wa-frame::before { content:''; position:absolute; top:-2px; left:-2px; width:20px; height:20px; border-top:2px solid #c8a96e; border-left:2px solid #c8a96e; }
+  .wa-frame::after  { content:''; position:absolute; bottom:-2px; right:-2px; width:20px; height:20px; border-bottom:2px solid #c8a96e; border-right:2px solid #c8a96e; }
+  .start-kamon { width:60px; height:60px; margin:0 auto 18px; border-radius:50%; border:2px solid #c8a96e; display:flex; align-items:center; justify-content:center; font-size:26px; background:rgba(200,169,110,0.08); }
+  .start-title-jp { font-size:clamp(22px,5vw,34px); font-weight:900; color:#f0ddb0; letter-spacing:0.25em; text-shadow:0 2px 12px rgba(200,169,110,0.5); margin-bottom:6px; }
+  .start-title-sub { font-size:13px; color:#a07840; letter-spacing:0.3em; margin-bottom:28px; }
+  .wa-divider { height:1px; background:linear-gradient(90deg,transparent,#c8a96e,transparent); margin:18px 0; }
+  .wa-btn-group { display:flex; gap:10px; flex-direction:column; align-items:center; width:100%; }
+  .wa-btn { width:220px; padding:13px 0; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.18em; border:none; border-radius:2px; cursor:pointer; transition:all 0.2s; }
+  .wa-btn-primary { background:linear-gradient(135deg,#c8a96e,#a07840); color:#1a0a00; box-shadow:0 3px 12px rgba(200,169,110,0.4); }
+  .wa-btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(200,169,110,0.55); }
+  .wa-btn-secondary { background:transparent; color:#c8a96e; border:1px solid #c8a96e55; }
+  .wa-btn-secondary:hover { border-color:#c8a96e; background:rgba(200,169,110,0.08); }
+
+  /* INSTRUCTIONS */
+  #instrScreen { background:rgba(12,5,0,0.96); }
+  .instr-box { background:rgba(28,12,2,0.92); border:1px solid #c8a96e44; border-radius:4px; padding:34px 42px; max-width:520px; width:90%; text-align:center; }
+  .instr-box h2 { font-size:19px; font-weight:900; color:#f0ddb0; letter-spacing:0.3em; margin-bottom:22px; }
+  .instr-list { list-style:none; text-align:left; margin-bottom:22px; }
+  .instr-list li { font-size:13px; color:rgba(240,221,176,0.8); padding:8px 0; border-bottom:1px solid rgba(200,169,110,0.1); display:flex; gap:10px; line-height:1.7; }
+  .instr-num { color:#c8a96e; font-weight:900; font-size:14px; min-width:18px; }
+  
+  /* RESULT */
+  #resultScreen { background:rgba(10,4,0,0.97); }
+  .result-box { text-align:center; max-width:520px; width:90%; }
+  .result-lbl { font-size:12px; letter-spacing:0.45em; color:#a07840; margin-bottom:4px; }
+  .result-total { font-size:clamp(68px,13vw,110px); font-weight:900; color:#f0ddb0; line-height:1; text-shadow:0 0 40px rgba(200,169,110,0.4); }
+  .result-max { font-size:12px; color:#a07840; margin-bottom:26px; letter-spacing:0.2em; }
+  .result-rounds { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
+  .rnd-card { background:rgba(200,169,110,0.06); border:1px solid rgba(200,169,110,0.18); border-radius:3px; padding:10px 14px; min-width:80px; text-align:center; }
+  .rnd-card .rc-n { font-size:10px; letter-spacing:0.18em; color:#a07840; margin-bottom:3px; }
+  .rnd-card .rc-s { font-size:24px; font-weight:900; color:#f0ddb0; }
+  .rnd-card .rc-l { font-size:10px; color:#c8a96e; }
+  .result-rank { font-size:30px; font-weight:900; margin-bottom:4px; }
+  .result-comment { font-size:13px; color:rgba(240,221,176,0.5); margin-bottom:30px; }
+  .rank-S { color:#ffd700; text-shadow:0 0 16px rgba(255,215,0,0.6); }
+  .rank-A { color:#c8a96e; }
+  .rank-B { color:#88b0ff; }
+  .rank-C { color:#ff9955; }
+  .rank-D { color:#888; }
+
+  /* WII-STYLE HUD — Top Left */
+  #hudLeft { position:absolute; top:14px; left:14px; display:none; pointer-events:none; z-index:10; }
+  .hud-panel {
+    background:rgba(25,55,115,0.8);
+    border:2px solid rgba(140,175,255,0.55); border-radius:14px;
+    padding:10px 18px; color:#fff;
+    box-shadow:0 2px 20px rgba(0,0,60,0.6), inset 0 1px 0 rgba(255,255,255,0.18);
+    min-width:160px;
   }
+  .hud-top-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .hud-round { font-size:16px; font-weight:900; color:#fff; }
+  .hud-shot-icon-row { display:flex; gap:6px; }
+  .hud-shot-icon { width:20px; height:20px; opacity: 0.2; transition: opacity 0.2s; }
+  .hud-shot-icon.ready { opacity: 1; filter: drop-shadow(0 0 4px #ffe066); }
+  .hud-bottom-row { display:flex; justify-content:space-between; align-items:baseline; }
+  .hud-score-row { display:flex; align-items:baseline; gap:4px; }
+  .hud-score-val { font-size:24px; font-weight:900; color:#fff; line-height:1; }
+  .hud-score-unit { font-size:12px; color:rgba(255,255,255,0.55); }
+  .hud-rank { font-size:14px; font-weight:900; color:#ffe066; margin-left: 10px;}
+
+  /* HUD — Top Right */
+  #hudRight { position:absolute; top:14px; right:14px; display:none; flex-direction:column; align-items:flex-end; gap:9px; pointer-events:none; z-index:10; }
+  .hud-dist-wind { background:rgba(25,55,115,0.8); border:2px solid rgba(140,175,255,0.55); border-radius:14px; padding:9px 18px; box-shadow:0 2px 20px rgba(0,0,60,0.6); display:flex; align-items:center; gap:15px; color:#fff; }
+  .hud-dist-text { text-align:right; border-right: 1px solid rgba(255,255,255,0.3); padding-right: 15px;}
+  .hud-dist-lbl { font-size:10px; color:rgba(255,255,255,0.5); letter-spacing:0.18em; }
+  .hud-dist-val { font-size:30px; font-weight:900; color:#fff; line-height:1.15; }
+  .hud-dist-m { font-size:13px; color:rgba(255,255,255,0.55); }
+  
+  .hud-wind { display:flex; align-items:center; gap:10px; }
+  .wind-arrow { font-size:24px; transition: transform 0.2s ease; display: inline-block; }
+  .wind-text { text-align:right; }
+  .wind-lbl { font-size:10px; color:rgba(255,255,255,0.5); letter-spacing:0.15em; }
+  .wind-val { font-size:19px; font-weight:900; color:#fff; }
+  .wind-unit { font-size:11px; color:rgba(255,255,255,0.5); }
+
+  /* SCOPE OVERLAY */
+  #scope { position:absolute; inset:0; pointer-events:none; z-index:15; display:none; }
+  #scopeCanvas { position:absolute; inset:0; width:100%; height:100%; }
+
+  /* POWER BAR */
+  #powerWrap { position:absolute; left:20px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; align-items:center; gap:6px; pointer-events:none; z-index:20; }
+  #powerTrack { width:20px; height:150px; background:rgba(0,0,0,0.65); border:2px solid rgba(255,255,255,0.55); border-radius:10px; overflow:hidden; display:flex; align-items:flex-end; }
+  #powerBar { width:100%; height:0%; background:linear-gradient(0deg,#22cc55 0%,#ffe066 55%,#ff3333 100%); border-radius:0 0 8px 8px; }
+  #powerLbl { color:#fff; font-size:10px; font-weight:700; writing-mode:vertical-rl; transform:rotate(180deg); }
+
+  #hint { position:absolute; bottom:52px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.92); font-size:14px; font-weight:700; pointer-events:none; z-index:20; text-shadow:0 0 8px rgba(0,0,0,1); display:none; }
+  #feedback { position:absolute; top:38%; left:50%; transform:translate(-50%,-50%); font-size:clamp(34px,6.5vw,62px); font-weight:900; color:#fff; pointer-events:none; z-index:30; text-align:center; text-shadow:0 0 30px rgba(0,0,0,0.9); opacity:0; transition:opacity 0.25s; display:none; }
+  #feedback.show { opacity:1; }
 </style>
 </head>
 <body>
-<div id="reticle"></div>
-<div id="ui">
-  <b style="color:#00ffcc">愛工大アーチェリー</b><br>
-  ステージ: 弓道場<br>
-  スコア: <span id="score" style="color:#00ffcc">READY</span>
+
+<div class="screen" id="startScreen">
+  <div class="wa-frame">
+    <div class="start-kamon">🎯</div>
+    <div class="start-title-jp">弓道場アーチェリー</div>
+    <div class="start-title-sub">3ステージ × 3試射 (計9本)</div>
+    <div class="wa-divider"></div>
+    <div class="wa-btn-group">
+      <button class="wa-btn wa-btn-primary" onclick="startGame()">ゲームスタート</button>
+      <button class="wa-btn wa-btn-secondary" onclick="showScreen('instrScreen')">遊び方を見る</button>
+    </div>
+  </div>
 </div>
+
+<div class="screen hidden" id="instrScreen">
+  <div class="instr-box">
+    <h2>遊び方</h2>
+    <ul class="instr-list">
+      <li><span class="instr-num">1</span>クリック長押しで弓を引き、狙いを定めます。</li>
+      <li><span class="instr-num">2</span>外側から中心へと縮んでくる、白い点線サークルが消える一瞬を見極めましょう。</li>
+      <li><span class="instr-num">3</span>マウスの移動方向（右＝右、上＝上）にまっすぐ飛ぶように修正されました！</li>
+      <li><span class="instr-num">4</span>距離は 35m ➔ 50m ➔ 70m。超強風を計算して狙いをずらしてください。</li>
+    </ul>
+    <div class="wa-btn-group" style="flex-direction:row; justify-content:center;">
+      <button class="wa-btn wa-btn-primary" onclick="startGame()">スタート</button>
+      <button class="wa-btn wa-btn-secondary" onclick="showScreen('startScreen')">戻る</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen hidden" id="resultScreen">
+  <div class="result-box">
+    <div class="result-lbl">FINAL SCORE</div>
+    <div class="result-total" id="rTotal">0</div>
+    <div class="result-max">/ 90 点</div>
+    <div class="result-rounds" id="rRounds"></div>
+    <div class="result-rank" id="rRank"></div>
+    <div class="result-comment" id="rComment"></div>
+    <div class="wa-btn-group" style="flex-direction:row; justify-content:center;">
+      <button class="wa-btn wa-btn-primary" onclick="startGame()">もう一度</button>
+      <button class="wa-btn wa-btn-secondary" onclick="showScreen('startScreen')">タイトル</button>
+    </div>
+  </div>
+</div>
+
+<div id="hudLeft">
+  <div class="hud-panel">
+    <div class="hud-top-row">
+      <div class="hud-round" id="hudRoundTitle">ステージ1</div>
+      <div class="hud-shot-icon-row">
+        <svg class="hud-shot-icon" id="hudShot1" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="hud-shot-icon" id="hudShot2" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="hud-shot-icon" id="hudShot3" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div class="hud-bottom-row">
+      <div class="hud-score-row">
+        <div class="hud-score-val" id="hudScore">0</div>
+        <div class="hud-score-unit">点</div>
+      </div>
+      <div class="hud-rank" id="hudRank">Rank D</div>
+    </div>
+  </div>
+</div>
+<div id="hudRight">
+  <div class="hud-dist-wind">
+    <div class="hud-dist-text">
+      <div class="hud-dist-lbl">적まで</div>
+      <div><span class="hud-dist-val" id="hudDist">35</span><span class="hud-dist-m"> m</span></div>
+    </div>
+    <div class="hud-wind">
+      <div class="wind-arrow" id="windArrow">➔</div>
+      <div class="wind-text">
+        <div class="wind-lbl">風</div>
+        <div><span class="wind-val" id="windVal">0.0</span><span class="wind-unit"> m/s</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="scope"><canvas id="scopeCanvas"></canvas></div>
+
 <div id="powerWrap">
-  <div id="powerLabel">POWER</div>
   <div id="powerTrack"><div id="powerBar"></div></div>
+  <div id="powerLbl">POWER</div>
 </div>
-<div id="hint">クリック長押し → 離して射出</div>
+
+<div id="hint">クリック長押しで狙う ➔ 離して発射</div>
+<div id="feedback"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// ============================================================
+// SYSTEM CONFIG
+// ============================================================
+const TOTAL_ROUNDS = 3;
+const SHOTS_PER_ROUND = 3;
+let currentRound = 0;
+let currentShotInRound = 0;
+let currentDistM = 35; 
+let targetZ = -35;
+let targetPos = new THREE.Vector3(0, 1.4, targetZ);
+
+let windSpeedVal = 0;
+let windForceX = 0, windForceY = 0;
+
+function newWind() {
+  const angle = Math.random() * Math.PI * 2;
+  const maxWind = currentDistM >= 70 ? 9.5 : currentDistM >= 50 ? 7.5 : 5.0;
+  windSpeedVal = Math.random() * maxWind + 0.6;
+  
+  // 究極強化された風圧（左右の流されやすさ）
+  windForceX = Math.cos(angle) * windSpeedVal * 2.70; 
+  windForceY = Math.sin(angle) * windSpeedVal * 0.70;
+
+  const arrowEl = document.getElementById('windArrow');
+  const deg = angle * 180 / Math.PI;
+  arrowEl.style.transform = `rotate(${-deg}deg)`;
+  document.getElementById('windVal').textContent = windSpeedVal.toFixed(1);
+}
+
+function updateStageDistance() {
+  if (currentRound === 0) currentDistM = 35;
+  else if (currentRound === 1) currentDistM = 50;
+  else currentDistM = 70;
+
+  targetZ = -currentDistM;
+  targetPos.set(0, 1.4, targetZ);
+  tg.position.copy(targetPos);
+  
+  document.getElementById('hudDist').textContent = currentDistM;
+  document.getElementById('hudRoundTitle').textContent = 'ステージ' + (currentRound + 1);
+}
+
+function updateHudShots() {
+  for (let i = 1; i <= SHOTS_PER_ROUND; i++) {
+    const icon = document.getElementById('hudShot' + i);
+    if (i > currentShotInRound) {
+      icon.classList.add('ready');
+    } else {
+      icon.classList.remove('ready');
+    }
+  }
+}
+
+function updateHudScore() {
+  document.getElementById('hudScore').textContent = totalScore;
+  const pct = totalScore / 90;
+  let rank = 'Rank D';
+  if (totalScore >= 75) rank = 'Rank S';
+  else if (totalScore >= 55) rank = 'Rank A';
+  else if (totalScore >= 35) rank = 'Rank B';
+  else if (totalScore >= 15) rank = 'Rank C';
+  document.getElementById('hudRank').textContent = rank;
+}
+
+// ============================================================
+// GAME STATES
+// ============================================================
+let allScores = [];
+let totalScore = 0;
+let gameActive = false;
+let state = 'idle';
+let power = 0;
+let shrinkProgress = 0;
+let mouseX = 0, mouseY = 0;
+let tremorX = 0, tremorY = 0, tremorTimer = 0;
+let flyTimer = null;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  if (id) document.getElementById(id).classList.remove('hidden');
+}
+
+function setHudVisible(v) {
+  document.getElementById('hudLeft').style.display = v ? 'block' : 'none';
+  document.getElementById('hudRight').style.display = v ? 'flex' : 'none';
+  document.getElementById('hint').style.display = v ? 'block' : 'none';
+}
+
+function onChargeStart() {
+  document.getElementById('hudLeft').style.display = 'none';
+}
+
+function startGame() {
+  allScores = []; currentRound = 0; currentShotInRound = 0; totalScore = 0; gameActive = true;
+  showScreen(null);
+  setHudVisible(true);
+  updateStageDistance();
+  updateHudShots(); 
+  updateHudScore();
+  newWind();
+  resetRound();
+}
+
+function resetRound() {
+  if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
+  state = 'idle'; power = 0; shrinkProgress = 0;
+  tremorX = 0; tremorY = 0; tremorTimer = 0;
+  currentFov = 50; targetFov = 50; scopeR = 0;
+  resetArrow();
+  document.getElementById('powerWrap').style.display = 'none';
+  document.getElementById('scope').style.display = 'none';
+  scopeCtx.clearRect(0, 0, W(), H());
+  updateHudShots();
+  if (gameActive) setHudVisible(true);
+}
+
+function showResult() {
+  gameActive = false;
+  setHudVisible(false);
+  showScreen('resultScreen');
+
+  document.getElementById('rTotal').textContent = totalScore;
+  const rc = document.getElementById('rRounds');
+  rc.innerHTML = '';
+  for (let r = 0; r < TOTAL_ROUNDS; r++) {
+    const rScores = allScores.slice(r * SHOTS_PER_ROUND, (r + 1) * SHOTS_PER_ROUND);
+    const rTotal = rScores.reduce((a, b) => a + b, 0);
+    rc.innerHTML += `<div class="rnd-card"><div class="rc-n">STAGE ${r + 1}</div><div class="rc-s">${rTotal}点</div></div>`;
+  }
+  
+  const pct = totalScore / 90;
+  let rank, rcls, comment;
+  if      (totalScore === 0) { rank='D'; rcls='rank-D'; comment='超強風大どんまい！風向きの真逆の空間をエイムしよう！'; }
+  else if (pct>=0.82) { rank='S'; rcls='rank-S'; comment='神話級の腕前！嵐を制する大達人です！'; }
+  else if (pct>=0.65) { rank='A'; rcls='rank-A'; comment='素晴らしい！超偏差アーチェリーを見事に攻略しました！'; }
+  else if (pct>=0.40) { rank='B'; rcls='rank-B'; comment='グッジョブ！この激しい風の中での素晴らしい適応力です。'; }
+  else                { rank='C'; rcls='rank-C'; comment='風に激しく押し流される軌道を計算して狙いをずらそう。'; }
+  
+  const re = document.getElementById('rRank');
+  re.className = 'result-rank '+rcls;
+  re.textContent = 'RANK '+rank;
+  document.getElementById('rComment').textContent = comment;
+}
+
+let hitGuard = false;
+function handleShotEnd(pts, label) {
+  if (hitGuard) return;
+  hitGuard = true;
+  state = 'hit';
+
+  allScores.push(pts);
+  totalScore += pts;
+  updateHudScore();
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  const col = pts>=10?'#ffd700': pts>=9?'#ff5555': pts>=7?'#6699ff': pts>=5?'#aaaaaa':'#ffffff';
+  fb.style.color = col;
+  fb.textContent = label;
+  fb.classList.add('show');
+  
+  setTimeout(() => { 
+    fb.classList.remove('show'); 
+    setTimeout(()=>fb.style.display='none',300); 
+    if (state === 'hit' && gameActive) document.getElementById('hudLeft').style.display = 'block';
+  }, 1500);
+
+  setTimeout(() => {
+    hitGuard = false;
+    currentShotInRound++;
+    if (currentShotInRound < SHOTS_PER_ROUND) {
+      resetRound();
+    } else {
+      currentRound++;
+      currentShotInRound = 0;
+      if (currentRound >= TOTAL_ROUNDS) {
+        showResult();
+      } else {
+        updateStageDistance();
+        newWind();
+        resetRound();
+      }
+    }
+  }, 1900);
+}
+
+// ============================================================
+// THREE.JS SCENE SETUP
+// ============================================================
 const W = () => window.innerWidth;
 const H = () => window.innerHeight;
 
-// --- シーン ---
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x191107); 
 
-// --- 背景画像 (kyudo.png) の読み込み ---
 const texLoader = new THREE.TextureLoader();
-texLoader.load('kyudo.png', (texture) => {
+texLoader.load('kyudo.png', function(texture) {
   scene.background = texture;
 });
 
-const camera = new THREE.PerspectiveCamera(50, W()/H(), 0.1, 500);
-camera.position.set(0, 1.6, 0); 
+const camera = new THREE.PerspectiveCamera(50, W()/H(), 0.1, 600);
+camera.position.set(0, 1.6, 0);
 camera.lookAt(0, 1.5, -10);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(W(), H());
+renderer.domElement.style.cssText = 'position:absolute;inset:0;z-index:1;';
 document.body.appendChild(renderer.domElement);
 
-// --- 照明 ---
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const sun = new THREE.DirectionalLight(0xfff5e0, 0.8);
-sun.position.set(5, 10, 7);
-scene.add(sun);
+scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+const sun = new THREE.DirectionalLight(0xfff5e0, 0.5);
+sun.position.set(5, 10, 7); scene.add(sun);
 
-// --- 的 (茶色い棒を削除しました) ---
-const TARGET = new THREE.Vector3(0, 1.4, -28); 
+// 的
 const tg = new THREE.Group();
-[
-  { r:2.0, c:0xffffff }, { r:1.6, c:0x111111 },
-  { r:1.2, c:0x2255dd }, { r:0.8, c:0xdd2222 },
-  { r:0.4, c:0xffdd00 }
-].forEach(({ r, c }, i) => {
-  const m = new THREE.Mesh(
-    new THREE.CylinderGeometry(r, r, 0.05, 48),
-    new THREE.MeshPhongMaterial({ color: c })
-  );
-  m.rotation.x = Math.PI / 2;
-  m.position.z = i * 0.007;
-  tg.add(m);
+[{r:2.0,c:0xeeeeee},{r:1.6,c:0x111111},{r:1.2,c:0x2255dd},{r:0.8,c:0xdd2222},{r:0.4,c:0xffdd00}]
+.forEach(({r,c},i) => {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r,r,0.06,48), new THREE.MeshPhongMaterial({color:c}));
+  m.rotation.x = Math.PI/2; m.position.z = i*0.008; tg.add(m);
 });
+const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,3.2,8), new THREE.MeshPhongMaterial({color:0x4a3211}));
+stand.position.set(0, -1.6, -0.05); tg.add(stand);
+tg.position.copy(targetPos); scene.add(tg);
 
-// ★ 的を支える棒(post)の作成コードを削除しました
-
-tg.position.copy(TARGET);
-scene.add(tg);
-
-// --- 矢 ---
+// 矢
 const arrowG = new THREE.Group();
-arrowG.add(Object.assign(
-  new THREE.Mesh(
-    new THREE.CylinderGeometry(0.018, 0.018, 0.9, 6),
-    new THREE.MeshPhongMaterial({ color: 0xd4aa70 })
-  )
-));
-const tip = new THREE.Mesh(
-  new THREE.ConeGeometry(0.03, 0.12, 6),
-  new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 120 })
-);
-tip.position.y = 0.51;
-arrowG.add(tip);
+arrowG.add(new THREE.Mesh(new THREE.CylinderGeometry(0.015,0.015,0.95,6), new THREE.MeshPhongMaterial({color:0xd4aa70})));
+const tipM = new THREE.Mesh(new THREE.ConeGeometry(0.025,0.12,6), new THREE.MeshPhongMaterial({color:0x555555}));
+tipM.position.y = 0.54; arrowG.add(tipM);
+const flMat = new THREE.MeshPhongMaterial({color:0xcc2222,side:THREE.DoubleSide});
+for(let f=0;f<3;f++){
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(0.06,0.16), flMat);
+  fl.rotation.y = f*Math.PI*2/3; fl.position.y = -0.36; arrowG.add(fl);
+}
 scene.add(arrowG);
-
-// ============================================================
-// ゲーム状態
-// ============================================================
-let state = 'idle';
-let power = 0;
-let mouseX = 0, mouseY = 0;
-let currentFov = 50;
 
 let aPos = new THREE.Vector3(0, 1.5, -0.5);
 let aVel = new THREE.Vector3();
 
-const CAM_HOME = new THREE.Vector3(0, 1.6, 0);
-const LOOK_HOME = new THREE.Vector3(0, 1.5, -10);
-let camLook = LOOK_HOME.clone();
-let flyTimer = null;
-
 function resetArrow() {
-  aPos.set(0, 1.5, -0.5);
-  aVel.set(0, 0, 0);
-}
-resetArrow();
-
-function resetGame(msg) {
-  if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
-  state = 'idle';
-  resetArrow();
-  document.getElementById('score').textContent = msg || 'READY';
+  aPos.set(0, 1.5, -0.5); aVel.set(0,0,0);
+  arrowG.position.copy(aPos);
+  arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(0,0,-1));
 }
 
+// ============================================================
+// SCOPE OVERLAY (収縮点線リングのみ)
+// ============================================================
+const scopeCanvas = document.getElementById('scopeCanvas');
+const scopeCtx = scopeCanvas.getContext('2d');
+let scopeR = 0;
+
+function resizeScopeCanvas() {
+  scopeCanvas.width = W(); scopeCanvas.height = H();
+}
+resizeScopeCanvas();
+
+function drawScope(tx, ty) {
+  const w = W(), h = H();
+  if (scopeCanvas.width !== w || scopeCanvas.height !== h) resizeScopeCanvas();
+  scopeCtx.clearRect(0,0,w,h);
+  if (scopeR <= 2) return;
+
+  const cx = w/2 + tx * 20, cy = h/2 - ty * 20;
+  const r = scopeR;
+
+  scopeCtx.save();
+  scopeCtx.fillStyle = 'rgba(0,0,0,0.65)';
+  scopeCtx.fillRect(0,0,w,h);
+  scopeCtx.globalCompositeOperation = 'destination-out';
+  scopeCtx.beginPath(); scopeCtx.arc(cx, cy, r, 0, Math.PI*2); scopeCtx.fill();
+  scopeCtx.restore();
+
+  scopeCtx.save();
+  scopeCtx.strokeStyle = 'rgba(255,255,255,0.75)';
+  scopeCtx.lineWidth = 3.5;
+  scopeCtx.beginPath(); scopeCtx.arc(cx, cy, r, 0, Math.PI*2); scopeCtx.stroke();
+
+  // 外側から出てくる白い点線リング
+  const maxRadius = Math.max(w, h) * 0.75;
+  const currentShrinkR = maxRadius * (1 - shrinkProgress);
+
+  if (shrinkProgress > 0 && currentShrinkR > 1.5) {
+    scopeCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    scopeCtx.lineWidth = 3.5;
+    scopeCtx.setLineDash([12, 6]); 
+    scopeCtx.beginPath();
+    scopeCtx.arc(cx, cy, currentShrinkR, 0, Math.PI*2);
+    scopeCtx.stroke();
+  }
+  scopeCtx.restore();
+}
+
+// ============================================================
+// USER INPUT ACTIONS
+// ============================================================
 window.addEventListener('mousemove', e => {
-  mouseX = (e.clientX / W()) * 2 - 1;
-  mouseY = -(e.clientY / H()) * 2 + 1;
+  mouseX = (e.clientX/W())*2-1;
+  mouseY = -(e.clientY/H())*2+1;
 });
 
 window.addEventListener('mousedown', () => {
-  if (state !== 'idle') return;
-  state = 'charge';
-  power = 0;
-  document.getElementById('powerWrap').style.display = 'block';
-  document.getElementById('powerBar').style.width = '0%';
-  document.getElementById('powerBar').style.background = '#00ffcc';
+  if (!gameActive || state !== 'idle') return;
+  state = 'charge'; power = 0; shrinkProgress = 0;
+  onChargeStart(); 
+  document.getElementById('powerWrap').style.display = 'flex';
+  document.getElementById('scope').style.display = 'block';
 });
 
 window.addEventListener('mouseup', () => {
-  if (state !== 'charge') return;
+  if (!gameActive || state !== 'charge') return;
   shoot();
 });
 
 window.addEventListener('resize', () => {
-  camera.aspect = W() / H();
-  camera.updateProjectionMatrix();
-  renderer.setSize(W(), H());
+  camera.aspect = W()/H(); camera.updateProjectionMatrix();
+  renderer.setSize(W(), H()); resizeScopeCanvas();
 });
 
 function shoot() {
   state = 'fly';
   document.getElementById('powerWrap').style.display = 'none';
+  document.getElementById('scope').style.display = 'none';
+  scopeCtx.clearRect(0, 0, W(), H());
 
-  const yaw   = -mouseX * 0.4;
-  const pitch =  mouseY * 0.3;
-  const speed = power * 55 + 10;
-  const liftBias = power * 3.0;
+  const timingOffset = Math.abs(1.0 - shrinkProgress);
+  const releaseTremorX = tremorX * (1.0 + timingOffset * 14);
+  const releaseTremorY = tremorY * (1.0 + timingOffset * 14);
+
+  const finalX = mouseX + releaseTremorX;
+  const finalY = mouseY + releaseTremorY;
+
+  // 【修正】マイナス設定を外し、マウス移動方向と飛翔左右ベクトルを完全に同期
+  const yaw   = finalX * 0.52;
+  const pitch = finalY * 0.38 + 0.05; 
+  
+  const baseSpeed = Math.sqrt(Math.abs(targetZ)) * 8.5; 
+  const speed = baseSpeed * (0.8 + power * 0.2);
 
   aVel.set(
     Math.sin(yaw) * speed,
-    Math.sin(pitch) * speed + liftBias,
+    Math.sin(pitch) * speed + 1.8, 
     -Math.cos(yaw) * speed
   );
 
   flyTimer = setTimeout(() => {
-    if (state === 'fly') {
-      document.getElementById('score').textContent = 'MISS';
-      setTimeout(() => resetGame(), 1500);
-    }
-  }, 7000);
+    if (state === 'fly') handleShotEnd(0, 'MISS');
+  }, 25000);
 }
 
 // ============================================================
-// メインループ
+// CORE ANIMATION FRAME TICK
 // ============================================================
 let prev = performance.now();
+let currentFov = 50, targetFov = 50;
+const CAM_HOME = new THREE.Vector3(0, 1.6, 0);
+const LOOK_HOME = new THREE.Vector3(0, 1.5, -10);
+let camLook = LOOK_HOME.clone();
 
 function animate() {
   requestAnimationFrame(animate);
   const now = performance.now();
-  const dt = Math.min((now - prev) / 1000, 0.05);
+  let dt = Math.min((now - prev) / 1000, 0.05);
   prev = now;
 
   if (state === 'charge') {
-    power = Math.min(power + dt * 0.7, 1.0);
-    const pct = power * 100;
-    document.getElementById('powerBar').style.width = pct + '%';
-    document.getElementById('powerBar').style.background = pct > 75 ? '#ff4444' : '#00ffcc';
+    power = Math.min(power + dt * 0.45, 1.0);
+    shrinkProgress = Math.min(shrinkProgress + dt * 0.45, 1.0);
+    document.getElementById('powerBar').style.height = (power*100) + '%';
 
-    currentFov += (25 - currentFov) * 0.1;
+    const targetR = 50 + power * Math.min(W(),H()) * 0.22;
+    scopeR += (targetR - scopeR) * 0.08;
 
-    camera.position.lerp(CAM_HOME, 0.15);
-    const lx = mouseX * 8;
-    const ly = 1.5 + mouseY * 3;
-    camLook.lerp(new THREE.Vector3(lx, ly, -15), 0.12);
+    tremorTimer += dt * (3.0 + power * 6.0);
+    const mag = 0.005 + (shrinkProgress >= 1.0 ? 0.05 : 0.002);
+    tremorX = Math.sin(tremorTimer * 3.3) * mag;
+    tremorY = Math.cos(tremorTimer * 2.7) * mag;
+
+    targetFov = 50 - power * 20;
+    currentFov += (targetFov - currentFov) * 0.06;
+
+    // 【同期調整】チャージ中のカメラの首振りも、射出時の進行ベクトルに合うよう極性を揃えました
+    const lx = (mouseX + tremorX) * 6;
+    const ly = 1.5 + (mouseY + tremorY) * 2;
+    camLook.lerp(new THREE.Vector3(lx, ly, targetZ), 0.1);
+    camera.position.lerp(CAM_HOME, 0.1);
     camera.lookAt(camLook);
 
     arrowG.position.copy(aPos);
     const dir = new THREE.Vector3();
     camera.getWorldDirection(dir);
-    arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+    arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir);
+
+    drawScope(tremorX * 6, tremorY * 6);
 
   } else if (state === 'fly') {
-    aVel.y -= 9.8 * dt;
-    aPos.addScaledVector(aVel, dt);
+    const slowDt = dt * 0.28;
+
+    aVel.y -= 9.8 * slowDt; 
+    aVel.x += windForceX * slowDt;
+    aVel.y += windForceY * slowDt;
+    aPos.addScaledVector(aVel, slowDt);
 
     arrowG.position.copy(aPos);
-
-    if (aVel.length() > 0.2) {
-      arrowG.quaternion.setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        aVel.clone().normalize()
-      );
+    if (aVel.length() > 0.1) {
+      arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), aVel.clone().normalize());
     }
 
-    const targetCamPos = aPos.clone().add(new THREE.Vector3(0, 0.4, 2.5));
-    camera.position.lerp(targetCamPos, 0.1);
+    const fPos = aPos.clone().add(new THREE.Vector3(0, 0.35, 1.9));
+    camera.position.lerp(fPos, 0.04);
     camera.lookAt(aPos);
-    currentFov += (50 - currentFov) * 0.06;
+    currentFov += (54 - currentFov) * 0.03;
 
-    const d = aPos.distanceTo(TARGET);
-    if (d < 2.1 && aPos.z <= TARGET.z + 0.5) {
-      let msg = '3点 WHITE';
-      if      (d < 0.4) msg = '10点 ★ GOLD!';
-      else if (d < 0.8) msg = '9点 RED';
-      else if (d < 1.2) msg = '7点 BLUE';
-      else if (d < 1.6) msg = '5点 BLACK';
-      document.getElementById('score').textContent = msg;
-      aVel.set(0, 0, 0);
-      aPos.z = TARGET.z; 
-      if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
-      state = 'hit';
-      setTimeout(() => resetGame(), 2800);
+    // 着弾検出
+    if (aPos.z <= targetPos.z) {
+      const d = aPos.distanceTo(targetPos);
+      if (d < 2.0) {
+        let pts = 3, msg = '3点　WHITE';
+        if      (d < 0.4) { pts = 10; msg = '🎯 10点満点！ GOLD！'; }
+        else if (d < 0.8) { pts = 9;  msg = '9点　RED'; }
+        else if (d < 1.2) { pts = 7;  msg = '7点　BLUE'; }
+        else if (d < 1.6) { pts = 5;  msg = '5点　BLACK'; }
+        
+        aVel.set(0,0,0); 
+        aPos.z = targetPos.z;
+        handleShotEnd(pts, msg);
+      } else {
+        handleShotEnd(0, 'MISS');
+      }
     }
     
-    if (aPos.y < -1 || aPos.z < TARGET.z - 10) {
-      document.getElementById('score').textContent = 'MISS';
-      if (flyTimer) { clearTimeout(flyTimer); flyTimer = null; }
-      state = 'miss';
-      setTimeout(() => resetGame(), 1500);
+    if (aPos.y < -4 || aPos.z < targetPos.z - 10) {
+      handleShotEnd(0, 'MISS');
     }
 
   } else {
-    currentFov += (50 - currentFov) * 0.06;
+    scopeR = 0;
+    currentFov += (50 - currentFov) * 0.05;
     camera.position.lerp(CAM_HOME, 0.08);
     camLook.lerp(LOOK_HOME, 0.08);
     camera.lookAt(camLook);
-
-    arrowG.position.copy(aPos);
-    arrowG.quaternion.setFromUnitVectors(
-      new THREE.Vector3(0, 1, 0),
-      new THREE.Vector3(0, 0, -1)
-    );
+    if (state === 'idle') {
+      arrowG.position.copy(aPos);
+      arrowG.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3(0,0,-1));
+    }
   }
 
   camera.fov = currentFov;
@@ -280,6 +662,7 @@ function animate() {
   renderer.render(scene, camera);
 }
 
+resetArrow();
 animate();
 </script>
 </body>
