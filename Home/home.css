@@ -10,6 +10,8 @@
   --shadow-md: 0 4px 20px rgba(0,0,0,.22);
   --callout-w: clamp(80px, 12vw, 120px);
   --bubble-r: 14px;
+  --wii-dark-teal: #1c4e4d;
+  --wii-light-teal: #d6f7f4;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,9 +52,6 @@ html, body {
 
 /* ═══════════════════════════════════
    MAP CONTAINER
-   ─ position:relative is required so
-     callouts (.callout) can be
-     absolutely positioned inside.
 ════════════════════════════════════ */
 .map-container {
   position: relative;
@@ -72,20 +71,13 @@ html, body {
   -webkit-user-drag: none;
 }
 
-/* fallback gradient campus when map img missing */
 .map-container.no-image {
   background: linear-gradient(145deg, #4a9e5c 0%, #3a7d44 40%, #5ab068 70%, #2d6b38 100%);
 }
 
 /* ═══════════════════════════════════
    CALLOUT TEMPLATE
-   ─ Each sport callout:
-     • positioned via CSS vars --x --y
-     • white rounded bubble + tail
-     • icon + label inside
-     • hover scale + glow
 ════════════════════════════════════ */
-/* 吹き出し全体のコンテナ */
 .callout {
   position: absolute;
   top: var(--y);
@@ -96,11 +88,9 @@ html, body {
   align-items: center;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
   transition: transform 0.2s ease;
-  /* z-indexの基準をここにする */
   z-index: 10;
 }
 
-/* 1層目：白い丸い土台 */
 .callout__bubble {
   position: relative;
   width: 140px; 
@@ -111,10 +101,8 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  /* ここにz-indexを指定すると中身が潜り込めないので、指定なしにする */
 }
 
-/* 吹き出しの尻尾 */
 .callout__bubble::after {
   content: '';
   position: absolute;
@@ -126,7 +114,6 @@ html, body {
   border-top: 25px solid #ffffff;
 }
 
-/* 二重円の中身 */
 .callout__icon {
   width: 100px;
   height: 100px;
@@ -137,7 +124,6 @@ html, body {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  /* アイコンはラベルより上 */
   position: relative;
   z-index: 2; 
 }
@@ -148,84 +134,220 @@ html, body {
   object-fit: contain;
 }
 
-/* ラベル：円の背面に配置 */
 .callout__label {
   position: absolute;
-  /* 円の右側に飛び出す位置 */
   left: 80px; 
   top: 50%;
   transform: translateY(-50%);
-  
   background: #d9efef; 
   color: #3e7e8e;    
   font-family: "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
   font-weight: bold;
   font-size: 1.5rem;
-  
-  /* 細くするためのパディング */
   padding: 4px 30px 4px 80px; 
   border-radius: 0 100px 100px 0px; 
   white-space: nowrap;
-  
-  /* 重要：白い円(bubble)の中にあるので、
-     z-indexを下げればbubbleの背景より後ろに行きます */
   z-index: -1; 
 }
 
 /* ═══════════════════════════════════
-   SCORE BUTTON (bottom-right)
+   NEW WII SPORTS STYLE SCORE BUTTON (大型化&馴染むデザイン)
 ════════════════════════════════════ */
-.score-btn {
+.wii-score-btn {
   position: fixed;
-  bottom: 1.4rem;
-  right: 1.6rem;
-  z-index: 30;
-
+  bottom: 25px;
+  right: 25px;
+  z-index: 100;
+  
   display: flex;
   align-items: center;
-  gap: .45em;
-
-  background: linear-gradient(135deg, var(--sky) 0%, var(--sky-dark) 100%);
-  color: #fff;
-  text-decoration: none;
+  justify-content: center;
+  gap: 12px;
+  
+  width: 240px;
+  padding: 16px 0;
+  
   font-family: 'Noto Sans JP', sans-serif;
+  font-size: 22px;
   font-weight: 900;
-  font-size: clamp(.9rem, 2vw, 1.15rem);
-  letter-spacing: .04em;
-
-  padding: .55em 1.2em .55em .9em;
-  border-radius: 50px;
-  box-shadow: 0 4px 18px rgba(73,184,229,.45), var(--shadow-sm);
-
-  transition: transform .15s, box-shadow .15s, filter .15s;
+  color: var(--wii-dark-teal);
+  background: rgba(254, 254, 254, 0.92);
+  
+  border: 5px solid #ffffff;
+  border-radius: 40px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  transition: all 0.25s ease;
+  outline: none;
 }
 
-.score-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 28px rgba(73,184,229,.6);
-  filter: brightness(1.08);
+.wii-score-btn:hover {
+  transform: scale(1.06);
+  background: var(--wii-light-teal);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.22);
 }
 
-.score-btn:active {
-  transform: scale(.96);
+.wii-score-icon {
+  font-size: 26px;
 }
 
-.score-btn__icon {
-  font-size: 1.1em;
-  line-height: 1;
+/* ═══════════════════════════════════
+   WII STYLE POPUP MODAL UI
+════════════════════════════════════ */
+.wii-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.wii-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wii-modal-box {
+  background: #ffffff;
+  border: 6px solid var(--wii-dark-teal);
+  border-radius: 28px;
+  width: 95%;
+  max-width: 580px;
+  box-shadow: 0 12px 45px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: wiiModalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+}
+
+@keyframes wiiModalPop {
+  from { transform: scale(0.85); }
+  to { transform: scale(1); }
+}
+
+.wii-modal-header {
+  background: var(--wii-light-teal);
+  padding: 20px;
+  text-align: center;
+  border-bottom: 3px solid rgba(28, 78, 77, 0.15);
+  color: var(--wii-dark-teal);
+}
+.wii-modal-header h2 {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.wii-modal-body {
+  padding: 24px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #f9fbfb;
+}
+
+/* ユーザーデータ表示カード */
+.wii-user-score-card {
+  background: #ffffff;
+  border: 2px solid rgba(28, 78, 77, 0.15);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.03);
+}
+.wii-user-score-card:last-child {
+  margin-bottom: 0;
+}
+
+.wii-card-username {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--wii-dark-teal);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px dashed rgba(28, 78, 77, 0.1);
+}
+
+/* 4つのゲームを綺麗に並べるグリッドレイアウト */
+.wii-games-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.wii-game-status-box {
+  background: rgba(214, 247, 244, 0.25);
+  border: 1px solid rgba(28, 78, 77, 0.08);
+  border-radius: 10px;
+  padding: 10px 2px;
+  text-align: center;
+}
+
+.wii-game-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #668887;
+  margin-bottom: 4px;
+}
+
+.wii-game-rank {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--wii-dark-teal);
+}
+
+/* ランクごとの文字カラー */
+.rank-s-text { color: #ffaa00; font-size: 18px; }
+.rank-a-text { color: #ff4444; }
+.rank-b-text { color: #3377ff; }
+.rank-c-text { color: #555555; }
+.rank-d-text { color: #888888; }
+.unplayed-text { color: #b0c2c1; font-size: 12px; font-weight: 700; }
+
+.no-user-msg {
+  text-align: center;
+  color: #779998;
+  font-weight: 700;
+  padding: 30px 0;
+}
+
+.wii-modal-footer {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+  border-top: 1px solid rgba(28, 78, 77, 0.08);
+}
+
+.wii-modal-close-btn {
+  width: 160px;
+  padding: 10px 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--wii-dark-teal);
+  background: #ffffff;
+  border: 3px solid var(--wii-dark-teal);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.wii-modal-close-btn:hover {
+  background: var(--wii-dark-teal);
+  color: #ffffff;
 }
 
 /* ── Responsive fine-tuning ── */
 @media (max-width: 600px) {
-  :root { --callout-w: 68px; }
-
   .home-logo {
     font-size: .85rem;
     padding: .3em .55em;
   }
-
-  .score-btn {
-    font-size: .82rem;
-    padding: .45em 1em .45em .75em;
+  .wii-games-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
