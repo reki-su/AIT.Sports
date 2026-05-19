@@ -97,6 +97,7 @@ body, html {
     z-index: 2; pointer-events: none;
 }
 
+
 #bite-icon {
     font-size: 120px; color: #ef4444; font-weight: bold;
     animation: bounce 0.5s infinite;
