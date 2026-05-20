@@ -2,30 +2,312 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>3Dボーリング（完全版）</title>
+<title>3Dボウリング（AIT.Sports Style）</title>
 <style>
-body { margin:0; background:black; }
-canvas { display:block; }
-#ui {
-    position:absolute;
-    top:10px;
-    right:20px;
-    color:white;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Barlow+Condensed:wght@700;900&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { overflow:hidden; background:#d8d8d8; font-family:'Noto Sans JP', sans-serif; user-select: none; }
+  canvas { display:block; position:absolute; inset:0; z-index:1; }
+
+  .screen {
+    position:absolute; inset:0; z-index:200;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    transition: opacity 0.4s ease;
+  }
+  .screen.hidden { opacity:0; pointer-events:none; display:none !important; }
+
+  /* START SCREEN (背景のぼかしを完全削除) */
+  #startScreen {
+    background: url('img/parking.jpeg') no-repeat center center;
+    background-size: cover;
+    justify-content: flex-start;
+  }
+  #startScreen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(226, 247, 244, 0.6) 0%, rgba(216, 216, 216, 0.5) 100%);
+    z-index: -1;
+  }
+
+  .wii-title-wrapper {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.75);
+    text-align: center;
+    padding: 35px 0;
+    margin-top: 5%;             
+    margin-bottom: 8vh;          
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .wii-title {
+    font-size: clamp(48px, 9vw, 76px); 
+    font-weight: 900;
+    color: #1c4e4d; 
+    letter-spacing: 0.15em;
+    text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+  }
+  .wii-btn-center-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    margin-top: 5vh;            
+    margin-bottom: 40px;
+  }
+  .wii-btn {
+    width: 340px;          
+    padding: 18px 0;       
+    font-size: 26px;       
+    font-weight: 900;
+    color: #1c4e4d;
+    background: rgba(214, 247, 244, 0.9);
+    border: 5px solid #ffffff; 
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    text-align: center;
+    outline: none;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .wii-btn:hover {
+    transform: scale(1.05);
+    background: rgba(180, 245, 240, 0.98);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+  
+  .wii-footer {
+    position: absolute;
+    bottom: 45px;
+    left: 45px;
+    right: 45px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 210;
+  }
+  .wii-btn-side {
+    pointer-events: auto;
+    width: 280px;          
+    font-size: 22px;       
+    padding: 15px 0;
+    border-radius: 35px;
+  }
+  .wii-user-status {
+    font-size: 14px;
+    font-weight: 900;
+    color: #1c4e4d;
+    margin-top: 6px;
+    text-align: center;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+  }
+
+  /* ユーザー選択モーダル */
+  #userModal {
+    position: fixed; inset: 0; z-index: 300;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+  }
+  #userModal.show { opacity: 1; pointer-events: auto; }
+  .modal-box {
+    background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
+    padding: 30px; width: 90%; max-width: 460px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
+  }
+  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+  .user-list-container {
+    max-height: 160px; overflow-y: auto; margin-bottom: 20px;
+    border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
+  }
+  .user-item-btn {
+    width: 100%; padding: 10px; margin: 4px 0; font-size: 16px; font-weight: 700;
+    color: #1c4e4d; background: rgba(214, 247, 244, 0.4); border: 2px solid #ffffff;
+    border-radius: 15px; cursor: pointer; text-align: left; transition: all 0.15s;
+  }
+  .user-item-btn:hover { background: rgba(214, 247, 244, 0.9); border-color: #1c4e4d; }
+  .user-item-btn.active { background: #1c4e4d; color: #ffffff; border-color: #1c4e4d; }
+  
+  .modal-input-group {
+    display: flex; gap: 8px; margin-bottom: 20px; justify-content: center;
+  }
+  .modal-input {
+    width: 70%; padding: 10px 15px; font-size: 16px; font-weight: 700;
+    border: 3px solid rgba(28, 78, 77, 0.3); border-radius: 20px; color: #1c4e4d; outline: none;
+  }
+  .modal-input:focus { border-color: #1c4e4d; }
+  .modal-action-btn {
+    padding: 8px 16px; font-size: 15px; font-weight: 900; border-radius: 20px;
+    border: 2px solid #1c4e4d; cursor: pointer; background: #ffffff; color: #1c4e4d;
+  }
+  .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
+
+  /* INSTRUCTIONS */
+  #instrScreen { background: rgba(230, 235, 235, 0.95); }
+  .instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  .instr-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
+  .instr-box h3 { font-size: 15px; font-weight: 900; text-align: left; margin: 12px 0 6px 0; padding-left: 6px; border-left: 4px solid #1c4e4d; }
+  .instr-list { list-style: none; text-align: left; margin-bottom: 15px; }
+  .instr-list li { font-size: 14px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
+  .instr-num { font-weight: 900; min-width: 16px; color: #1c4e4d; }
+
+  /* ランクグリッド表示 (アーチェリーから移植) */
+  .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
+  .rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
+  .rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
+  .rank-pts { font-size: 11px; font-weight: 700; color: #557776; }
+
+  /* RESULT */
+  #resultScreen { background: rgba(230, 235, 235, 0.98); color: #1c4e4d; }
+  .result-box { text-align: center; max-width: 540px; width: 90%; background: #ffffff; padding: 40px; border-radius: 20px; border: 4px solid #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+  .result-lbl { font-size: 14px; letter-spacing: 0.2em; color: #779998; margin-bottom: 4px; font-weight: 700; }
+  .result-total { font-size: clamp(68px, 13vw, 104px); font-weight: 900; line-height: 1; margin-bottom: 5px; color: #1c4e4d; text-shadow: 0 2px 0 rgba(0,0,0,0.05); }
+  .result-rank { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+  .result-comment { font-size: 14px; font-weight: 700; margin-bottom: 30px; color: #557776; }
+  #resultFrames { display:flex; gap:3px; justify-content:center; flex-wrap:wrap; margin-bottom:24px; }
+
+  /* ランクカラー定義 */
+  .rank-s { color: #ffaa00; }
+  .rank-a { color: #ff4444; }
+  .rank-b { color: #3377ff; }
+  .rank-c { color: #555555; }
+  .rank-d { color: #888888; }
+
+  /* GAME HUD */
+  #gameUI { position:absolute; inset:0; pointer-events:none; z-index:100; display:none; }
+  .hud-panel {
+    background: rgba(25, 55, 115, 0.85);
+    border: 2px solid rgba(140, 175, 255, 0.55); border-radius: 14px;
+    padding: 12px 18px; color: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,60,0.4);
+  }
+  #hudLeft { position:absolute; top:14px; left:14px; pointer-events:auto; min-width:260px; }
+  #pinMapEl { position:absolute; bottom:24px; left:14px; pointer-events:auto; padding:12px; min-width:160px; }
+  #curveEl { position:absolute; bottom:24px; right:14px; pointer-events:auto; padding:12px; min-width:160px; }
+
+  /* イベント演出 */
+  #eventOverlay {
+    position:absolute; inset:0; z-index:150; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; transition:opacity 0.25s;
+  }
+  @keyframes strikeIn {
+    0%   { transform: scale(0.3) rotate(-8deg); opacity:0; }
+    55%  { transform: scale(1.18) rotate(2deg);  opacity:1; }
+    100% { transform: scale(1)    rotate(0deg);  opacity:1; }
+  }
 </style>
 </head>
 <body>
 
-<div id="ui">
-    <div id="score">Score: 0</div>
-    <div id="msg"></div>
+<div class="screen" id="startScreen">
+  <div class="wii-title-wrapper">
+    <div class="wii-title">ボウリング</div>
+  </div>
+  <div class="wii-btn-center-group">
+    <button class="wii-btn" id="startPlayBtn">はじめる</button>
+    <button class="wii-btn" id="startInstrBtn">操作方法</button>
+  </div>
+  <div class="wii-footer">
+    <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
+    <div>
+      <button class="wii-btn wii-btn-side" id="modalTriggerBtn">ユーザー選択</button>
+      <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+    </div>
+  </div>
+</div>
+
+<div id="userModal">
+  <div class="modal-box">
+    <h2>ユーザー設定</h2>
+    <div class="user-list-container" id="modalUserList"></div>
+    <div class="modal-input-group">
+      <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
+      <button class="modal-action-btn primary" id="addUserBtn">追加</button>
+    </div>
+    <div>
+      <button class="modal-action-btn" style="width: 100px;" id="closeUserModalBtn">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen hidden" id="instrScreen">
+  <div class="instr-box">
+    <h2>操作方法</h2>
+    <ul class="instr-list">
+      <li><span class="instr-num">1</span><b>← → キー</b>：左右に移動して立ち位置を調整します。</li>
+      <li><span class="instr-num">2</span><b>A / D キー</b>：投球する向き（アングル）を変更します。</li>
+      <li><span class="instr-num">3</span><b>Q / E キー</b>：カーブ（左・右）を設定します（Rキーでリセット）。</li>
+      <li><span class="instr-num">4</span><b>マウスドラッグ</b>：上に向かってドラッグして勢いよく投球！</li>
+    </ul>
+
+    <h3>総合評価ランク</h3>
+    <div class="rank-grid">
+      <div class="rank-cell"><div class="rank-letter rank-s">S</div><div class="rank-pts">220点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter rank-a">A</div><div class="rank-pts">160点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter rank-b">B</div><div class="rank-pts">110点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter rank-c">C</div><div class="rank-pts">60点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter rank-d">D</div><div class="rank-pts">59点以下</div></div>
+    </div>
+
+    <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+      <button class="wii-btn" style="font-size:20px; width:220px;" id="instrStartBtn">スタート</button>
+      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackBtn">戻る</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen hidden" id="resultScreen">
+  <div class="result-box">
+    <div class="result-lbl">FINAL SCORE</div>
+    <div class="result-total" id="resultScore">0</div>
+    <div class="result-rank" id="resultRank">RANK D</div>
+    <div class="result-comment" id="resultComment"></div>
+    <div id="resultFrames"></div>
+    <div style="flex-direction:row; justify-content:center; gap:20px; display:flex; margin-top:10px;">
+      <button class="wii-btn" style="font-size:20px; width:220px;" id="resultRetryBtn">もう一度</button>
+      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="resultTitleBtn">タイトル</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameUI">
+  <div class="hud-panel" id="hudLeft">
+    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+      <div id="frameLabel" style="font-size:16px; font-weight:900;">FRAME 1</div>
+      <div id="throwLabel" style="font-size:12px; color:rgba(255,255,255,0.7);">1ST THROW</div>
+    </div>
+    <div id="totalScore" style="font-size:24px; font-weight:900; margin-bottom:8px;">TOTAL: 0</div>
+    <div id="framesRow" style="display:flex; gap:3px;"></div>
+    <div id="msgBox" style="min-height:18px; margin-top:6px; font-size:14px; font-weight:900; color:#ffe066;"></div>
+  </div>
+
+  <div class="hud-panel" id="pinMapEl">
+    <div style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:2px; margin-bottom:4px;">PINS</div>
+    <div id="pinDots" style="position:relative; width:140px; height:130px; margin:0 auto;"></div>
+  </div>
+
+  <div class="hud-panel" id="curveEl">
+    <div style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:2px; margin-bottom:6px;">CURVE</div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="font-size:10px; color:rgba(255,255,255,0.5)">L</span>
+      <div style="flex:1; height:8px; background:rgba(0,0,0,0.4); border-radius:4px; position:relative; overflow:hidden;">
+        <div id="curveFill" style="position:absolute; height:100%; width:0%; left:50%; background:#55ccff; transition:all 0.1s;"></div>
+      </div>
+      <span style="font-size:10px; color:rgba(255,255,255,0.5)">R</span>
+    </div>
+    <div id="curveLabel" style="text-align:center; font-size:11px; margin-top:4px; font-weight:700;">NONE</div>
+  </div>
+</div>
+
+<div id="eventOverlay">
+  <div id="eventText" style="text-align:center;"></div>
 </div>
 
 <canvas id="game"></canvas>
 
-<!-- ライブラリ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script type="module" src="main.js"></script>
-
 </body>
 </html>
