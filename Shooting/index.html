@@ -12,6 +12,9 @@
   #sg3 { width:100vw; height:100vh; position:relative; overflow:hidden; }
   #sg3 canvas { display:block; width:100%; height:100%; cursor:none; }
   
+  /* プレイ中の一時停止時、マウスカーソルを復活させる制御用クラス */
+  #sg3.paused-cursor canvas { cursor: auto !important; }
+  
   /* IN-GAME HUD */
   #hud { position:absolute; top:0; left:0; width:100%; display:none; justify-content:space-between; padding:10px 16px; z-index:10; pointer-events:none; }
   .hb { background:rgba(255,255,255,0.15); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.3); border-radius:6px; padding:5px 14px; text-align:center; color:#fff; }
@@ -33,18 +36,24 @@
     align-items:center; justify-content:center;
     transition: opacity 0.4s ease;
   }
-  .screen.hidden { opacity:0; pointer-events:none; }
+  .screen.hidden { opacity:0; pointer-events:none; display:none !important; }
 
   /* TITLE SCREEN */
   #startScreen {
-    background: rgba(255, 255, 255, 0.01); 
+    background: url('gym.jpg') no-repeat center center;
+    background-size: cover;
     justify-content: flex-start;
+  }
+  #startScreen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(226, 247, 244, 0.6) 0%, rgba(216, 216, 216, 0.5) 100%);
+    z-index: -1;
   }
   .wii-title-wrapper {
     width: 100%;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.78);
     text-align: center;
     padding: 35px 0;
     margin-top: 5%;
@@ -63,7 +72,7 @@
     flex-direction: column;
     gap: 20px;
     align-items: center;
-    margin-top: 18vh;
+    margin-top: 5vh;
     margin-bottom: 40px;
   }
   .wii-btn {
@@ -73,20 +82,21 @@
     font-size: 26px;
     font-weight: 900;
     color: #1c4e4d;
-    background: rgba(214, 247, 244, 0.9);
+    background: rgb(214, 247, 244);
     border: 5px solid #ffffff; 
     border-radius: 40px;
     cursor: pointer;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
     transition: all 0.2s ease;
     text-align: center;
     outline: none;
   }
   .wii-btn:hover {
     transform: scale(1.05);
-    background: rgba(180, 245, 240, 0.98);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    background: rgb(180, 245, 240);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
   }
+  
   .wii-footer {
     position: absolute;
     bottom: 45px;
@@ -94,38 +104,81 @@
     right: 45px;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 250;
+  }
+  .wii-user-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     pointer-events: none;
   }
   .wii-btn-side {
     pointer-events: auto;
     width: 280px;
     font-size: 22px;
-    padding: 15px 0;
-    border-radius: 35px;
-  }
-  .wii-user-status {
-    font-size: 14px;
     font-weight: 900;
-    color: #1c4e4d;
-    margin-top: 6px;
-    text-align: center;
-    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+    padding: 8px 0;
+    border-radius: 35px;
+    border: 5px solid #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
   }
 
-  /* USER MODAL */
-  #userModal {
-    position: fixed; inset: 0; z-index: 300;
-    background: rgba(0, 0, 0, 0.3);
+  /* ホームに戻る系ボタン：落ち着いた不透明の赤 */
+  #quit-btn-start, #quit-btn-success, #quit-btn-fail, #exitToHomeBtn {
+    background: rgb(245, 214, 214) !important; 
+    color: #8a1c1c !important;
+  }
+  #quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover, #exitToHomeBtn:hover {
+    background: rgb(245, 195, 195) !important;
+    transform: scale(1.05);
+  }
+
+  /* ユーザー選択ボタン：ミント緑 */
+  #modal-trigger-btn {
+    background: rgb(214, 247, 244) !important; 
+    color: #1c4e4d !important;
+  }
+  #modal-trigger-btn:hover {
+    background: rgb(180, 245, 240) !important;
+    transform: scale(1.05);
+  }
+
+  /* 選択中のユーザー名強調帯 */
+  .wii-user-status {
+    font-size: 18px;
+    font-weight: 900;
+    color: #ffffff;
+    background: #1c4e4d;             
+    padding: 6px 22px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: inline-block;
+    margin: 0;
+    text-shadow: none;
+  }
+
+  /* MODAL OVERLAY */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0, 0, 0, 0.4);
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
-  #userModal.show { opacity: 1; pointer-events: auto; }
+  .modal-overlay.show { opacity: 1; pointer-events: auto; }
   .modal-box {
     background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
     padding: 30px; width: 90%; max-width: 460px; text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
   }
-  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+  
   .user-list-container {
     max-height: 160px; overflow-y: auto; margin-bottom: 20px;
     border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
@@ -144,12 +197,12 @@
   .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
 
   /* INSTRUCTIONS SCREEN */
-  #instrScreen { background: rgba(230, 235, 235, 0.95); }
+  #instrScreen { background: rgba(230, 235, 235, 0.98); z-index: 400; }
   .instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   .instr-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
   .instr-box h3 { font-size: 15px; font-weight: 900; text-align: left; margin: 12px 0 6px 0; padding-left: 6px; border-left: 4px solid #1c4e4d; }
-  .instr-list { list-style: none; text-align: left; margin-bottom: 10px; }
-  .instr-list li { font-size: 13.5px; font-weight: 700; padding: 6px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
+  .instr-list { list-style: none; text-align: left; margin-bottom: 20px; }
+  .instr-list li { font-size: 14px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; color: #1c4e4d; }
   .instr-num { font-weight: 900; min-width: 16px; }
   .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
   .score-cell { display: flex; align-items: center; gap: 8px; background: rgba(28, 78, 77, 0.04); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; }
@@ -178,17 +231,39 @@
   .result-comment { font-size: 14px; font-weight: 700; margin-bottom: 30px; color: #557776; }
 
   /* PAUSE SCREEN */
-  #pauseScreen {
-    position:absolute; inset:0; background:rgba(10,8,5,0.82);
-    display:none; flex-direction:column;
-    align-items:center; justify-content:center; z-index:250;
+  .pause-btn-group { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+  .pause-wii-btn { width: 280px; padding: 12px 0; font-size: 20px; border-radius: 30px; }
+  
+  /* ⭕ 修正版：一時停止ボタンを完全な画面左下の角に配置 */
+  #hudPauseBox { 
+    position: absolute; 
+    bottom: 14px; 
+    left: 14px; 
+    display: none; 
+    z-index: 350; 
+    pointer-events: auto; 
   }
-  #pauseScreen h2 { font-family:'Share Tech Mono',monospace; font-size:28px; color:#1c4e4d; letter-spacing:6px; margin-bottom:8px; text-shadow:0 0 12px rgba(255,255,255,0.5); }
-  #pauseScreen p { font-size:12px; color:rgba(255,255,255,0.45); letter-spacing:2px; margin-bottom:32px; }
-  .pause-btn { font-family:'Noto Sans JP',sans-serif; font-size:18px; font-weight:900; padding:14px 0; background:rgba(214,247,244,0.9); border:4px solid #ffffff; border-radius:35px; cursor:pointer; margin-bottom:12px; width:280px; text-align:center; color:#1c4e4d; display:block; text-decoration:none; transition:all 0.2s; }
-  .pause-btn:hover { transform:scale(1.04); background:rgba(180,245,240,0.98); }
-  .pause-btn.secondary { background:rgba(200,200,200,0.5); color:#555; border-color:rgba(255,255,255,0.5); }
-  #pause-hint { position:absolute; top:12px; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:11px; color:rgba(255,255,255,0.35); letter-spacing:1px; pointer-events:none; z-index:12; display:none; }
+  .wii-pause-trigger {
+    width: 180px;       
+    padding: 14px 0;    
+    font-size: 20px;    
+    font-weight: 900;   
+    color: #1c4e4d;
+    background: rgb(214, 247, 244); 
+    border: 4px solid #ffffff;            
+    border-radius: 30px;                  
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .wii-pause-trigger:hover {
+    transform: scale(1.05);
+    background: rgb(180, 245, 240);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
+  
+  #pause-hint { position:absolute; bottom:14px; right:14px; font-family:'Share Tech Mono',monospace; font-size:12px; color:rgba(255,255,255,0.5); background:rgba(0,0,0,0.4); padding:6px 12px; border-radius:6px; letter-spacing:1px; pointer-events:none; z-index:12; display:none; }
+  .blur-bg { filter: blur(5px); transition: filter 0.3s; }
 </style>
 </head>
 <body>
@@ -208,70 +283,68 @@
   </div>
 
   <svg id="reticle" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-    <!-- 黒縁：外円 -->
     <circle cx="20" cy="20" r="14" fill="none" stroke="black" stroke-width="3.5"/>
-    <!-- 黒縁：上下左右 -->
     <line x1="20" y1="2"  x2="20" y2="10" stroke="black" stroke-width="4" stroke-linecap="round"/>
     <line x1="20" y1="30" x2="20" y2="38" stroke="black" stroke-width="4" stroke-linecap="round"/>
     <line x1="2"  y1="20" x2="10" y2="20" stroke="black" stroke-width="4" stroke-linecap="round"/>
     <line x1="30" y1="20" x2="38" y2="20" stroke="black" stroke-width="4" stroke-linecap="round"/>
-    <!-- 黒縁：中心点 -->
     <circle cx="20" cy="20" r="3.5" fill="black"/>
-    <!-- 白：外円 -->
     <circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
-    <!-- 白：上下左右 -->
     <line x1="20" y1="2"  x2="20" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
     <line x1="20" y1="30" x2="20" y2="38" stroke="white" stroke-width="2" stroke-linecap="round"/>
     <line x1="2"  y1="20" x2="10" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
     <line x1="30" y1="20" x2="38" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
-    <!-- 白：中心点 -->
     <circle cx="20" cy="20" r="2" fill="white"/>
   </svg>
-  <div id="pause-hint">SPACE : 中断</div>
+  <div id="pause-hint">Esc : 一時停止</div>
 
-  <!-- PAUSE SCREEN -->
-  <div id="pauseScreen">
-    <h2>PAUSED</h2>
-    <p>スペースキーで再開</p>
-    <button class="pause-btn" id="resume-btn">▶ 再開</button>
-    <button class="pause-btn" id="restart-btn">↺ リスタート</button>
-    <a class="pause-btn secondary" href="../Home/home.html">← ホームに戻る</a>
+  <div id="pauseModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>一時停止中</h2>
+      <div class="pause-btn-group">
+        <button class="wii-btn pause-wii-btn" id="resumeGameBtn">ゲームを続ける</button>
+        <button class="wii-btn pause-wii-btn" id="restartGameBtn">はじめからやり直す</button>
+        <button class="wii-btn pause-wii-btn" id="showInstrBtn">操作方法の確認</button>
+        <button class="wii-btn pause-wii-btn" id="exitToHomeBtn">ホームに戻る</button>
+      </div>
+    </div>
   </div>
 
-  <!-- TITLE SCREEN -->
   <div class="screen" id="startScreen">
     <div class="wii-title-wrapper">
       <div class="wii-title">射撃ゲーム</div>
     </div>
+    
     <div class="wii-btn-center-group">
       <button class="wii-btn" onclick="startGame()">はじめる</button>
       <button class="wii-btn" onclick="showScreen('instrScreen')">操作方法</button>
     </div>
+    
     <div class="wii-footer">
-      <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
-      <div>
-        <button class="wii-btn wii-btn-side" onclick="openUserModal()">ユーザー選択</button>
+      <button class="wii-btn wii-btn-side" id="quit-btn-start" onclick="location.href='../Home/home.html';">ホームに戻る</button>
+      <div class="wii-user-control-group">
         <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+        <button class="wii-btn wii-btn-side" id="modal-trigger-btn" onclick="openUserModal()">ユーザー選択</button>
       </div>
     </div>
   </div>
 
-  <!-- USER MODAL -->
-  <div id="userModal">
+  <div id="userModal" class="modal-overlay">
     <div class="modal-box">
       <h2>ユーザー設定</h2>
       <div class="user-list-container" id="modalUserList"></div>
+      
       <div class="modal-input-group">
         <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
         <button class="modal-action-btn primary" onclick="addAndSelectNewUser()">追加</button>
       </div>
+      
       <div>
         <button class="modal-action-btn" style="width: 100px;" onclick="closeUserModal()">閉じる</button>
       </div>
     </div>
   </div>
 
-  <!-- INSTRUCTIONS SCREEN -->
   <div class="screen hidden" id="instrScreen">
     <div class="instr-box">
       <h2>操作方法</h2>
@@ -279,7 +352,9 @@
         <li><span class="instr-num">1</span>マウスを動かして画面内のカメラ（視点）を動かします。</li>
         <li><span class="instr-num">2</span>左クリックで画面中央の弾を発射し、左右に移動するマトを撃ち抜きます。</li>
         <li><span class="instr-num">3</span>制限時間30秒以内に、どれだけ多くのマトを落とせるかの勝負です。</li>
+        <li><span class="instr-num">4</span>ゲームプレイ中に画面左下のボタンを押すか、キーボードの<b>「Escキー」</b>を押すと一時停止が可能です。</li>
       </ul>
+      
       <h3>マトの種類と得点</h3>
       <div class="score-grid">
         <div class="score-cell"><div class="zone-dot" style="background:#ffdd00"></div>金マト : 100点 (高速移動)</div>
@@ -287,6 +362,7 @@
         <div class="score-cell"><div class="zone-dot" style="background:#2255dd"></div>青マト : 30点 (通常移動)</div>
         <div class="score-cell"><div class="zone-dot" style="background:#eeeeee; border:1px solid #ccc;"></div>白マト : 10点 (低速移動)</div>
       </div>
+
       <h3>総合評価ランク目安</h3>
       <div class="rank-grid">
         <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">1200点〜</div></div>
@@ -295,31 +371,37 @@
         <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">200点〜</div></div>
         <div class="rank-cell"><div class="rank-letter r-d">D</div><div class="rank-pts">190点以下</div></div>
       </div>
-      <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
-        <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">スタート</button>
-        <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">戻る</button>
+
+      <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+        <button class="wii-btn" style="font-size:20px; width:220px;" id="instrStartBtn" onclick="startGame()">スタート</button>
+        <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackBtn" onclick="showScreen('startScreen')">戻る</button>
       </div>
     </div>
   </div>
 
-  <!-- RESULT SCREEN -->
   <div class="screen hidden" id="resultScreen">
     <div class="result-box">
       <div class="result-lbl">FINAL SCORE</div>
       <div class="result-total" id="rTotal">0</div>
       <div class="result-max">点</div>
+      
       <div class="result-details">
         <div class="res-card"><div class="rc-n">撃破したマト</div><div class="rc-s" id="rHits">0</div></div>
         <div class="res-card"><div class="rc-n">命中率</div><div class="rc-s" id="rAccuracy">0%</div></div>
       </div>
+      
       <div class="result-rank" id="rRank">RANK D</div>
       <div class="result-comment" id="rComment">どんまい！</div>
-      <div style="flex-direction:row; justify-content:center; gap:20px; display:flex; margin-bottom:16px;">
+      
+      <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
         <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">もう一度</button>
         <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">タイトル</button>
       </div>
-      <a href="../Home/home.html" style="font-size:15px; font-weight:900; color:#779998; text-decoration:none;">← ホームに戻る</a>
     </div>
+  </div>
+
+  <div id="hudPauseBox">
+    <button class="wii-pause-trigger" id="pauseTriggerBtn">一時停止</button>
   </div>
 </div>
 
@@ -342,8 +424,6 @@ camera.position.set(0, 1.65, 0);
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(W(), H());
 canvasContainer.appendChild(renderer.domElement);
-renderer.domElement.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;cursor:none;";
-
 
 // ライト
 scene.add(new THREE.AmbientLight(0xffffff, 0.7));
@@ -351,41 +431,36 @@ const sun = new THREE.DirectionalLight(0xffffff, 0.5);
 sun.position.set(10, 20, 10);
 scene.add(sun);
 
-// 背景画像読み込み
+// 背景のテクスチャを gym.jpg に変更
 const texLoader = new THREE.TextureLoader();
 texLoader.load('gym.jpg', function(texture) {
-  texture.encoding = THREE.sRGBEncoding;
-  // カメラ追従の背景平面を作成
-  const bgGeo = new THREE.PlaneGeometry(1, 1);
-  const bgMat = new THREE.MeshBasicMaterial({map: texture, depthWrite: false});
-  const bgPlane = new THREE.Mesh(bgGeo, bgMat);
-  bgPlane.renderOrder = -1;
-  scene.add(bgPlane);
-  window._bgPlane = bgPlane;
-  window._bgTexture = texture;
-  scene.background = null;
+  scene.background = texture;
 }, undefined, function(err){
   console.error("背景画像の読み込みに失敗しました。", err);
 });
 
+// マト（ターゲット）グループ群
 const targets = [];
 const activeBullets = [];
 
+// マトの種類定義
 const TARGET_TYPES = [
-  { color: 0xeeeeee, score: 10,  vx: 0.03, radius: 0.4,  label: "白マト" },
+  { color: 0xeeeeee, score: 10,  vx: 0.03, radius: 0.4, label: "白マト" },
   { color: 0x2255dd, score: 30,  vx: 0.06, radius: 0.35, label: "青マト" },
-  { color: 0xdd2222, score: 50,  vx: 0.10, radius: 0.3,  label: "赤マト" },
+  { color: 0xdd2222, score: 50,  vx: 0.10, radius: 0.3, label: "赤マト" },
   { color: 0xffdd00, score: 100, vx: 0.16, radius: 0.22, label: "金マト" }
 ];
 
 function createTarget() {
   const type = TARGET_TYPES[Math.floor(Math.random() * TARGET_TYPES.length)];
   const group = new THREE.Group();
+  
   const geo = new THREE.CylinderGeometry(type.radius, type.radius, 0.04, 32);
   const mat = new THREE.MeshPhongMaterial({ color: type.color });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.rotation.x = Math.PI / 2;
   group.add(mesh);
+  
   if (type.score > 10) {
     const centerGeo = new THREE.CylinderGeometry(type.radius * 0.3, type.radius * 0.3, 0.042, 16);
     const centerMat = new THREE.MeshPhongMaterial({ color: 0xdd2222 });
@@ -394,27 +469,39 @@ function createTarget() {
     centerMesh.position.z = 0.005;
     group.add(centerMesh);
   }
+
   const side = Math.random() > 0.5 ? 1 : -1;
-  group.position.set(side * 12, 0.6 + Math.random() * 5.5, -12 - Math.random() * 6);
-  group.userData = { vx: -side * type.vx * (0.8 + Math.random() * 0.4), score: type.score, radius: type.radius };
+  group.position.set(side * 12, 1.2 + Math.random() * 1.8, -12 - Math.random() * 6);
+  
+  group.userData = {
+    vx: -side * type.vx * (0.8 + Math.random() * 0.4),
+    score: type.score,
+    radius: type.radius
+  };
+  
   scene.add(group);
   targets.push(group);
 }
 
 function fireBullet() {
-  if (!running || paused) return;
+  if (!running || isPaused) return;
   totalShots++;
+  
   const geo = new THREE.SphereGeometry(0.06, 8, 8);
   const mat = new THREE.MeshBasicMaterial({ color: 0xffeb3b });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.copy(camera.position);
+  
   const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
   mesh.userData = { dir: dir, speed: 0.8 };
+  
   scene.add(mesh);
   activeBullets.push(mesh);
 }
 
-// ユーザー管理
+// ============================================================
+// USER MANAGEMENT SYSTEM (localStorage 共通連動)
+// ============================================================
 let currentUser = "ゲスト";
 
 function loadUserStatus() {
@@ -429,17 +516,20 @@ function loadUserStatus() {
 function openUserModal() {
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { shooting_score: 0, shooting_rank: "D" } } };
+  
   const listContainer = document.getElementById('modalUserList');
   listContainer.innerHTML = "";
+  
   Object.keys(data.users).forEach(user => {
     const btn = document.createElement('button');
     btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
     const bestScore = data.users[user].shooting_score || 0;
     const bestRank = data.users[user].shooting_rank || "D";
-    btn.textContent = "👤 " + user + " (Best: " + bestScore + "点 / Rank " + bestRank + ")";
+    btn.textContent = `👤 ${user} (Best: ${bestScore}点 / Rank ${bestRank})`;
     btn.onclick = function() { selectUser(user); };
     listContainer.appendChild(btn);
   });
+  
   document.getElementById('userModal').classList.add('show');
 }
 
@@ -462,25 +552,13 @@ function addAndSelectNewUser() {
   const input = document.getElementById('newUserNameInput');
   let name = input.value.trim();
   if (name === "") return;
+  
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
-  if (data.users[name]) { alert("その名前はすでに登録されています。"); return; }
-  data.users[name] = { shooting_score: 0, shooting_rank: "D" };
-  data.currentUser = name;
-  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
-  currentUser = name;
-  loadUserStatus();
-  closeUserModal();
-}
-
-function saveGameResult(finalScore, finalRank) {
-  let localData = localStorage.getItem("wii_sports_theme_data");
-  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
-  if (!data.users[currentUser]) data.users[currentUser] = { shooting_score: 0, shooting_rank: "D" };
-  if (finalScore > (data.users[currentUser].shooting_score || 0)) {
-    data.users[currentUser].shooting_score = finalScore;
-    data.users[currentUser].shooting_rank = finalRank;
-    localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  
+  if (data.users[name]) {
+    alert("その名前はすでに登録されています。");
+    return;
   }
   
   data.users[name] = { shooting_score: 0, shooting_rank: "D" };
@@ -492,11 +570,6 @@ function saveGameResult(finalScore, finalRank) {
   closeUserModal();
 }
 
-window.addEventListener('DOMContentLoaded', loadUserStatus);
-
-// ゲーム状態
-let running = false;
-let paused = false;
 function saveGameResult(finalScore, finalRank) {
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
@@ -516,19 +589,18 @@ function saveGameResult(finalScore, finalRank) {
 window.addEventListener('DOMContentLoaded', loadUserStatus);
 
 // ============================================================
-// GAME PLAY STATE CONTROLLERS
+// GAME PLAY STATE CONTROLLERS & PAUSE SYSTEM
 // ============================================================
 let running = false;
+let isPaused = false; 
 let score = 0;
 let timeLeft = 30.0;
 let totalShots = 0;
 let successfulHits = 0;
 let targetSpawnTimer = 0;
-let timerPaused = false;
 
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-  if (id) document.getElementById(id).classList.remove('hidden');
+const pauseModal = document.getElementById('pauseModal');
+const hudPauseBox = document.getElementById('hudPauseBox');
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -542,83 +614,143 @@ function showScreen(id) {
 
 function startGame() {
   loadUserStatus();
+  
+  document.getElementById('instrStartBtn').onclick = () => startGame();
+  document.getElementById('instrBackBtn').onclick = () => showScreen('startScreen');
+  document.getElementById('instrStartBtn').textContent = "スタート";
+  
   targets.forEach(t => scene.remove(t));
   activeBullets.forEach(b => scene.remove(b));
   targets.length = 0;
   activeBullets.length = 0;
+  
   score = 0;
   timeLeft = 30.0;
   totalShots = 0;
   successfulHits = 0;
   targetSpawnTimer = 0;
-  paused = false;
+  isPaused = false;
+  
   document.getElementById("hudScore").textContent = "0000";
   document.getElementById("hudTime").textContent = "30.0";
+  
   showScreen(null);
+  pauseModal.classList.remove('show');
+  hudPauseBox.style.display = 'block'; // プレイ中のみ左下に一時停止を表示
+  root.classList.remove('paused-cursor');
+  
   document.getElementById("hud").style.display = "flex";
   document.getElementById("reticle").style.display = "block";
   document.getElementById("pause-hint").style.display = "block";
-  document.getElementById("pauseScreen").style.display = "none";
+  
   yaw = 0; pitch = 0.05;
   running = true;
 }
 
 function stopGame() {
   running = false;
-  paused = false;
+  isPaused = false;
   document.getElementById("hud").style.display = "none";
   document.getElementById("reticle").style.display = "none";
   document.getElementById("pause-hint").style.display = "none";
-  document.getElementById("pauseScreen").style.display = "none";
+  hudPauseBox.style.display = 'none';
+  pauseModal.classList.remove('show');
+  root.classList.remove('paused-cursor');
   showResult();
 }
 
+// 一時停止（ポーズ）発動ロジック
 function pauseGame() {
-  paused = true;
-  document.getElementById("pauseScreen").style.display = "flex";
+  if (!running || isPaused) return;
+  isPaused = true;
+  pauseModal.classList.add('show');
   document.getElementById("pause-hint").style.display = "none";
+  root.classList.add('paused-cursor'); // マウスカーソルを復活
 }
 
 function resumeGame() {
-  paused = false;
-  document.getElementById("pauseScreen").style.display = "none";
+  if (!isPaused) return;
+  isPaused = false;
+  pauseModal.classList.remove('show');
   document.getElementById("pause-hint").style.display = "block";
+  root.classList.remove('paused-cursor'); // マウスカーソルを再び隠す
 }
 
-document.addEventListener("keydown", (e) => {
-  if (e.code !== "Space") return;
-  e.preventDefault();
-  if (!running) return;
-  if (paused) resumeGame();
-  else pauseGame();
+function showInstrFromPause() {
+  pauseModal.classList.remove('show');
+  hudPauseBox.style.display = 'none';
+  
+  const startBtn = document.getElementById('instrStartBtn');
+  const backBtn = document.getElementById('instrBackBtn');
+  
+  startBtn.textContent = "ゲームに戻る";
+  startBtn.onclick = function() {
+    showScreen(null);
+    hudPauseBox.style.display = 'block';
+    resumeGame();
+  };
+  
+  backBtn.onclick = function() {
+    showScreen(null);
+    pauseModal.classList.add('show');
+  };
+  
+  showScreen('instrScreen');
+}
+
+// キーボード制御（Escキー連動）
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    if (!running) return;
+    if (isPaused) {
+      resumeGame();
+    } else {
+      pauseGame();
+    }
+  }
 });
 
-document.getElementById("resume-btn").addEventListener("click", resumeGame);
-document.getElementById("restart-btn").addEventListener("click", () => { startGame(); });
+// 各ポーズ関連ボタンのイベント登録
+document.getElementById("pauseTriggerBtn").addEventListener("click", pauseGame);
+document.getElementById("resumeGameBtn").addEventListener("click", resumeGame);
+document.getElementById("restartGameBtn").addEventListener("click", startGame);
+document.getElementById("showInstrBtn").addEventListener("click", showInstrFromPause);
+document.getElementById("exitToHomeBtn").addEventListener("click", () => {
+  window.location.href = '../Home/home.html';
+});
 
 function showResult() {
   showScreen("resultScreen");
+  
   document.getElementById("rTotal").textContent = score;
   document.getElementById("rHits").textContent = successfulHits + " マト";
+  
   const acc = totalShots > 0 ? Math.round((successfulHits / totalShots) * 100) : 0;
   document.getElementById("rAccuracy").textContent = acc + "%";
-  let rank = 'D', rcls = 'r-d', comment = '';
-  if      (score >= 1200) { rank='S'; rcls='r-s'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
-  else if (score >= 800)  { rank='A'; rcls='r-a'; comment='お見事！素晴らしい命中精度とスピードです！'; }
-  else if (score >= 500)  { rank='B'; rcls='r-b'; comment='ナイス！高得点の金マトをもっと狙ってみよう！'; }
-  else if (score >= 200)  { rank='C'; rcls='r-c'; comment='いい調子です！次こそはランクB以上を目指そう！'; }
-  else                    { rank='D'; rcls='r-d'; comment='どんまい！マトの動きを先読みして撃ってみよう！'; }
+  
+  let rank = 'D';
+  let rcls = 'rank-D';
+  let comment = '';
+  
+  if (score >= 1200) { rank='S'; rcls='rank-S'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
+  else if (score >= 800)  { rank='A'; rcls='rank-A'; comment='お見事！素晴らしい命中精度とスピードです！'; }
+  else if (score >= 500)  { rank='B'; rcls='rank-B'; comment='ナイス！高得点の金マトをもっと狙ってみよう！'; }
+  else if (score >= 200)  { rank='C'; rcls='rank-C'; comment='いい調子です！次こそはランクB以上を目指そう！'; }
+  else { rank='D'; rcls='rank-D'; comment='どんまい！マトの動きを先読みして撃ってみよう！'; }
+  
   const re = document.getElementById("rRank");
   re.className = "result-rank " + rcls;
   re.textContent = "RANK " + rank;
   document.getElementById("rComment").textContent = comment;
+  
   saveGameResult(score, rank);
 }
 
 function addHitFlash(x, y) {
   const el = document.createElement("div");
   el.className = "spark";
-  el.style.cssText = "left:"+(x-30)+"px;top:"+(y-30)+"px;width:60px;height:60px;";
+  el.style.cssText = `left:${x-30}px;top:${y-30}px;width:60px;height:60px;`;
   root.appendChild(el);
   setTimeout(() => el.remove(), 600);
 }
@@ -627,95 +759,97 @@ function addFloatText(txt, x, y, col) {
   const el = document.createElement("div");
   el.className = "float-txt";
   el.textContent = txt;
-  el.style.cssText = "left:"+(x-20)+"px;top:"+(y-20)+"px;color:"+col+";";
+  el.style.cssText = `left:${x-20}px;top:${y-20}px;color:${col};`;
   root.appendChild(el);
   setTimeout(() => el.remove(), 900);
 }
 
-// 視点操作
+// ============================================================
+// CONTROLS INTERACTION INTERFACES
+// ============================================================
 let yaw = 0, pitch = 0.05;
 const SENS = 0.0025;
 
 root.addEventListener("mousemove", (e) => {
-  if (!running || paused) return;
+  if (!running || isPaused) return;
   yaw   -= e.movementX * SENS;
   pitch -= e.movementY * SENS;
   pitch = Math.max(-0.55, Math.min(0.55, pitch));
 });
 
 root.addEventListener("mousedown", (e) => {
-  if (running && !paused && e.button === 0) fireBullet();
+  if (e.target.id === "pauseTriggerBtn" || isPaused) return; // ボタン押下・ポーズ中は射撃を弾く
+  if (running && e.button === 0) {
+    fireBullet();
+  }
 });
 
-window.addEventListener('resize', () => {
-  camera.aspect = W()/H();
-  camera.updateProjectionMatrix();
-  renderer.setSize(W(), H());
-});
-
-// メインループ
+// ============================================================
+// MAIN LOOP REALTIME SIMULATION ENGINE
+// ============================================================
 let t3d = 0;
-let prev = performance.now();
 
 function animate() {
   requestAnimationFrame(animate);
+  
   const now = performance.now();
   const dt = Math.min((now - prev) / 1000, 0.05);
   prev = now;
+
   t3d += 0.004;
-
-  // 背景をカメラに追従
-  if (window._bgPlane) {
-    const bp = window._bgPlane;
-    const bdist = 1.5;
-    const bfov = (60 / 2) * Math.PI / 180;
-    const bh = 2 * bdist * Math.tan(bfov);
-    const bw = bh * (W() / H());
-    const photoAspect = 1091 / 1457;
-    const screenAspect = W() / H();
-    let sw, sh;
-    if (screenAspect > photoAspect) { sw = bw; sh = bw / photoAspect; }
-    else { sh = bh; sw = bh * photoAspect; }
-    bp.scale.set(sw, sh, 1);
-    const bdir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-    bp.position.copy(camera.position).addScaledVector(bdir, bdist);
-    bp.quaternion.copy(camera.quaternion);
-  }
-
-  if (running && !paused) {
+  
+  if (running && !isPaused) {
     timeLeft = Math.max(0, timeLeft - dt);
     document.getElementById("hudTime").textContent = timeLeft.toFixed(1);
-    if (timeLeft <= 0) { stopGame(); return; }
-
+    if (timeLeft <= 0) {
+      stopGame();
+    }
+    
     const euler = new THREE.Euler(pitch, yaw, 0, "YXZ");
     camera.quaternion.setFromEuler(euler);
-    camera.position.y = 1.65 + Math.sin(t3d * 1.2) * 0.015;
-
+    camera.position.y = 1.65 + Math.sin(t3d * 1.2) * 0.015; 
+    
     targetSpawnTimer += dt;
-    if (targetSpawnTimer >= 0.6 && targets.length < 12) {
+    if (targetSpawnTimer >= 0.6) {
       targetSpawnTimer = 0;
-      createTarget();
+      if (targets.length < 12) {
+        createTarget();
+      }
     }
-
+    
     for (let i = activeBullets.length - 1; i >= 0; i--) {
       const b = activeBullets[i];
       b.position.addScaledVector(b.userData.dir, b.userData.speed);
-      if (b.position.length() > 60) { scene.remove(b); activeBullets.splice(i, 1); continue; }
+      
+      if (b.position.length() > 60) {
+        scene.remove(b);
+        activeBullets.splice(i, 1);
+        continue;
+      }
+      
       let bulletRemoved = false;
       for (let j = targets.length - 1; j >= 0; j--) {
         const t = targets[j];
-        if (b.position.distanceTo(t.position) <= t.userData.radius + 0.12) {
+        const dist = b.position.distanceTo(t.position);
+        
+        if (dist <= t.userData.radius + 0.12) {
           successfulHits++;
           score += t.userData.score;
           document.getElementById("hudScore").textContent = String(score).padStart(4, '0');
+          
           const proj = t.position.clone().project(camera);
           const scrX = (proj.x * .5 + .5) * W();
           const scrY = (proj.y * -.5 + .5) * H();
+          
           addHitFlash(scrX, scrY);
           const txtCol = t.userData.score >= 100 ? "#ffeb3b" : t.userData.score >= 50 ? "#ff4444" : "#4488ff";
-          addFloatText("+"+t.userData.score, scrX, scrY, txtCol);
-          scene.remove(t); targets.splice(j, 1);
-          scene.remove(b); activeBullets.splice(i, 1);
+          addFloatText(`+${t.userData.score}`, scrX, scrY, txtCol);
+          
+          scene.remove(t);
+          targets.splice(j, 1);
+          
+          scene.remove(b);
+          activeBullets.splice(i, 1);
           bulletRemoved = true;
           break;
         }
@@ -725,13 +859,19 @@ function animate() {
 
   for (let i = targets.length - 1; i >= 0; i--) {
     const t = targets[i];
-    if (running && !paused) t.position.x += t.userData.vx;
-    if (Math.abs(t.position.x) > 15) { scene.remove(t); targets.splice(i, 1); }
+    if (running && !isPaused) {
+      t.position.x += t.userData.vx;
+    }
+    if (Math.abs(t.position.x) > 15) {
+      scene.remove(t);
+      targets.splice(i, 1);
+    }
   }
 
   renderer.render(scene, camera);
 }
 
+let prev = performance.now();
 animate();
 </script>
 </body>
