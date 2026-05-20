@@ -14,7 +14,7 @@
     align-items:center; justify-content:center;
     transition: opacity 0.4s ease;
   }
-  .screen.hidden { opacity:0; pointer-events:none; }
+  .screen.hidden { opacity:0; pointer-events:none; display:none !important; }
 
   /* START SCREEN */
   #startScreen {
@@ -97,20 +97,22 @@
     text-shadow: 0 1px 4px rgba(255,255,255,0.8);
   }
 
-  /* 【新規】Wii風 ユーザー選択カスタムモーダルUI */
-  #userModal {
+  /* Wii風 モーダル共通デザイン */
+  #userModal, #pauseModal {
     position: fixed; inset: 0; z-index: 300;
     background: rgba(0, 0, 0, 0.3);
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
-  #userModal.show { opacity: 1; pointer-events: auto; }
+  #userModal.show, #pauseModal.show { opacity: 1; pointer-events: auto; }
+  
   .modal-box {
     background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
     padding: 30px; width: 90%; max-width: 460px; text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
   }
-  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+  
   .user-list-container {
     max-height: 160px; overflow-y: auto; margin-bottom: 20px;
     border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
@@ -136,6 +138,43 @@
     border: 2px solid #1c4e4d; cursor: pointer; background: #ffffff; color: #1c4e4d;
   }
   .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
+
+  /* ポーズモーダル専用スタイル */
+  .pause-btn-group {
+    display: flex; flex-direction: column; gap: 14px; align-items: center;
+  }
+  .pause-wii-btn {
+    width: 280px; padding: 12px 0; font-size: 20px; border-radius: 30px;
+  }
+
+  /* ゲーム中の一時停止ボタン HUD */
+  #hudPauseBox {
+    position: absolute; 
+    bottom: 24px;       /* 画面下部からの距離 */
+    left: 24px;        /* ピンマップの右隣に並ぶように調整 */
+    display: none; 
+    z-index: 100; 
+    pointer-events: auto;
+  }
+  .wii-pause-trigger {
+    width: 180px;       /* 横幅を大きく（140px → 180px） */
+    padding: 14px 0;    /* 縦幅を大きく（8px → 14px） */
+    font-size: 20px;    /* 文字を大きく（16px → 20px） */
+    font-weight: 900;   /* 文字を太く */
+    color: #1c4e4d;
+    background: rgba(214, 247, 244, 0.9); /* タイトルボタンと同じ淡いミント色に統一 */
+    border: 4px solid #ffffff;            /* 枠線もタイトルボタンと同じデザインに */
+    border-radius: 30px;                  /* 角丸を大きく */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  /* タイトルボタンと同様のホバーエフェクトを追加 */
+  .wii-pause-trigger:hover {
+    transform: scale(1.05);
+    background: rgba(180, 245, 240, 0.98);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
 
   /* INSTRUCTIONS */
   #instrScreen { background: rgba(230, 235, 235, 0.95); }
@@ -198,7 +237,7 @@
   .hud-dist-wind { background:rgba(25,55,115,0.8); border:2px solid rgba(140,175,255,0.55); border-radius:14px; padding:9px 18px; box-shadow:0 2px 20px rgba(0,0,60,0.6); display:flex; align-items:center; gap:15px; color:#fff; }
   .hud-dist-text { text-align:right; border-right: 1px solid rgba(255,255,255,0.3); padding-right: 15px;}
   .hud-dist-lbl { font-size:10px; color:rgba(255,255,255,0.5); letter-spacing:0.18em; }
-  .hud-dist-val { font-size:30px; font-weight:900; color:#fff; line-height:1.15; }
+  .hud-dist-val { font-size:30px; font-weight:900; color:#fff; line-height:1.15;}
   .hud-dist-m { font-size:13px; color:rgba(255,255,255,0.55); }
   
   .hud-wind { display:flex; align-items:center; gap:10px; }
@@ -260,6 +299,18 @@
   </div>
 </div>
 
+<div id="pauseModal">
+  <div class="modal-box">
+    <h2>一時停止中</h2>
+    <div class="pause-btn-group">
+      <button class="wii-btn pause-wii-btn" onclick="resumeGame()">ゲームを続ける</button>
+      <button class="wii-btn pause-wii-btn" onclick="restartGameFromPause()">はじめからやり直す</button>
+      <button class="wii-btn pause-wii-btn" onclick="showInstrFromPause()">操作方法の確認</button>
+      <button class="wii-btn pause-wii-btn" style="background: rgba(245, 214, 214, 0.9); color: #8a1c1c;" onclick="exitToHome()">ホームに戻る</button>
+    </div>
+  </div>
+</div>
+
 <div class="screen hidden" id="instrScreen">
   <div class="instr-box">
     <h2>操作方法</h2>
@@ -289,8 +340,8 @@
     </div>
 
     <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
-      <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">スタート</button>
-      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">戻る</button>
+      <button class="wii-btn" style="font-size:20px; width:220px;" id="instrMainActionBtn" onclick="startGame()">スタート</button>
+      <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackActionBtn" onclick="showScreen('startScreen')">戻る</button>
     </div>
   </div>
 </div>
@@ -308,6 +359,10 @@
       <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">タイトル</button>
     </div>
   </div>
+</div>
+
+<div id="hudPauseBox">
+  <button class="wii-btn wii-pause-trigger" onclick="pauseGame()">一時停止</button>
 </div>
 
 <div id="hudLeft">
@@ -449,7 +504,7 @@ function updateHudScore() {
 }
 
 // ============================================================
-// 【全面改良】Wii風 モーダル式ユーザー管理ロジック
+// Wii風 モーダル式ユーザー管理ロジック
 // ============================================================
 let currentUser = "ゲスト";
 
@@ -469,7 +524,6 @@ function openUserModal() {
   const listContainer = document.getElementById('modalUserList');
   listContainer.innerHTML = "";
   
-  // 登録ユーザー一覧をボタンとして生成
   Object.keys(data.users).forEach(user => {
     const btn = document.createElement('button');
     btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
@@ -482,6 +536,7 @@ function openUserModal() {
 }
 
 function closeUserModal() {
+  document.getElementById('userModal').classList.remove('remove');
   document.getElementById('userModal').classList.remove('show');
   document.getElementById('newUserNameInput').value = "";
 }
@@ -509,7 +564,6 @@ function addAndSelectNewUser() {
     return;
   }
   
-  // 新規ユーザー枠を追加
   data.users[name] = { archery_score: 0, archery_rank: "D" };
   data.currentUser = name;
   localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
@@ -537,6 +591,75 @@ function saveGameResult(finalScore, finalRank) {
 window.addEventListener('DOMContentLoaded', loadUserStatus);
 
 // ============================================================
+// 【新規】一時停止（ポーズ）システムロジック
+// ============================================================
+let isPaused = false;
+
+function pauseGame() {
+  if (!gameActive || state === 'hit' || state === 'fly') return; // 矢の飛行中・リザルト演出中はポーズ不可
+  isPaused = true;
+  document.getElementById('pauseModal').classList.add('show');
+}
+
+function resumeGame() {
+  isPaused = false;
+  document.getElementById('pauseModal').classList.remove('show');
+}
+
+function restartGameFromPause() {
+  isPaused = false;
+  document.getElementById('pauseModal').classList.remove('show');
+  startGame();
+}
+
+// ⭕ 修正版：操作方法の確認を開くとき
+function showInstrFromPause() {
+  // ポーズモーダルを非表示にして、操作方法の邪魔にならないようにする
+  document.getElementById('pauseModal').classList.remove('show');
+
+  const mainAction = document.getElementById('instrMainActionBtn');
+  const backAction = document.getElementById('instrBackActionBtn');
+  
+  mainAction.textContent = "ゲームに戻る";
+  mainAction.onclick = function() {
+    showScreen(null);
+    setHudVisible(true);
+    document.getElementById('hudPauseBox').style.display = 'block';
+    resumeGame();
+  };
+  
+  // 戻るボタンを押したときは、ポーズモーダルを再表示させる
+  backAction.onclick = function() {
+    showScreen(null);
+    document.getElementById('pauseModal').classList.add('show');
+  };
+  
+  setHudVisible(false);
+  document.getElementById('hudPauseBox').style.display = 'none';
+  showScreen('instrScreen');
+}
+
+// ⭕ 念のため以下3つの関数も正常に動くよう綺麗に整えておきます
+function resumeGame() {
+  isPaused = false;
+  document.getElementById('pauseModal').classList.remove('show');
+}
+
+function restartGameFromPause() {
+  isPaused = false;
+  document.getElementById('pauseModal').classList.remove('show');
+  startGame();
+}
+
+function exitToHome() {
+  isPaused = false;
+  gameActive = false;
+  document.getElementById('pauseModal').classList.remove('show');
+  location.href = '../Home/home.html';
+}
+ 
+
+// ============================================================
 // GAME LOGIC CONTROLS
 // ============================================================
 let allScores = [];
@@ -562,13 +685,22 @@ function setHudVisible(v) {
 
 function onChargeStart() {
   document.getElementById('hudLeft').style.display = 'none';
+  document.getElementById('hudPauseBox').style.display = 'none'; // チャージ中はポーズ不可
 }
 
 function startGame() {
   loadUserStatus();
-  allScores = []; currentRound = 0; currentShotInRound = 0; totalScore = 0; gameActive = true;
+  // 操作方法のボタン挙動を通常（タイトル基準）に戻しておく
+  const mainAction = document.getElementById('instrMainActionBtn');
+  const backAction = document.getElementById('instrBackActionBtn');
+  mainAction.textContent = "スタート";
+  mainAction.onclick = () => startGame();
+  backAction.onclick = () => showScreen('startScreen');
+
+  allScores = []; currentRound = 0; currentShotInRound = 0; totalScore = 0; gameActive = true; isPaused = false;
   showScreen(null);
   setHudVisible(true);
+  document.getElementById('hudPauseBox').style.display = 'block';
   updateStageDistance();
   updateHudShots(); 
   updateHudScore();
@@ -586,12 +718,16 @@ function resetRound() {
   document.getElementById('scope').style.display = 'none';
   scopeCtx.clearRect(0, 0, W(), H());
   updateHudShots();
-  if (gameActive) setHudVisible(true);
+  if (gameActive) {
+    setHudVisible(true);
+    document.getElementById('hudPauseBox').style.display = 'block';
+  }
 }
 
 function showResult() {
   gameActive = false;
   setHudVisible(false);
+  document.getElementById('hudPauseBox').style.display = 'none';
   showScreen('resultScreen');
 
   document.getElementById('rTotal').textContent = totalScore;
@@ -622,10 +758,12 @@ function showResult() {
 }
 
 let hitGuard = false;
+
 function handleShotEnd(pts, label) {
   if (hitGuard) return;
   hitGuard = true;
   state = 'hit';
+  document.getElementById('hudPauseBox').style.display = 'none'; // 表示を消す
 
   allScores.push(pts);
   totalScore += pts;
@@ -641,7 +779,7 @@ function handleShotEnd(pts, label) {
   setTimeout(() => { 
     fb.classList.remove('show'); 
     setTimeout(()=>fb.style.display='none',300); 
-    if (state === 'hit' && gameActive) document.getElementById('hudLeft').style.display = 'block';
+    if (state === 'hit' && gameActive && !isPaused) document.getElementById('hudLeft').style.display = 'block';
   }, 1500);
 
   setTimeout(() => {
@@ -746,11 +884,16 @@ function drawScope(tx, ty) {
 }
 
 window.addEventListener('mousemove', e => {
+  if (isPaused) return;
   mouseX = (e.clientX/W())*2-1;
   mouseY = -(e.clientY/H())*2+1;
 });
 
-window.addEventListener('mousedown', () => {
+window.addEventListener('mousedown', (e) => {
+  if (isPaused) return;
+  // ポーズボタン本体のクリック時はチャージさせない
+  if (e.target.classList.contains('wii-pause-trigger')) return;
+  
   if (!gameActive || state !== 'idle') return;
   state = 'charge'; power = 0; shrinkProgress = 0;
   onChargeStart(); 
@@ -759,6 +902,7 @@ window.addEventListener('mousedown', () => {
 });
 
 window.addEventListener('mouseup', () => {
+  if (isPaused) return;
   if (!gameActive || state !== 'charge') return;
   shoot();
 });
@@ -803,6 +947,9 @@ function animate() {
   const now = performance.now();
   let dt = Math.min((now - prev) / 1000, 0.05);
   prev = now;
+
+  // ポーズ中は一連の物理シミュレーションやタイマー処理をスキップ
+  if (isPaused) return;
 
   if (state === 'charge') {
     power = Math.min(power + dt * 0.45, 1.0);
