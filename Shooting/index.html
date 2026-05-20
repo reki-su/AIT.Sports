@@ -19,10 +19,7 @@
   .hv { font-size:22px; font-weight:bold; font-family:'Share Tech Mono', monospace; line-height:1.2; }
   
   /* 照準 */
-  #reticle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:30px; height:30px; pointer-events:none; z-index:5; display:none; }
-  #reticle::before, #reticle::after { content:''; position:absolute; background:rgba(255,255,255,0.8); }
-  #reticle::before { top:0; left:14px; width:20px; height:2px; margin-left:-10px; }
-  #reticle::after { top:14px; left:0; width:2px; height:20px; margin-top:-10px; }
+  #reticle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:40px; height:40px; pointer-events:none; z-index:5; display:none; }
   
   /* 演出用 */
   .spark { position:absolute; border:2px solid #fff; border-radius:50%; pointer-events:none; z-index:8; animation:sparkAnim 0.6s ease-out forwards; }
@@ -30,9 +27,6 @@
   .float-txt { position:absolute; font-weight:900; font-size:24px; font-family:'Share Tech Mono', monospace; z-index:9; pointer-events:none; animation:floatAnim 0.9s ease-out forwards; text-shadow:0 0 4px #000; }
   @keyframes floatAnim { from{transform:translateY(0);opacity:1;} to{transform:translateY(-50px);opacity:0;} }
 
-  /* ============================================================
-   * WII SPORTS STYLE UI SCREENS
-   * ============================================================ */
   .screen {
     position:absolute; inset:0; z-index:200;
     display:flex; flex-direction:column;
@@ -53,8 +47,8 @@
     -webkit-backdrop-filter: blur(8px);
     text-align: center;
     padding: 35px 0;
-    margin-top: 5%;             
-    margin-bottom: 8vh;          
+    margin-top: 5%;
+    margin-bottom: 8vh;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
   .wii-title {
@@ -69,14 +63,14 @@
     flex-direction: column;
     gap: 20px;
     align-items: center;
-    margin-top: 18vh;            
+    margin-top: 18vh;
     margin-bottom: 40px;
   }
   .wii-btn {
-    width: 340px;          
-    padding: 18px 0;       
+    width: 340px;
+    padding: 18px 0;
     font-family: 'Noto Sans JP', sans-serif;
-    font-size: 26px;       
+    font-size: 26px;
     font-weight: 900;
     color: #1c4e4d;
     background: rgba(214, 247, 244, 0.9);
@@ -104,9 +98,9 @@
   }
   .wii-btn-side {
     pointer-events: auto;
-    width: 280px;          
-    font-size: 22px;       
-    padding: 5px 0;
+    width: 280px;
+    font-size: 22px;
+    padding: 15px 0;
     border-radius: 35px;
   }
   .wii-user-status {
@@ -118,7 +112,7 @@
     text-shadow: 0 1px 4px rgba(255,255,255,0.8);
   }
 
-  /* WII STYLE CUSTOM USER MODAL UI */
+  /* USER MODAL */
   #userModal {
     position: fixed; inset: 0; z-index: 300;
     background: rgba(0, 0, 0, 0.3);
@@ -143,7 +137,6 @@
   }
   .user-item-btn:hover { background: rgba(214, 247, 244, 0.9); border-color: #1c4e4d; }
   .user-item-btn.active { background: #1c4e4d; color: #ffffff; border-color: #1c4e4d; }
-  
   .modal-input-group { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
   .modal-input { width: 70%; padding: 10px 15px; font-size: 16px; font-weight: 700; border: 3px solid rgba(28, 78, 77, 0.3); border-radius: 20px; color: #1c4e4d; outline: none; }
   .modal-input:focus { border-color: #1c4e4d; }
@@ -158,11 +151,9 @@
   .instr-list { list-style: none; text-align: left; margin-bottom: 10px; }
   .instr-list li { font-size: 13.5px; font-weight: 700; padding: 6px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
   .instr-num { font-weight: 900; min-width: 16px; }
-  
   .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
   .score-cell { display: flex; align-items: center; gap: 8px; background: rgba(28, 78, 77, 0.04); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 700; }
   .zone-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-
   .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
   .rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
   .rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
@@ -185,7 +176,19 @@
   .res-card .rc-s { font-size: 24px; font-weight: 900; }
   .result-rank { font-size: 36px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.05em; }
   .result-comment { font-size: 14px; font-weight: 700; margin-bottom: 30px; color: #557776; }
-  
+
+  /* PAUSE SCREEN */
+  #pauseScreen {
+    position:absolute; inset:0; background:rgba(10,8,5,0.82);
+    display:none; flex-direction:column;
+    align-items:center; justify-content:center; z-index:250;
+  }
+  #pauseScreen h2 { font-family:'Share Tech Mono',monospace; font-size:28px; color:#1c4e4d; letter-spacing:6px; margin-bottom:8px; text-shadow:0 0 12px rgba(255,255,255,0.5); }
+  #pauseScreen p { font-size:12px; color:rgba(255,255,255,0.45); letter-spacing:2px; margin-bottom:32px; }
+  .pause-btn { font-family:'Noto Sans JP',sans-serif; font-size:18px; font-weight:900; padding:14px 0; background:rgba(214,247,244,0.9); border:4px solid #ffffff; border-radius:35px; cursor:pointer; margin-bottom:12px; width:280px; text-align:center; color:#1c4e4d; display:block; text-decoration:none; transition:all 0.2s; }
+  .pause-btn:hover { transform:scale(1.04); background:rgba(180,245,240,0.98); }
+  .pause-btn.secondary { background:rgba(200,200,200,0.5); color:#555; border-color:rgba(255,255,255,0.5); }
+  #pause-hint { position:absolute; top:12px; left:50%; transform:translateX(-50%); font-family:'Share Tech Mono',monospace; font-size:11px; color:rgba(255,255,255,0.35); letter-spacing:1px; pointer-events:none; z-index:12; display:none; }
 </style>
 </head>
 <body>
@@ -204,18 +207,46 @@
     </div>
   </div>
 
-  <div id="reticle"></div>
+  <svg id="reticle" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- 黒縁：外円 -->
+    <circle cx="20" cy="20" r="14" fill="none" stroke="black" stroke-width="3.5"/>
+    <!-- 黒縁：上下左右 -->
+    <line x1="20" y1="2"  x2="20" y2="10" stroke="black" stroke-width="4" stroke-linecap="round"/>
+    <line x1="20" y1="30" x2="20" y2="38" stroke="black" stroke-width="4" stroke-linecap="round"/>
+    <line x1="2"  y1="20" x2="10" y2="20" stroke="black" stroke-width="4" stroke-linecap="round"/>
+    <line x1="30" y1="20" x2="38" y2="20" stroke="black" stroke-width="4" stroke-linecap="round"/>
+    <!-- 黒縁：中心点 -->
+    <circle cx="20" cy="20" r="3.5" fill="black"/>
+    <!-- 白：外円 -->
+    <circle cx="20" cy="20" r="14" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+    <!-- 白：上下左右 -->
+    <line x1="20" y1="2"  x2="20" y2="10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="30" x2="20" y2="38" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="2"  y1="20" x2="10" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <line x1="30" y1="20" x2="38" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    <!-- 白：中心点 -->
+    <circle cx="20" cy="20" r="2" fill="white"/>
+  </svg>
+  <div id="pause-hint">SPACE : 中断</div>
 
+  <!-- PAUSE SCREEN -->
+  <div id="pauseScreen">
+    <h2>PAUSED</h2>
+    <p>スペースキーで再開</p>
+    <button class="pause-btn" id="resume-btn">▶ 再開</button>
+    <button class="pause-btn" id="restart-btn">↺ リスタート</button>
+    <a class="pause-btn secondary" href="../Home/home.html">← ホームに戻る</a>
+  </div>
+
+  <!-- TITLE SCREEN -->
   <div class="screen" id="startScreen">
     <div class="wii-title-wrapper">
       <div class="wii-title">射撃ゲーム</div>
     </div>
-    
     <div class="wii-btn-center-group">
       <button class="wii-btn" onclick="startGame()">はじめる</button>
       <button class="wii-btn" onclick="showScreen('instrScreen')">操作方法</button>
     </div>
-    
     <div class="wii-footer">
       <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
       <div>
@@ -225,22 +256,22 @@
     </div>
   </div>
 
+  <!-- USER MODAL -->
   <div id="userModal">
     <div class="modal-box">
       <h2>ユーザー設定</h2>
       <div class="user-list-container" id="modalUserList"></div>
-      
       <div class="modal-input-group">
         <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
         <button class="modal-action-btn primary" onclick="addAndSelectNewUser()">追加</button>
       </div>
-      
       <div>
         <button class="modal-action-btn" style="width: 100px;" onclick="closeUserModal()">閉じる</button>
       </div>
     </div>
   </div>
 
+  <!-- INSTRUCTIONS SCREEN -->
   <div class="screen hidden" id="instrScreen">
     <div class="instr-box">
       <h2>操作方法</h2>
@@ -249,7 +280,6 @@
         <li><span class="instr-num">2</span>左クリックで画面中央の弾を発射し、左右に移動するマトを撃ち抜きます。</li>
         <li><span class="instr-num">3</span>制限時間30秒以内に、どれだけ多くのマトを落とせるかの勝負です。</li>
       </ul>
-      
       <h3>マトの種類と得点</h3>
       <div class="score-grid">
         <div class="score-cell"><div class="zone-dot" style="background:#ffdd00"></div>金マト : 100点 (高速移動)</div>
@@ -257,7 +287,6 @@
         <div class="score-cell"><div class="zone-dot" style="background:#2255dd"></div>青マト : 30点 (通常移動)</div>
         <div class="score-cell"><div class="zone-dot" style="background:#eeeeee; border:1px solid #ccc;"></div>白マト : 10点 (低速移動)</div>
       </div>
-
       <h3>総合評価ランク目安</h3>
       <div class="rank-grid">
         <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">1200点〜</div></div>
@@ -266,32 +295,30 @@
         <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">200点〜</div></div>
         <div class="rank-cell"><div class="rank-letter r-d">D</div><div class="rank-pts">190点以下</div></div>
       </div>
-
-      <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+      <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
         <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">スタート</button>
         <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">戻る</button>
       </div>
     </div>
   </div>
 
+  <!-- RESULT SCREEN -->
   <div class="screen hidden" id="resultScreen">
     <div class="result-box">
       <div class="result-lbl">FINAL SCORE</div>
       <div class="result-total" id="rTotal">0</div>
       <div class="result-max">点</div>
-      
       <div class="result-details">
         <div class="res-card"><div class="rc-n">撃破したマト</div><div class="rc-s" id="rHits">0</div></div>
         <div class="res-card"><div class="rc-n">命中率</div><div class="rc-s" id="rAccuracy">0%</div></div>
       </div>
-      
       <div class="result-rank" id="rRank">RANK D</div>
       <div class="result-comment" id="rComment">どんまい！</div>
-      
-      <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+      <div style="flex-direction:row; justify-content:center; gap:20px; display:flex; margin-bottom:16px;">
         <button class="wii-btn" style="font-size:20px; width:220px;" onclick="startGame()">もう一度</button>
         <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" onclick="showScreen('startScreen')">タイトル</button>
       </div>
+      <a href="../Home/home.html" style="font-size:15px; font-weight:900; color:#779998; text-decoration:none;">← ホームに戻る</a>
     </div>
   </div>
 </div>
@@ -307,7 +334,7 @@ const W = () => window.innerWidth;
 const H = () => window.innerHeight;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xd8d8d8); // 初期化用淡グレー
+scene.background = new THREE.Color(0xd8d8d8);
 
 const camera = new THREE.PerspectiveCamera(60, W()/H(), 0.1, 1000);
 camera.position.set(0, 1.65, 0);
@@ -315,6 +342,8 @@ camera.position.set(0, 1.65, 0);
 const renderer = new THREE.WebGLRenderer({ antialias:true });
 renderer.setSize(W(), H());
 canvasContainer.appendChild(renderer.domElement);
+renderer.domElement.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;cursor:none;";
+
 
 // ライト
 scene.add(new THREE.AmbientLight(0xffffff, 0.7));
@@ -322,39 +351,41 @@ const sun = new THREE.DirectionalLight(0xffffff, 0.5);
 sun.position.set(10, 20, 10);
 scene.add(sun);
 
-// 【修正】背景のテクスチャを gym.jpg に変更
+// 背景画像読み込み
 const texLoader = new THREE.TextureLoader();
 texLoader.load('gym.jpg', function(texture) {
-  scene.background = texture;
-  // 初期タイトル画面は背景をぼかす
+  texture.encoding = THREE.sRGBEncoding;
+  // カメラ追従の背景平面を作成
+  const bgGeo = new THREE.PlaneGeometry(1, 1);
+  const bgMat = new THREE.MeshBasicMaterial({map: texture, depthWrite: false});
+  const bgPlane = new THREE.Mesh(bgGeo, bgMat);
+  bgPlane.renderOrder = -1;
+  scene.add(bgPlane);
+  window._bgPlane = bgPlane;
+  window._bgTexture = texture;
+  scene.background = null;
 }, undefined, function(err){
   console.error("背景画像の読み込みに失敗しました。", err);
 });
 
-// マト（ターゲット）グループ群
 const targets = [];
 const activeBullets = [];
 
-// マトの種類定義
 const TARGET_TYPES = [
-  { color: 0xeeeeee, score: 10,  vx: 0.03, radius: 0.4, label: "白マト" },
+  { color: 0xeeeeee, score: 10,  vx: 0.03, radius: 0.4,  label: "白マト" },
   { color: 0x2255dd, score: 30,  vx: 0.06, radius: 0.35, label: "青マト" },
-  { color: 0xdd2222, score: 50,  vx: 0.10, radius: 0.3, label: "赤マト" },
+  { color: 0xdd2222, score: 50,  vx: 0.10, radius: 0.3,  label: "赤マト" },
   { color: 0xffdd00, score: 100, vx: 0.16, radius: 0.22, label: "金マト" }
 ];
 
 function createTarget() {
   const type = TARGET_TYPES[Math.floor(Math.random() * TARGET_TYPES.length)];
   const group = new THREE.Group();
-  
-  // 同心円構造のディスク
   const geo = new THREE.CylinderGeometry(type.radius, type.radius, 0.04, 32);
   const mat = new THREE.MeshPhongMaterial({ color: type.color });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.rotation.x = Math.PI / 2;
   group.add(mesh);
-  
-  // 中心点デカール（赤ドット）
   if (type.score > 10) {
     const centerGeo = new THREE.CylinderGeometry(type.radius * 0.3, type.radius * 0.3, 0.042, 16);
     const centerMat = new THREE.MeshPhongMaterial({ color: 0xdd2222 });
@@ -363,41 +394,27 @@ function createTarget() {
     centerMesh.position.z = 0.005;
     group.add(centerMesh);
   }
-
-  // 初期配置設定
   const side = Math.random() > 0.5 ? 1 : -1;
-  group.position.set(side * 12, 1.2 + Math.random() * 1.8, -12 - Math.random() * 6);
-  
-  group.userData = {
-    vx: -side * type.vx * (0.8 + Math.random() * 0.4),
-    score: type.score,
-    radius: type.radius
-  };
-  
+  group.position.set(side * 12, 0.6 + Math.random() * 5.5, -12 - Math.random() * 6);
+  group.userData = { vx: -side * type.vx * (0.8 + Math.random() * 0.4), score: type.score, radius: type.radius };
   scene.add(group);
   targets.push(group);
 }
 
-// 弾丸オブジェクト
 function fireBullet() {
-  if (!running) return;
+  if (!running || paused) return;
   totalShots++;
-  
   const geo = new THREE.SphereGeometry(0.06, 8, 8);
   const mat = new THREE.MeshBasicMaterial({ color: 0xffeb3b });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.copy(camera.position);
-  
   const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
   mesh.userData = { dir: dir, speed: 0.8 };
-  
   scene.add(mesh);
   activeBullets.push(mesh);
 }
 
-// ============================================================
-// USER MANAGEMENT SYSTEM (localStorage 共通連動)
-// ============================================================
+// ユーザー管理
 let currentUser = "ゲスト";
 
 function loadUserStatus() {
@@ -412,20 +429,17 @@ function loadUserStatus() {
 function openUserModal() {
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { shooting_score: 0, shooting_rank: "D" } } };
-  
   const listContainer = document.getElementById('modalUserList');
   listContainer.innerHTML = "";
-  
   Object.keys(data.users).forEach(user => {
     const btn = document.createElement('button');
     btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
     const bestScore = data.users[user].shooting_score || 0;
     const bestRank = data.users[user].shooting_rank || "D";
-    btn.textContent = `👤 ${user} (Best: ${bestScore}点 / Rank ${bestRank})`;
+    btn.textContent = "👤 " + user + " (Best: " + bestScore + "点 / Rank " + bestRank + ")";
     btn.onclick = function() { selectUser(user); };
     listContainer.appendChild(btn);
   });
-  
   document.getElementById('userModal').classList.add('show');
 }
 
@@ -448,13 +462,25 @@ function addAndSelectNewUser() {
   const input = document.getElementById('newUserNameInput');
   let name = input.value.trim();
   if (name === "") return;
-  
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
-  
-  if (data.users[name]) {
-    alert("その名前はすでに登録されています。");
-    return;
+  if (data.users[name]) { alert("その名前はすでに登録されています。"); return; }
+  data.users[name] = { shooting_score: 0, shooting_rank: "D" };
+  data.currentUser = name;
+  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  currentUser = name;
+  loadUserStatus();
+  closeUserModal();
+}
+
+function saveGameResult(finalScore, finalRank) {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
+  if (!data.users[currentUser]) data.users[currentUser] = { shooting_score: 0, shooting_rank: "D" };
+  if (finalScore > (data.users[currentUser].shooting_score || 0)) {
+    data.users[currentUser].shooting_score = finalScore;
+    data.users[currentUser].shooting_rank = finalRank;
+    localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
   }
   
   data.users[name] = { shooting_score: 0, shooting_rank: "D" };
@@ -466,6 +492,11 @@ function addAndSelectNewUser() {
   closeUserModal();
 }
 
+window.addEventListener('DOMContentLoaded', loadUserStatus);
+
+// ゲーム状態
+let running = false;
+let paused = false;
 function saveGameResult(finalScore, finalRank) {
   let localData = localStorage.getItem("wii_sports_theme_data");
   let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
@@ -493,6 +524,11 @@ let timeLeft = 30.0;
 let totalShots = 0;
 let successfulHits = 0;
 let targetSpawnTimer = 0;
+let timerPaused = false;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  if (id) document.getElementById(id).classList.remove('hidden');
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
@@ -506,68 +542,83 @@ function showScreen(id) {
 
 function startGame() {
   loadUserStatus();
-  
   targets.forEach(t => scene.remove(t));
   activeBullets.forEach(b => scene.remove(b));
   targets.length = 0;
   activeBullets.length = 0;
-  
   score = 0;
   timeLeft = 30.0;
   totalShots = 0;
   successfulHits = 0;
   targetSpawnTimer = 0;
-  
+  paused = false;
   document.getElementById("hudScore").textContent = "0000";
   document.getElementById("hudTime").textContent = "30.0";
-  
   showScreen(null);
   document.getElementById("hud").style.display = "flex";
   document.getElementById("reticle").style.display = "block";
-  
+  document.getElementById("pause-hint").style.display = "block";
+  document.getElementById("pauseScreen").style.display = "none";
   yaw = 0; pitch = 0.05;
-  
   running = true;
 }
 
 function stopGame() {
   running = false;
+  paused = false;
   document.getElementById("hud").style.display = "none";
   document.getElementById("reticle").style.display = "none";
+  document.getElementById("pause-hint").style.display = "none";
+  document.getElementById("pauseScreen").style.display = "none";
   showResult();
 }
 
+function pauseGame() {
+  paused = true;
+  document.getElementById("pauseScreen").style.display = "flex";
+  document.getElementById("pause-hint").style.display = "none";
+}
+
+function resumeGame() {
+  paused = false;
+  document.getElementById("pauseScreen").style.display = "none";
+  document.getElementById("pause-hint").style.display = "block";
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.code !== "Space") return;
+  e.preventDefault();
+  if (!running) return;
+  if (paused) resumeGame();
+  else pauseGame();
+});
+
+document.getElementById("resume-btn").addEventListener("click", resumeGame);
+document.getElementById("restart-btn").addEventListener("click", () => { startGame(); });
+
 function showResult() {
   showScreen("resultScreen");
-  
   document.getElementById("rTotal").textContent = score;
   document.getElementById("rHits").textContent = successfulHits + " マト";
-  
   const acc = totalShots > 0 ? Math.round((successfulHits / totalShots) * 100) : 0;
   document.getElementById("rAccuracy").textContent = acc + "%";
-  
-  let rank = 'D';
-  let rcls = 'rank-D';
-  let comment = '';
-  
-  if (score >= 1200) { rank='S'; rcls='rank-S'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
-  else if (score >= 800)  { rank='A'; rcls='rank-A'; comment='お見事！素晴らしい命中精度とスピードです！'; }
-  else if (score >= 500)  { rank='B'; rcls='rank-B'; comment='ナイス！高得点の金マトをもっと狙ってみよう！'; }
-  else if (score >= 200)  { rank='C'; rcls='rank-C'; comment='いい調子です！次こそはランクB以上を目指そう！'; }
-  else { rank='D'; rcls='rank-D'; comment='どんまい！マトの動きを先読みして撃ってみよう！'; }
-  
+  let rank = 'D', rcls = 'r-d', comment = '';
+  if      (score >= 1200) { rank='S'; rcls='r-s'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
+  else if (score >= 800)  { rank='A'; rcls='r-a'; comment='お見事！素晴らしい命中精度とスピードです！'; }
+  else if (score >= 500)  { rank='B'; rcls='r-b'; comment='ナイス！高得点の金マトをもっと狙ってみよう！'; }
+  else if (score >= 200)  { rank='C'; rcls='r-c'; comment='いい調子です！次こそはランクB以上を目指そう！'; }
+  else                    { rank='D'; rcls='r-d'; comment='どんまい！マトの動きを先読みして撃ってみよう！'; }
   const re = document.getElementById("rRank");
   re.className = "result-rank " + rcls;
   re.textContent = "RANK " + rank;
   document.getElementById("rComment").textContent = comment;
-  
   saveGameResult(score, rank);
 }
 
 function addHitFlash(x, y) {
   const el = document.createElement("div");
   el.className = "spark";
-  el.style.cssText = `left:${x-30}px;top:${y-30}px;width:60px;height:60px;`;
+  el.style.cssText = "left:"+(x-30)+"px;top:"+(y-30)+"px;width:60px;height:60px;";
   root.appendChild(el);
   setTimeout(() => el.remove(), 600);
 }
@@ -576,28 +627,24 @@ function addFloatText(txt, x, y, col) {
   const el = document.createElement("div");
   el.className = "float-txt";
   el.textContent = txt;
-  el.style.cssText = `left:${x-20}px;top:${y-20}px;color:${col};`;
+  el.style.cssText = "left:"+(x-20)+"px;top:"+(y-20)+"px;color:"+col+";";
   root.appendChild(el);
   setTimeout(() => el.remove(), 900);
 }
 
-// ============================================================
-// CONTROLS INTERACTION INTERFACES
-// ============================================================
+// 視点操作
 let yaw = 0, pitch = 0.05;
 const SENS = 0.0025;
 
 root.addEventListener("mousemove", (e) => {
-  if (!running) return;
+  if (!running || paused) return;
   yaw   -= e.movementX * SENS;
   pitch -= e.movementY * SENS;
   pitch = Math.max(-0.55, Math.min(0.55, pitch));
 });
 
 root.addEventListener("mousedown", (e) => {
-  if (running && e.button === 0) {
-    fireBullet();
-  }
+  if (running && !paused && e.button === 0) fireBullet();
 });
 
 window.addEventListener('resize', () => {
@@ -606,72 +653,69 @@ window.addEventListener('resize', () => {
   renderer.setSize(W(), H());
 });
 
-// ============================================================
-// MAIN LOOP REALTIME SIMULATION ENGINE
-// ============================================================
+// メインループ
 let t3d = 0;
+let prev = performance.now();
 
 function animate() {
   requestAnimationFrame(animate);
-  
   const now = performance.now();
   const dt = Math.min((now - prev) / 1000, 0.05);
   prev = now;
-
   t3d += 0.004;
-  
-  if (running) {
+
+  // 背景をカメラに追従
+  if (window._bgPlane) {
+    const bp = window._bgPlane;
+    const bdist = 1.5;
+    const bfov = (60 / 2) * Math.PI / 180;
+    const bh = 2 * bdist * Math.tan(bfov);
+    const bw = bh * (W() / H());
+    const photoAspect = 1091 / 1457;
+    const screenAspect = W() / H();
+    let sw, sh;
+    if (screenAspect > photoAspect) { sw = bw; sh = bw / photoAspect; }
+    else { sh = bh; sw = bh * photoAspect; }
+    bp.scale.set(sw, sh, 1);
+    const bdir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+    bp.position.copy(camera.position).addScaledVector(bdir, bdist);
+    bp.quaternion.copy(camera.quaternion);
+  }
+
+  if (running && !paused) {
     timeLeft = Math.max(0, timeLeft - dt);
     document.getElementById("hudTime").textContent = timeLeft.toFixed(1);
-    if (timeLeft <= 0) {
-      stopGame();
-    }
-    
+    if (timeLeft <= 0) { stopGame(); return; }
+
     const euler = new THREE.Euler(pitch, yaw, 0, "YXZ");
     camera.quaternion.setFromEuler(euler);
-    camera.position.y = 1.65 + Math.sin(t3d * 1.2) * 0.015; 
-    
+    camera.position.y = 1.65 + Math.sin(t3d * 1.2) * 0.015;
+
     targetSpawnTimer += dt;
-    if (targetSpawnTimer >= 0.6) {
+    if (targetSpawnTimer >= 0.6 && targets.length < 12) {
       targetSpawnTimer = 0;
-      if (targets.length < 12) {
-        createTarget();
-      }
+      createTarget();
     }
-    
+
     for (let i = activeBullets.length - 1; i >= 0; i--) {
       const b = activeBullets[i];
       b.position.addScaledVector(b.userData.dir, b.userData.speed);
-      
-      if (b.position.length() > 60) {
-        scene.remove(b);
-        activeBullets.splice(i, 1);
-        continue;
-      }
-      
+      if (b.position.length() > 60) { scene.remove(b); activeBullets.splice(i, 1); continue; }
       let bulletRemoved = false;
       for (let j = targets.length - 1; j >= 0; j--) {
         const t = targets[j];
-        const dist = b.position.distanceTo(t.position);
-        
-        if (dist <= t.userData.radius + 0.12) {
+        if (b.position.distanceTo(t.position) <= t.userData.radius + 0.12) {
           successfulHits++;
           score += t.userData.score;
           document.getElementById("hudScore").textContent = String(score).padStart(4, '0');
-          
           const proj = t.position.clone().project(camera);
           const scrX = (proj.x * .5 + .5) * W();
           const scrY = (proj.y * -.5 + .5) * H();
-          
           addHitFlash(scrX, scrY);
           const txtCol = t.userData.score >= 100 ? "#ffeb3b" : t.userData.score >= 50 ? "#ff4444" : "#4488ff";
-          addFloatText(`+${t.userData.score}`, scrX, scrY, txtCol);
-          
-          scene.remove(t);
-          targets.splice(j, 1);
-          
-          scene.remove(b);
-          activeBullets.splice(i, 1);
+          addFloatText("+"+t.userData.score, scrX, scrY, txtCol);
+          scene.remove(t); targets.splice(j, 1);
+          scene.remove(b); activeBullets.splice(i, 1);
           bulletRemoved = true;
           break;
         }
@@ -681,19 +725,13 @@ function animate() {
 
   for (let i = targets.length - 1; i >= 0; i--) {
     const t = targets[i];
-    if (running) {
-      t.position.x += t.userData.vx;
-    }
-    if (Math.abs(t.position.x) > 15) {
-      scene.remove(t);
-      targets.splice(i, 1);
-    }
+    if (running && !paused) t.position.x += t.userData.vx;
+    if (Math.abs(t.position.x) > 15) { scene.remove(t); targets.splice(i, 1); }
   }
 
   renderer.render(scene, camera);
 }
 
-let prev = performance.now();
 animate();
 </script>
 </body>
