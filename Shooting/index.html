@@ -325,6 +325,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// ============================================================
+// SYSTEM & 3D GRAPHICS ENGINE SETUP
+// ============================================================
 const root = document.getElementById("sg3");
 const canvasContainer = document.getElementById("gameCanvasContainer");
 const W = () => window.innerWidth;
@@ -341,6 +344,8 @@ renderer.setSize(W(), H());
 canvasContainer.appendChild(renderer.domElement);
 renderer.domElement.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;cursor:none;";
 
+
+// ライト
 scene.add(new THREE.AmbientLight(0xffffff, 0.7));
 const sun = new THREE.DirectionalLight(0xffffff, 0.5);
 sun.position.set(10, 20, 10);
@@ -477,6 +482,14 @@ function saveGameResult(finalScore, finalRank) {
     data.users[currentUser].shooting_rank = finalRank;
     localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
   }
+  
+  data.users[name] = { shooting_score: 0, shooting_rank: "D" };
+  data.currentUser = name;
+  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+  
+  currentUser = name;
+  loadUserStatus();
+  closeUserModal();
 }
 
 window.addEventListener('DOMContentLoaded', loadUserStatus);
@@ -484,6 +497,28 @@ window.addEventListener('DOMContentLoaded', loadUserStatus);
 // ゲーム状態
 let running = false;
 let paused = false;
+function saveGameResult(finalScore, finalRank) {
+  let localData = localStorage.getItem("wii_sports_theme_data");
+  let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
+
+  if (!data.users[currentUser]) {
+    data.users[currentUser] = { shooting_score: 0, shooting_rank: "D" };
+  }
+
+  if (finalScore > (data.users[currentUser].shooting_score || 0)) {
+    data.users[currentUser].shooting_score = finalScore;
+    data.users[currentUser].shooting_rank = finalRank;
+    localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
+    console.log(`[データセーブ] ${currentUser} の射的ハイスコア更新: ${finalScore}点`);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', loadUserStatus);
+
+// ============================================================
+// GAME PLAY STATE CONTROLLERS
+// ============================================================
+let running = false;
 let score = 0;
 let timeLeft = 30.0;
 let totalShots = 0;
@@ -494,6 +529,15 @@ let timerPaused = false;
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   if (id) document.getElementById(id).classList.remove('hidden');
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  if (id) {
+    document.getElementById(id).classList.remove('hidden');
+    canvasContainer.classList.add('blur-bg'); 
+  } else {
+    canvasContainer.classList.remove('blur-bg');
+  }
 }
 
 function startGame() {
