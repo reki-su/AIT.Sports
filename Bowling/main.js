@@ -31,6 +31,7 @@ window.addEventListener("resize", () => {
 // ===== ゲーム状態・ユーザー管理 =====
 let gameState = "title";
 let currentUser = "ゲスト";
+let isPaused = false; // 一時停止フラグ
 
 // UI要素の取得
 const startScreen = document.getElementById("startScreen");
@@ -38,6 +39,8 @@ const instrScreen = document.getElementById("instrScreen");
 const resultScreen = document.getElementById("resultScreen");
 const gameUI = document.getElementById("gameUI");
 const userModal = document.getElementById("userModal");
+const pauseModal = document.getElementById("pauseModal");
+const hudPauseBox = document.getElementById("hudPauseBox");
 const wiiUserStatus = document.getElementById("wiiUserStatus");
 const modalUserList = document.getElementById("modalUserList");
 const newUserNameInput = document.getElementById("newUserNameInput");
@@ -48,6 +51,7 @@ function switchScreen(to) {
     instrScreen.classList.add("hidden");
     resultScreen.classList.add("hidden");
     gameUI.style.display = "none";
+    hudPauseBox.style.display = "none";
     gameState = to;
 
     if (to === "title") {
@@ -57,6 +61,7 @@ function switchScreen(to) {
         instrScreen.classList.remove("hidden");
     } else if (to === "playing") {
         gameUI.style.display = "block";
+        hudPauseBox.style.display = "block";
         startNewGame();
     } else if (to === "result") {
         resultScreen.classList.remove("hidden");
@@ -73,7 +78,6 @@ function loadUserStatus() {
     wiiUserStatus.textContent = "選択中: " + currentUser;
 }
 
-// モーダルオープン時にボウリングの進捗を表示
 function openUserModal() {
     let localData = localStorage.getItem("wii_sports_theme_data");
     let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { bowling_score: 0, bowling_rank: "D" } } };
@@ -144,14 +148,77 @@ function saveGameResult(finalScore, finalRank) {
     }
 }
 
+// ===== 一時停止（ポーズ）システムロジック =====
+function pauseGame() {
+    if (gameState !== "playing" || scored || ballLaunched) return; // 投球中やリザルト演出中はポーズ不可
+    isPaused = true;
+    pauseModal.classList.add("show");
+}
+
+function resumeGame() {
+    isPaused = false;
+    pauseModal.classList.remove("show");
+}
+
+function restartGameFromPause() {
+    isPaused = false;
+    pauseModal.classList.remove("show");
+    switchScreen("playing");
+}
+
+function showInstrFromPause() {
+    // ポーズポップアップが被らないように一旦非表示にする
+    pauseModal.classList.remove("show");
+    hudPauseBox.style.display = "none";
+    gameUI.style.display = "none";
+
+    const mainAction = document.getElementById("instrStartBtn");
+    const backAction = document.getElementById("instrBackBtn");
+
+    mainAction.textContent = "ゲームに戻る";
+    mainAction.onclick = function() {
+        instrScreen.classList.add("hidden");
+        gameUI.style.display = "block";
+        hudPauseBox.style.display = "block";
+        resumeGame();
+    };
+
+    backAction.onclick = function() {
+        instrScreen.classList.add("hidden");
+        pauseModal.classList.add("show");
+    };
+
+    instrScreen.classList.remove("hidden");
+}
+
+function exitToHome() {
+    isPaused = false;
+    pauseModal.classList.remove("show");
+    location.href = '../Home/home.html';
+}
+
 // イベントリスナーの紐付け
 document.getElementById("startPlayBtn").addEventListener("click", () => switchScreen("playing"));
-document.getElementById("startInstrBtn").addEventListener("click", () => switchScreen("howto"));
-document.getElementById("instrStartBtn").addEventListener("click", () => switchScreen("playing"));
-document.getElementById("instrBackBtn").addEventListener("click", () => switchScreen("title"));
+document.getElementById("startInstrBtn").addEventListener("click", () => {
+    // 通常タイトルから遷移する際の設定に戻す
+    const mainAction = document.getElementById("instrStartBtn");
+    const backAction = document.getElementById("instrBackBtn");
+    mainAction.textContent = "スタート";
+    mainAction.onclick = () => switchScreen("playing");
+    backAction.onclick = () => switchScreen("title");
+    switchScreen("howto");
+});
 document.getElementById("modalTriggerBtn").addEventListener("click", openUserModal);
 document.getElementById("closeUserModalBtn").addEventListener("click", closeUserModal);
 document.getElementById("addUserBtn").addEventListener("click", addAndSelectNewUser);
+
+// ポーズモーダルボタンの紐付け
+document.getElementById("pauseTriggerBtn").addEventListener("click", pauseGame);
+document.getElementById("resumeGameBtn").addEventListener("click", resumeGame);
+document.getElementById("restartGameBtn").addEventListener("click", restartGameFromPause);
+document.getElementById("showInstrBtn").addEventListener("click", showInstrFromPause);
+document.getElementById("exitToHomeBtn").addEventListener("click", exitToHome);
+
 window.addEventListener('DOMContentLoaded', loadUserStatus);
 
 // ===== ライト・環境 =====
@@ -264,17 +331,23 @@ Events.on(engine, "collisionStart", ev => {
 
 // ===== 操作系 =====
 let playerX = 0, angle = 0, startMouseX, startMouseY, scored = false, ballLaunched = false, ballPassedPins = false, scoreCheckScheduled = false;
-document.addEventListener("mousedown", e => { if (gameState !== "playing") return; startMouseX = e.clientX; startMouseY = e.clientY; scored = false; ballLaunched = false; });
+document.addEventListener("mousedown", e => { 
+    if (gameState !== "playing" || isPaused) return; 
+    if (e.target.id === "pauseTriggerBtn") return; // ポーズボタン自体のクリック時は弾く
+    startMouseX = e.clientX; startMouseY = e.clientY; scored = false; ballLaunched = false; 
+});
 document.addEventListener("mouseup", e => {
-    if (gameState !== "playing" || scored) return;
+    if (gameState !== "playing" || scored || isPaused) return;
+    if (e.target.id === "pauseTriggerBtn") return;
     const rawDx = Math.max(-280, Math.min(280, e.clientX - startMouseX)); const rawDy = Math.max(-380, Math.min(380, startMouseY - e.clientY));
     let vx = rawDx * 0.00020 + Math.sin(angle) * 0.18; let vy = -(rawDy * 0.0036) - Math.cos(angle) * 0.18;
     if (Math.abs(vy) < 0.1) return;
     Body.setPosition(ballBody, { x: playerX, y: 8 }); Body.setVelocity(ballBody, { x: vx + curveAmount * 0.06, y: vy });
     curveActive = true; ballLaunched = true; ballPassedPins = false; scoreCheckScheduled = false;
+    hudPauseBox.style.display = "none"; // 投球中は一時停止不可
 });
 document.addEventListener("keydown", e => {
-    if (gameState !== "playing") return;
+    if (gameState !== "playing" || isPaused) return;
     if (e.key === "ArrowLeft") playerX = Math.max(-2.2, playerX - 0.38); if (e.key === "ArrowRight") playerX = Math.min(2.2, playerX + 0.38);
     if (e.key === "a" || e.key === "A") angle = Math.max(-0.48, angle - 0.07); if (e.key === "d" || e.key === "D") angle = Math.min(0.48, angle + 0.07);
     if (e.key === "q" || e.key === "Q") curveAmount = Math.max(-1, curveAmount - 0.2); if (e.key === "e" || e.key === "E") curveAmount = Math.min(1, curveAmount + 0.2);
@@ -367,6 +440,7 @@ function removeKnockedPins() {
 function scheduleCheckScore() {
     if (scored) return; clearInterval(scoreCheckTimer); let elapsed = 0;
     scoreCheckTimer = setInterval(() => {
+        if (isPaused) return; // ポーズ中はタイマーをストップ
         elapsed += 60;
         const settled = pins.every(p => p.knocked || Math.hypot(p.body.velocity.x, p.body.velocity.y) < 0.025);
         if (settled || elapsed >= 2000) { clearInterval(scoreCheckTimer); checkScore(); }
@@ -390,7 +464,7 @@ function checkScore() {
                 if (thisThrow === 0) showEvent("gutter");
                 document.getElementById("msgBox").textContent = thisThrow + " PINS";
                 throwCount = 2; document.getElementById("throwLabel").textContent = "2ND THROW";
-                drawFrameBoard(); setTimeout(() => { removeKnockedPins(); updatePinMap(); createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; }, 1600);
+                drawFrameBoard(); setTimeout(() => { removeKnockedPins(); updatePinMap(); createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; if(!isPaused) hudPauseBox.style.display = "block"; }, 1600);
             }
         } else {
             if (frameData[fi][0] + frameData[fi][1] === 10) showEvent("spare");
@@ -405,12 +479,12 @@ function handle10thFrame(f, totalKnocked) {
         firstThrowKnocked = f[0] === 10 ? 0 : totalKnocked;
         showEvent(f[0] === 10 ? "strike" : "");
         throwCount = 2; document.getElementById("throwLabel").textContent = "2ND THROW";
-        drawFrameBoard(); setTimeout(() => { if (f[0] === 10) { createPins(); } else { removeKnockedPins(); updatePinMap(); } createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; }, 1600);
+        drawFrameBoard(); setTimeout(() => { if (f[0] === 10) { createPins(); } else { removeKnockedPins(); updatePinMap(); } createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; if(!isPaused) hudPauseBox.style.display = "block"; }, 1600);
     } else if (f.length === 2) {
         if (need === 3) {
             showEvent(f[1] === 10 || f[0]+f[1] === 10 ? (f[1]===10?"strike":"spare") : "");
             throwCount = 3; document.getElementById("throwLabel").textContent = "3RD THROW";
-            drawFrameBoard(); setTimeout(() => { if (f[1] === 10 || f[0]+f[1]===10) createPins(); else removeKnockedPins(); createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; }, 1600);
+            drawFrameBoard(); setTimeout(() => { if (f[1] === 10 || f[0]+f[1]===10) createPins(); else removeKnockedPins(); createBall(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; if(!isPaused) hudPauseBox.style.display = "block"; }, 1600);
         } else {
             drawFrameBoard(); setTimeout(() => { removeKnockedPins(); endGame(); }, 1600);
         }
@@ -424,13 +498,12 @@ function nextFrame() {
     if (frame > 10) { endGame(); return; }
     document.getElementById("frameLabel").textContent = "FRAME " + frame; document.getElementById("throwLabel").textContent = "1ST THROW";
     document.getElementById("msgBox").textContent = "";
-    setTimeout(() => { createBall(); createPins(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; }, 400);
+    setTimeout(() => { createBall(); createPins(); scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; if(!isPaused) hudPauseBox.style.display = "block"; }, 400);
 }
 
 function endGame() {
     const cum = calcCumulative(); const finalScore = cum.filter(v => v !== null).pop() ?? 0;
     
-    // S, A, B, C, D 評価ランクシステム（ボウリングの点数テーブル）
     const rankTable = [
         [220, "S", "rank-s", "神話級の腕前！完全なるストライクマスターです！"],
         [160, "A", "rank-a", "素晴らしい！安定したコントロールで見事なスコアです！"],
@@ -446,7 +519,6 @@ function endGame() {
     rRank.textContent = "RANK " + rank;
     document.getElementById("resultComment").textContent = comment;
 
-    // スコアボードの最終表示生成
     const rf = document.getElementById("resultFrames"); rf.innerHTML = "";
     for (let i = 0; i < 10; i++) {
         const f = frameData[i] || []; const is10 = i === 9;
@@ -461,7 +533,7 @@ function endGame() {
 }
 
 function startNewGame() {
-    frame = 1; throwCount = 1; firstThrowKnocked = 0; frameData = []; scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; curveAmount = 0; angle = 0; playerX = 0;
+    frame = 1; throwCount = 1; firstThrowKnocked = 0; frameData = []; scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false; curveAmount = 0; angle = 0; playerX = 0; isPaused = false;
     document.getElementById("frameLabel").textContent = "FRAME 1"; document.getElementById("throwLabel").textContent = "1ST THROW"; document.getElementById("msgBox").textContent = "";
     updateCurveUI(); drawFrameBoard(); createBall(); createPins();
 }
@@ -489,7 +561,8 @@ scene.add(guideLine);
 let ballTravelDistance = 0;
 
 function update() {
-    if (gameState !== "playing") return; Engine.update(engine, 1000 / 60);
+    if (gameState !== "playing" || isPaused) return; // ポーズ中は物理エンジンの更新処理などを完全にストップ
+    Engine.update(engine, 1000 / 60);
     if (!ballLaunched && ballBody) { Body.setPosition(ballBody, { x: playerX, y: 8 }); Body.setVelocity(ballBody, { x: 0, y: 0 }); }
     if (ballLaunched && ballBody) {
         if (!ballPassedPins && (ballBody.position.y < -8.0 || Math.abs(ballBody.position.x) > 3.4)) ballPassedPins = true;

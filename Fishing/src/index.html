@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>釣りゲーム</title>
+    <title>釣りゲーム（AIT.Sports Style）</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -10,6 +10,74 @@
     <div id="game-container">
         <div id="game-screen">
             
+            <div class="screen" id="screen-start">
+                <div class="wii-title-wrapper">
+                    <h1 class="wii-title">釣り</h1>
+                </div>
+                <div class="wii-btn-center-group">
+                    <button class="wii-btn" id="start-btn">はじめる</button>
+                    <button class="wii-btn" id="instr-btn">操作方法</button>
+                </div>
+                <div class="wii-footer">
+                    <button class="wii-btn wii-btn-side" id="quit-btn-start">ホームに戻る</button>
+                    <div>
+                        <button class="wii-btn wii-btn-side" id="modal-trigger-btn">ユーザー選択</button>
+                        <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="userModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h2>ユーザー設定</h2>
+                    <div class="user-list-container" id="modalUserList"></div>
+                    <div class="modal-input-group">
+                        <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
+                        <button class="modal-action-btn primary" id="addUserBtn">追加</button>
+                    </div>
+                    <div>
+                        <button class="modal-action-btn" style="width: 100px;" id="closeUserModalBtn">閉じる</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pauseModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h2>一時停止中</h2>
+                    <div class="pause-btn-group">
+                        <button class="wii-btn pause-wii-btn" id="resumeGameBtn">ゲームを続ける</button>
+                        <button class="wii-btn pause-wii-btn" id="restartGameBtn">はじめからやり直す</button>
+                        <button class="wii-btn pause-wii-btn" id="showInstrBtn">操作方法の確認</button>
+                        <button class="wii-btn pause-wii-btn" style="background: rgb(245, 214, 214); color: #8a1c1c;" id="exitToHomeBtn">ホームに戻る</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="screen hidden" id="screen-howto">
+                <div class="instr-box">
+                    <h2>操作方法</h2>
+                    <ul class="instr-list">
+                        <li><span class="instr-num">1</span><b>スペースキー</b>を押して、ルアーを水面に投げ入れます。</li>
+                        <li><span class="instr-num">2</span>魚が食いついて画面に<b>「！」</b>が出たら、素早く<b>左クリック</b>！</li>
+                        <li><span class="instr-num">3</span>リール画面になったら、<b>左クリック長押し</b>でゲージを右端まで保ち、魚を釣り上げろ！</li>
+                    </ul>
+
+                    <h3>総合評価ランク</h3>
+                    <div class="rank-grid">
+                        <div class="rank-cell"><div class="rank-letter rank-s">S</div><div class="rank-pts">5000点〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-a">A</div><div class="rank-pts">3500点〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-b">B</div><div class="rank-pts">2000点〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-c">C</div><div class="rank-pts">500点〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-d">D</div><div class="rank-pts">499点以下</div></div>
+                    </div>
+
+                    <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="instrStartBtn">スタート</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackBtn">戻る</button>
+                    </div>
+                </div>
+            </div>
+
             <div id="ui-top" class="ui-layer">
                 <div id="reeling-ui" class="reeling-ui-container hidden">
                     <div class="gauge-outline">
@@ -20,52 +88,40 @@
             </div>
 
             <div id="ui-right" class="ui-layer">
-                <div class="score-panel">
+                <div class="score-panel" id="scorePanelEl">
                     <span class="score-label">現在のポイント</span><br>
                     <span id="current-points" class="score-value">0</span>
                 </div>
             </div>
 
+            <div id="hudPauseBox">
+                <button class="wii-pause-trigger" id="pauseTriggerBtn">一時停止</button>
+            </div>
+
             <div id="main-content">
-                <div id="screen-start" class="screen start-screen-content">
-                    <h1 class="title">FISHING GAME</h1>
-                    
-                    <div class="instructions">
-                        <p style="margin-top: 0; color: #60a5fa; font-weight: bold;">【遊び方】</p>
-                        <p>① <b>スペースキー</b>でルアーを投げる</p>
-                        <p>② 「！」が出たら素早く<b>左クリック</b></p>
-                        <p>③ <b>左クリック長押し</b>でゲージを保ち魚を釣り上げろ！</p>
-                    </div>
-
-                    <div class="button-group">
-                        <button id="start-btn">スタート</button>
-                        <button id="quit-btn-start" class="btn-secondary quit-btn">ゲームを終わる</button>
-                    </div>
-                </div>
-
-                <div id="screen-aim" class="screen hidden">
+                <div id="screen-aim" class="game-content-screen hidden">
                     <p class="status-msg">スペースキーで投げる！</p>
                 </div>
 
-                <div id="screen-waiting" class="screen hidden">
+                <div id="screen-waiting" class="game-content-screen hidden">
                     <div id="bite-icon" class="hidden">！</div>
                     <p class="status-msg">魚を待っています...</p>
                 </div>
 
-                <div id="screen-success" class="screen hidden">
+                <div id="screen-success" class="game-content-screen hidden">
                     <h2 id="result-text" class="result-title">ゲット！</h2>
                     <img id="fish-img" src="" class="fish-display-img">
                     <div class="button-group">
-                        <button id="next-btn">ネクストステージ</button>
-                        <button id="quit-btn-success" class="btn-secondary quit-btn">ゲームを終わる</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="next-btn">次のステージ</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-success">終了する</button>
                     </div>
                 </div>
 
-                <div id="screen-fail" class="screen hidden">
+                <div id="screen-fail" class="game-content-screen hidden">
                     <h2 class="result-title">逃げられた…</h2>
                     <div class="button-group" style="margin-top: 40px;">
-                        <button id="retry-btn">リトライ</button>
-                        <button id="quit-btn-fail" class="btn-secondary quit-btn">ゲームを終わる</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="retry-btn">リトライ</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-fail">終了する</button>
                     </div>
                 </div>
 

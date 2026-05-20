@@ -103,20 +103,21 @@
     text-shadow: 0 1px 4px rgba(255,255,255,0.8);
   }
 
-  /* ユーザー選択モーダル */
-  #userModal {
+  /* モーダル共通 UI（ポーズ対応） */
+  #userModal, #pauseModal {
     position: fixed; inset: 0; z-index: 300;
     background: rgba(0, 0, 0, 0.3);
     display: flex; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
-  #userModal.show { opacity: 1; pointer-events: auto; }
+  #userModal.show, #pauseModal.show { opacity: 1; pointer-events: auto; }
   .modal-box {
     background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
     padding: 30px; width: 90%; max-width: 460px; text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
   }
-  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 15px; }
+  .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+  
   .user-list-container {
     max-height: 160px; overflow-y: auto; margin-bottom: 20px;
     border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
@@ -143,6 +144,42 @@
   }
   .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
 
+  /* ポーズモーダル専用グループ */
+  .pause-btn-group {
+    display: flex; flex-direction: column; gap: 14px; align-items: center;
+  }
+  .pause-wii-btn {
+    width: 280px; padding: 12px 0; font-size: 20px; border-radius: 30px;
+  }
+
+  /* ゲーム中のポーズボタン（完全左下） */
+  #hudPauseBox {
+    position: absolute; 
+    bottom: 14px;       
+    left: 14px;         
+    display: none; 
+    z-index: 110;       
+    pointer-events: auto;
+  }
+  .wii-pause-trigger {
+    width: 180px;       
+    padding: 14px 0;    
+    font-size: 20px;    
+    font-weight: 900;   
+    color: #1c4e4d;
+    background: rgba(214, 247, 244, 0.9); 
+    border: 4px solid #ffffff;            
+    border-radius: 30px;                  
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .wii-pause-trigger:hover {
+    transform: scale(1.05);
+    background: rgba(180, 245, 240, 0.98);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+  }
+
   /* INSTRUCTIONS */
   #instrScreen { background: rgba(230, 235, 235, 0.95); }
   .instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
@@ -152,7 +189,7 @@
   .instr-list li { font-size: 14px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
   .instr-num { font-weight: 900; min-width: 16px; color: #1c4e4d; }
 
-  /* ランクグリッド表示 (アーチェリーから移植) */
+  /* ランクグリッド表示 */
   .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
   .rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
   .rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
@@ -183,7 +220,16 @@
     box-shadow: 0 4px 20px rgba(0,0,60,0.4);
   }
   #hudLeft { position:absolute; top:14px; left:14px; pointer-events:auto; min-width:260px; }
-  #pinMapEl { position:absolute; bottom:24px; left:14px; pointer-events:auto; padding:12px; min-width:160px; }
+  
+  /* ボタンと被らないようにピンマップを少し上に配置 */
+  #pinMapEl { 
+    position:absolute; 
+    bottom:85px; 
+    left:14px; 
+    pointer-events:auto; 
+    padding:12px; 
+    min-width:160px; 
+  }
   #curveEl { position:absolute; bottom:24px; right:14px; pointer-events:auto; padding:12px; min-width:160px; }
 
   /* イベント演出 */
@@ -232,6 +278,18 @@
   </div>
 </div>
 
+<div id="pauseModal">
+  <div class="modal-box">
+    <h2>一時停止中</h2>
+    <div class="pause-btn-group">
+      <button class="wii-btn pause-wii-btn" id="resumeGameBtn">ゲームを続ける</button>
+      <button class="wii-btn pause-wii-btn" id="restartGameBtn">はじめからやり直す</button>
+      <button class="wii-btn pause-wii-btn" id="showInstrBtn">操作方法の確認</button>
+      <button class="wii-btn pause-wii-btn" style="background: rgba(245, 214, 214, 0.9); color: #8a1c1c;" id="exitToHomeBtn">ホームに戻る</button>
+    </div>
+  </div>
+</div>
+
 <div class="screen hidden" id="instrScreen">
   <div class="instr-box">
     <h2>操作方法</h2>
@@ -270,6 +328,10 @@
       <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="resultTitleBtn">タイトル</button>
     </div>
   </div>
+</div>
+
+<div id="hudPauseBox">
+  <button class="wii-pause-trigger" id="pauseTriggerBtn">一時停止</button>
 </div>
 
 <div id="gameUI">
