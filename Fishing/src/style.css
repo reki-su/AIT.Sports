@@ -5,17 +5,18 @@ body, html {
     overflow: hidden;
     display: flex; justify-content: center; align-items: center;
     background-color: #1a1a1a;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Noto Sans JP', 'Arial', sans-serif;
+    user-select: none;
 }
 
 #game-container {
-    width: 100%; height: 100%;
+    width: 100vw; height: 100vh;
     overflow: hidden; position: relative;
 }
 
 #game-screen {
     width: 100%; height: 100%;
-    background-image: url('images/bg.png'); 
+    background-image: url('images/bg.png'); /* ⭕ 背景写真はこれ1枚のみに固定 */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -23,96 +24,241 @@ body, html {
     z-index: 1;
 }
 
-.ui-layer {
-    position: absolute; z-index: 10; width: 100%;
-    pointer-events: none;
-}
-
-#ui-top { top: 20px; display: flex; justify-content: center; }
-.reeling-ui-container { width: 600px; text-align: center; }
-.gauge-outline {
-    height: 30px; background: rgba(0,0,0,0.5); border: 3px solid #fff;
-    border-radius: 15px; overflow: hidden;
-}
-#gauge-bar {
-    width: 50%; height: 100%; background: #10b981;
-    transition: width 0.1s linear;
-}
-.guide-text { color: white; font-weight: bold; margin-top: 5px; text-shadow: 1px 1px 2px #000; }
-
-#ui-right { top: 20px; right: 20px; width: auto; }
-.score-panel {
-    background: rgba(255, 255, 255, 0.9); padding: 10px 20px;
-    border-radius: 10px; text-align: center; pointer-events: auto;
-}
-.score-label { font-size: 12px; color: #666; font-weight: bold; }
-.score-value { font-size: 24px; font-weight: 900; color: #1e3a8a; }
-
-#main-content {
-    width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-}
+/* 画面全体の絶対中央配置設定 */
 .screen {
-    background: none; color: white; text-align: center;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    z-index: 5; margin-top: -100px;
+    position: absolute; 
+    inset: 0; 
+    z-index: 200;
+    display: flex; 
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    transition: opacity 0.4s ease;
+}
+.screen.hidden { display: none !important; opacity: 0; pointer-events: none; }
+
+/* タイトル画面の固有位置調整 */
+#screen-start {
+    justify-content: flex-start;
 }
 
-/* スタート画面の要素を強制的に上から下に並べる設定 */
-.start-screen-content {
+/* Wii Sports風 タイトル帯 */
+.wii-title-wrapper {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    padding: 35px 0;
+    margin-top: 5%;             
+    margin-bottom: 8vh;          
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+.wii-title {
+    font-size: clamp(48px, 9vw, 76px); 
+    font-weight: 900;
+    color: #1c4e4d; 
+    letter-spacing: 0.15em;
+    text-shadow: 0 2px 8px rgba(255,255,255,0.8);
+    margin: 0;
+}
+
+.wii-btn-center-group {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    margin-top: 5vh;            
+    margin-bottom: 40px;
+}
+
+/* Wii風 進むメインボタン（不透明度100%化） */
+.wii-btn {
+    width: 340px;          
+    padding: 18px 0;       
+    font-size: 26px;       
+    font-weight: 900;
+    color: #1c4e4d;
+    background: rgb(214, 247, 244); 
+    border: 5px solid #ffffff; 
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    text-align: center;
+    outline: none;
+}
+.wii-btn:hover {
+    transform: scale(1.05);
+    background: rgb(180, 245, 240);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* タイトル画面の下部フッター */
+.wii-footer {
+    position: absolute;
+    bottom: 45px;
+    left: 45px;
+    right: 45px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 210;
+}
+.wii-btn-side {
+    pointer-events: auto;
+    width: 280px;          
+    font-size: 22px;       
+    padding: 5px 0;
+    border-radius: 35px;
+}
+.wii-user-status {
+    font-size: 14px;
+    font-weight: 900;
+    color: #1c4e4d;
+    margin-top: 6px;
+    text-align: center;
+    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+}
+
+/* すべての終了ボタン（不透明度100%デザイン） */
+#quit-btn-start, #quit-btn-success, #quit-btn-fail, .pause-btn-group button[style*="background"] {
+    background: rgb(245, 214, 214) !important; 
+    color: #8a1c1c !important;
+    border: 5px solid #ffffff !important;
+}
+#quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover {
+    background: rgb(245, 195, 195) !important;
+}
+
+/* モーダルオーバーレイ */
+.modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+.modal-box {
+    background: #ffffff; border: 5px solid #1c4e4d; border-radius: 24px;
+    padding: 30px; width: 90%; max-width: 460px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
+}
+.modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
+
+.user-list-container {
+    max-height: 160px; overflow-y: auto; margin-bottom: 20px;
+    border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
+}
+.user-item-btn {
+    width: 100%; padding: 10px; margin: 4px 0; font-size: 16px; font-weight: 700;
+    color: #1c4e4d; background: rgba(214, 247, 244, 0.4); border: 2px solid #ffffff;
+    border-radius: 15px; cursor: pointer; text-align: left; transition: all 0.15s;
+}
+.user-item-btn:hover { background: rgba(214, 247, 244, 0.9); border-color: #1c4e4d; }
+.user-item-btn.active { background: #1c4e4d; color: #ffffff; border-color: #1c4e4d; }
+
+.modal-input-group { display: flex; gap: 8px; margin-bottom: 20px; justify-content: center; }
+.modal-input {
+    width: 70%; padding: 10px 15px; font-size: 16px; font-weight: 700;
+    border: 3px solid rgba(28, 78, 77, 0.3); border-radius: 20px; color: #1c4e4d; outline: none;
+}
+.modal-action-btn {
+    padding: 8px 16px; font-size: 15px; font-weight: 900; border-radius: 20px;
+    border: 2px solid #1c4e4d; cursor: pointer; background: #ffffff; color: #1c4e4d;
+}
+.modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
+
+.pause-btn-group { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.pause-wii-btn { width: 280px; padding: 12px 0; font-size: 20px; border-radius: 30px; }
+
+/* 一時停止ボタンHUD */
+#hudPauseBox {
+    position: absolute; 
+    bottom: 14px;       
+    left: 14px;         
+    display: none; 
+    z-index: 350;       
+    pointer-events: auto;
+}
+.wii-pause-trigger {
+    width: 180px;       
+    padding: 14px 0;    
+    font-size: 20px;    
+    font-weight: 900;   
+    color: #1c4e4d;
+    background: rgb(214, 247, 244); 
+    border: 4px solid #ffffff;            
+    border-radius: 30px;                  
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.wii-pause-trigger:hover {
+    transform: scale(1.05);
+    background: rgb(180, 245, 240);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+}
+
+/* 操作方法画面設定 (完全中央寄せ固定) */
+#screen-howto { 
+    background: rgba(230, 235, 235, 0.98); 
+    z-index: 400; 
+}
+.instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.instr-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
+.instr-list { list-style: none; text-align: left; margin-bottom: 20px; }
+.instr-list li { font-size: 14px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; color: #1c4e4d; }
+.instr-num { font-weight: 900; min-width: 16px; color: #1c4e4d; }
+
+/* ランクグリッド表示 */
+.rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
+.rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
+.rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
+.rank-pts { font-size: 11px; font-weight: 700; color: #557776; }
+
+.rank-s { color: #ffaa00; }
+.rank-a { color: #ff4444; }
+.rank-b { color: #3377ff; }
+.rank-c { color: #555555; }
+.rank-d { color: #888888; }
+
+/* ⭕ 改善：画面を覆い隠していた多重の背景設定を完全に撤廃したゲームプレイ中スクリーン */
+.game-content-screen {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    pointer-events: none; 
+    z-index: 5;
+    background: none !important; /* 透明にして背後の釣竿や海が見えるように固定 */
+}
+.game-content-screen .wii-btn {
+    pointer-events: auto;
 }
 
-/* 操作説明パネルのスタイル */
-.instructions {
-    background: rgba(0, 0, 0, 0.65);
-    padding: 20px 30px;
-    border-radius: 12px;
-    border: 2px solid #3b82f6;
-    margin: 25px auto;
-    text-align: left;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    display: inline-block;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-}
+/* ゲーム中HUDレイヤー */
+.ui-layer { position: absolute; z-index: 10; width: 100%; pointer-events: none; }
+#ui-top { top: 20px; display: flex; justify-content: center; }
+.reeling-ui-container { width: 600px; text-align: center; }
+.gauge-outline { height: 30px; background: rgba(0,0,0,0.5); border: 3px solid #fff; border-radius: 15px; overflow: hidden; }
+#gauge-bar { width: 50%; height: 100%; background: #10b981; transition: width 0.1s linear; }
+.guide-text { color: white; font-weight: bold; margin-top: 5px; text-shadow: 1px 1px 2px #000; }
 
-.title { font-size: 60px; margin: 0; }
-.status-msg { font-size: 32px; font-weight: bold; }
-.result-title { font-size: 40px; margin: 0; }
-.fish-display-img { width: 220px; margin: 20px 0; }
+#ui-right { top: 20px; right: 20px; width: auto; }
+.score-panel { background: rgba(255, 255, 255, 0.95); padding: 10px 20px; border-radius: 10px; text-align: center; pointer-events: auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none; }
+.score-label { font-size: 12px; color: #666; font-weight: bold; }
+.score-value { font-size: 24px; font-weight: 900; color: #1c4e4d; }
+
+#main-content { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
+.status-msg { font-size: 32px; font-weight: bold; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.result-title { font-size: 40px; margin: 0; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+.fish-display-img { width: 220px; margin: 20px 0; border: 4px solid #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); pointer-events: none; }
 .hidden { display: none !important; }
 
-.button-group {
-    display: flex; gap: 20px; justify-content: center; margin-top: 20px;
-}
+.button-group { display: flex; gap: 20px; justify-content: center; margin-top: 20px; pointer-events: auto; }
+.rod-img { position: absolute; bottom: -60px; left: 5%; width: 700px; z-index: 2; pointer-events: none; }
 
-.rod-img {
-    position: absolute; bottom: -60px; left: 5%; 
-    width: 700px; 
-    transform: rotate(0deg);
-    z-index: 2; pointer-events: none;
-}
-
-#bite-icon {
-    font-size: 120px; color: #ef4444; font-weight: bold;
-    animation: bounce 0.5s infinite;
-}
-@keyframes bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
-button {
-    padding: 14px 40px; font-size: 1.3rem; cursor: pointer;
-    background: #3b82f6; color: white; border: none; border-radius: 10px;
-    font-weight: bold; transition: 0.2s;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-button:hover { background: #2563eb; transform: scale(1.05); }
-
-.btn-secondary { background: #64748b; }
-.btn-secondary:hover { background: #475569; }
+#bite-icon { font-size: 120px; color: #ef4444; font-weight: bold; animation: bounce 0.5s infinite; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+@keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
