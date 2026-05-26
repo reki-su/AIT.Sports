@@ -131,11 +131,11 @@
 
   /* ホームに戻る系ボタン：落ち着いた不透明の赤 */
   #quit-btn-start, #quit-btn-success, #quit-btn-fail, #exitToHomeBtn {
-    background: rgb(245, 214, 214) !important; 
-    color: #8a1c1c !important;
+    background: rgb(214, 247, 244) !important; 
+    color: #1c4e4d !important;
   }
   #quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover, #exitToHomeBtn:hover {
-    background: rgb(245, 195, 195) !important;
+    background: rgb(180, 245, 240) !important;
     transform: scale(1.05);
   }
 
@@ -350,9 +350,9 @@
       <h2>操作方法</h2>
       <ul class="instr-list">
         <li><span class="instr-num">1</span>マウスを動かして画面内のカメラ（視点）を動かします。</li>
-        <li><span class="instr-num">2</span>左クリックで画面中央の弾を発射し、左右に移動するマトを撃ち抜きます。</li>
-        <li><span class="instr-num">3</span>制限時間30秒以内に、どれだけ多くのマトを落とせるかの勝負です。</li>
-        <li><span class="instr-num">4</span>ゲームプレイ中に画面左下のボタンを押すか、キーボードの<b>「Escキー」</b>を押すと一時停止が可能です。</li>
+        <li><span class="instr-num">2</span>左クリックで画面中央に弾を発射し、左右に移動するマトを撃ち抜きます。</li>
+        <li><span class="instr-num">3</span>制限時間30秒以内に、どれだけ多くのマトを射抜けるかの勝負です。</li>
+        <li><span class="instr-num">4</span>ゲームプレイ中に画面左下のボタンを押すか、キーボードの「Escキー」を押すと一時停止が可能です。</li>
       </ul>
       
       <h3>マトの種類と得点</h3>
@@ -471,7 +471,7 @@ function createTarget() {
   }
 
   const side = Math.random() > 0.5 ? 1 : -1;
-  group.position.set(side * 12, 1.2 + Math.random() * 1.8, -12 - Math.random() * 6);
+  group.position.set(side * 12, 0.3 + Math.random() * 7.5, -12 - Math.random() * 6);
   
   group.userData = {
     vx: -side * type.vx * (0.8 + Math.random() * 0.4),
