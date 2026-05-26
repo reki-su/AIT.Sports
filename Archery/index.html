@@ -316,8 +316,8 @@
     <h2>操作方法</h2>
     <ul class="instr-list">
       <li><span class="instr-num">1</span>クリック長押しで弓を引き、狙いを定めます。</li>
-      <li><span class="instr-num">2</span>外側から中心へと縮んでくる、白い点線サークルが消える一瞬を見極めましょう。</li>
-      <li><span class="instr-num">3</span>マウスの移動方向にまっすぐ飛びます。35m ➔ 50m ➔ 70mの全3ステージ。</li>
+      <li><span class="instr-num">2</span>外側から中心へと縮んでくる白いサークルが小さくなったタイミングで放ちましょう。</li>
+      <li><span class="instr-num">3</span>マウスの移動方向にまっすぐ飛びます。30m ➔ 45m ➔ 60mの全3ステージ。</li>
     </ul>
     
     <h3>的な得点</h3>
@@ -332,11 +332,11 @@
 
     <h3>総合評価ランク</h3>
     <div class="rank-grid">
-      <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">75点〜</div></div>
-      <div class="rank-cell"><div class="rank-letter r-a">A</div><div class="rank-pts">55点〜</div></div>
-      <div class="rank-cell"><div class="rank-letter r-b">B</div><div class="rank-pts">35点〜</div></div>
-      <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">15点〜</div></div>
-      <div class="rank-cell"><div class="rank-letter r-d">D</div><div class="rank-pts">14点以下</div></div>
+      <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">50点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-a">A</div><div class="rank-pts">38点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-b">B</div><div class="rank-pts">24点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">10点〜</div></div>
+      <div class="rank-cell"><div class="rank-letter r-d">D</div><div class="rank-pts">9点以下</div></div>
     </div>
 
     <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
@@ -350,7 +350,7 @@
   <div class="result-box">
     <div class="result-lbl">FINAL SCORE</div>
     <div class="result-total" id="rTotal">0</div>
-    <div class="result-max">/ 90 点</div>
+    <div class="result-max">/ 60 点</div>
     <div class="result-rounds" id="rRounds"></div>
     <div class="result-rank" id="rRank"></div>
     <div class="result-comment" id="rComment"></div>
@@ -372,7 +372,6 @@
       <div class="hud-shot-icon-row">
         <svg class="hud-shot-icon" id="hudShot1" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <svg class="hud-shot-icon" id="hudShot2" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <svg class="hud-shot-icon" id="hudShot3" viewBox="0 0 24 24" fill="none" stroke="#ffe066" stroke-width="3"><path d="M5 19L19 5M19 5H13M19 5V11" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
     </div>
     <div class="hud-bottom-row">
@@ -388,7 +387,7 @@
   <div class="hud-dist-wind">
     <div class="hud-dist-text">
       <div class="hud-dist-lbl">的まで</div>
-      <div><span class="hud-dist-val" id="hudDist">35</span><span class="hud-dist-m"> m</span></div>
+      <div><span class="hud-dist-val" id="hudDist">30</span><span class="hud-dist-m"> m</span></div>
     </div>
     <div class="hud-wind">
       <div class="wind-arrow" id="windArrow">➔</div>
@@ -435,7 +434,7 @@ const sun = new THREE.DirectionalLight(0xfff5e0, 0.5);
 sun.position.set(5, 10, 7); scene.add(sun);
 
 const texLoader = new THREE.TextureLoader();
-texLoader.load('kyudo.png', function(texture) {
+texLoader.load('kyudo.jpg', function(texture) {
   scene.background = texture;
 }, undefined, function(err) {
   console.error("Texture error.", err);
@@ -445,11 +444,11 @@ texLoader.load('kyudo.png', function(texture) {
 // CONFIG STAGES & GAME PARAMETERS
 // ============================================================
 const TOTAL_ROUNDS = 3;
-const SHOTS_PER_ROUND = 3;
+const SHOTS_PER_ROUND = 2;
 let currentRound = 0;
 let currentShotInRound = 0;
-let currentDistM = 35; 
-let targetZ = -35;
+let currentDistM = 30; 
+let targetZ = -30;
 let targetPos = new THREE.Vector3(0, 1.4, targetZ);
 
 let windSpeedVal = 0;
@@ -457,11 +456,12 @@ let windForceX = 0, windForceY = 0;
 
 function newWind() {
   const angle = Math.random() * Math.PI * 2;
-  const maxWind = currentDistM >= 70 ? 9.5 : currentDistM >= 50 ? 7.5 : 5.0;
-  windSpeedVal = Math.random() * maxWind + 0.6;
+  if (currentRound === 0) windSpeedVal = Math.random() * 2.0; // 0-2
+  else if (currentRound === 1) windSpeedVal = 2.0 + Math.random() * 2.0; // 2-4
+  else windSpeedVal = 4.0 + Math.random() * 1.0; // 4-5
   
-  windForceX = Math.cos(angle) * windSpeedVal * 2.70; 
-  windForceY = Math.sin(angle) * windSpeedVal * 0.70;
+  windForceX = Math.cos(angle) * windSpeedVal * 1.65; 
+  windForceY = Math.sin(angle) * windSpeedVal * 0.45;
 
   const arrowEl = document.getElementById('windArrow');
   const deg = angle * 180 / Math.PI;
@@ -470,9 +470,9 @@ function newWind() {
 }
 
 function updateStageDistance() {
-  if (currentRound === 0) currentDistM = 35;
-  else if (currentRound === 1) currentDistM = 50;
-  else currentDistM = 70;
+  if (currentRound === 0) currentDistM = 30;
+  else if (currentRound === 1) currentDistM = 45;
+  else currentDistM = 60;
 
   targetZ = -currentDistM;
   targetPos.set(0, 1.4, targetZ);
@@ -496,10 +496,10 @@ function updateHudShots() {
 function updateHudScore() {
   document.getElementById('hudScore').textContent = totalScore;
   let rank = 'Rank D';
-  if (totalScore >= 75) rank = 'Rank S';
-  else if (totalScore >= 55) rank = 'Rank A';
-  else if (totalScore >= 35) rank = 'Rank B';
-  else if (totalScore >= 15) rank = 'Rank C';
+  if (totalScore >= 50) rank = 'Rank S';
+  else if (totalScore >= 38) rank = 'Rank A';
+  else if (totalScore >= 24) rank = 'Rank B';
+  else if (totalScore >= 10) rank = 'Rank C';
   document.getElementById('hudRank').textContent = rank;
 }
 
@@ -581,11 +581,14 @@ function saveGameResult(finalScore, finalRank) {
     data.users[currentUser] = { archery_score: 0, archery_rank: "D" };
   }
 
-  if (finalScore > data.users[currentUser].archery_score) {
-    data.users[currentUser].archery_score = finalScore;
-    data.users[currentUser].archery_rank = finalRank;
-    localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
-  }
+  const latestScore = Number(finalScore) || 0;
+  const bestScore = Number(data.users[currentUser].archery_score) || 0;
+  data.users[currentUser].archery_score = Math.max(bestScore, latestScore);
+
+  // ベスト更新がなくても最新ランクは保存する
+  data.users[currentUser].archery_rank = finalRank;
+  data.currentUser = currentUser;
+  localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
 }
 
 window.addEventListener('DOMContentLoaded', loadUserStatus);
@@ -743,10 +746,10 @@ function showResult() {
   let rcls = 'rank-D';
   let comment = '';
 
-  if (totalScore >= 75) { rank='S'; rcls='rank-S'; comment='神話級の腕前！嵐を制する大達人です！'; }
-  else if (totalScore >= 55) { rank='A'; rcls='rank-A'; comment='素晴らしい！超偏差アーチェリーを見事に攻略しました！'; }
-  else if (totalScore >= 35) { rank='B'; rcls='rank-B'; comment='グッジョブ！この激しい風の中での素晴らしい適応力です。'; }
-  else if (totalScore >= 15) { rank='C'; rcls='rank-C'; comment='風に激しく押し流される軌道を計算して狙いをずらそう。'; }
+  if (totalScore >= 50) { rank='S'; rcls='rank-S'; comment='神話級の腕前！風を読み切る大達人です！'; }
+  else if (totalScore >= 38) { rank='A'; rcls='rank-A'; comment='素晴らしい！安定した狙いで高得点です！'; }
+  else if (totalScore >= 24) { rank='B'; rcls='rank-B'; comment='グッジョブ！この風でもしっかり当てられています。'; }
+  else if (totalScore >= 10) { rank='C'; rcls='rank-C'; comment='もう少し！風向きを見て狙いを微調整しよう。'; }
   else { rank='D'; rcls='rank-D'; comment='超強風大どんまい！風向きの真逆の空間をエイムしよう！'; }
   
   const re = document.getElementById('rRank');
@@ -850,37 +853,37 @@ function drawScope(tx, ty) {
   const w = W(), h = H();
   if (scopeCanvas.width !== w || scopeCanvas.height !== h) resizeScopeCanvas();
   scopeCtx.clearRect(0,0,w,h);
-  if (scopeR <= 2) return;
-
   const cx = w/2 + tx * 20, cy = h/2 - ty * 20;
-  const r = scopeR;
 
+  // Wii Sports Resort風: 外側から縮むリング（最終的に的より少し大きめで停止）
+  const maxRadius = Math.max(w, h) * 0.68;
+  const minRadius = 108;
+  const currentShrinkR = Math.max(minRadius, maxRadius * (1 - shrinkProgress));
+  if (currentShrinkR <= 1.5) return;
+
+  // リング外側をモザイク風に暗くする
   scopeCtx.save();
-  scopeCtx.fillStyle = 'rgba(0,0,0,0.65)';
-  scopeCtx.fillRect(0,0,w,h);
-  scopeCtx.globalCompositeOperation = 'destination-out';
-  scopeCtx.beginPath(); scopeCtx.arc(cx, cy, r, 0, Math.PI*2); scopeCtx.fill();
-  scopeCtx.restore();
-
-  scopeCtx.save();
-  scopeCtx.strokeStyle = 'rgba(255,255,255,0.75)';
-  scopeCtx.lineWidth = 3.5;
-  scopeCtx.beginPath(); scopeCtx.arc(cx, cy, r, 0, Math.PI*2); scopeCtx.stroke();
-  scopeCtx.restore();
-
-  const maxRadius = Math.max(w, h) * 0.75;
-  const currentShrinkR = maxRadius * (1 - shrinkProgress);
-
-  if (shrinkProgress > 0 && currentShrinkR > 1.5) {
-    scopeCtx.save();
-    scopeCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
-    scopeCtx.lineWidth = 3.5;
-    scopeCtx.setLineDash([12, 6]); 
-    scopeCtx.beginPath();
-    scopeCtx.arc(cx, cy, currentShrinkR, 0, Math.PI*2);
-    scopeCtx.stroke();
-    scopeCtx.restore();
+  scopeCtx.beginPath();
+  scopeCtx.rect(0, 0, w, h);
+  scopeCtx.arc(cx, cy, currentShrinkR + 2, 0, Math.PI * 2, true);
+  scopeCtx.clip('evenodd');
+  for (let y = 0; y < h; y += 14) {
+    for (let x = 0; x < w; x += 14) {
+      scopeCtx.fillStyle = 'rgba(128,128,128,0.38)';
+      scopeCtx.fillRect(x, y, 14, 14);
+    }
   }
+  scopeCtx.restore();
+
+  // 外側リングは実線
+  scopeCtx.save();
+  scopeCtx.strokeStyle = 'rgba(255, 255, 255, 0.92)';
+  scopeCtx.lineWidth = 4;
+  scopeCtx.setLineDash([]);
+  scopeCtx.beginPath();
+  scopeCtx.arc(cx, cy, currentShrinkR, 0, Math.PI * 2);
+  scopeCtx.stroke();
+  scopeCtx.restore();
 }
 
 window.addEventListener('mousemove', e => {
@@ -983,6 +986,7 @@ function animate() {
   } else if (state === 'fly') {
     const slowDt = dt * 0.28;
 
+    const prevPos = aPos.clone();
     aVel.y -= 9.8 * slowDt; 
     aVel.x += windForceX * slowDt;
     aVel.y += windForceY * slowDt;
@@ -999,7 +1003,18 @@ function animate() {
     currentFov += (54 - currentFov) * 0.03;
 
     if (aPos.z <= targetPos.z) {
-      const d = aPos.distanceTo(targetPos);
+      // 的の面(z=targetPos.z)を通過した瞬間の座標を補間して判定精度を上げる
+      let impactPos = aPos.clone();
+      const dz = aPos.z - prevPos.z;
+      if (Math.abs(dz) > 1e-6) {
+        const t = (targetPos.z - prevPos.z) / dz;
+        impactPos = prevPos.clone().lerp(aPos, THREE.MathUtils.clamp(t, 0, 1));
+      }
+      impactPos.z = targetPos.z;
+
+      const dx = impactPos.x - targetPos.x;
+      const dy = impactPos.y - targetPos.y;
+      const d = Math.hypot(dx, dy);
       if (d < 2.0) {
         let pts = 3, msg = '3点　WHITE';
         if      (d < 0.4) { pts = 10; msg = '🎯 10点満点！ GOLD！'; }
