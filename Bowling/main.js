@@ -245,14 +245,6 @@ const texLoader = new THREE.TextureLoader();
 texLoader.load("img/parking.jpeg", tex => {
     scene.background = tex;
 });
-const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(80, 80),
-    new THREE.MeshPhongMaterial({
-        color: 0xb8b8b8,
-        shininess: 8
-    })
-);
-ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.02, -10); ground.receiveShadow = true; scene.add(ground);
 
 // ===== レーン白線 =====
 const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
