@@ -245,7 +245,13 @@ const texLoader = new THREE.TextureLoader();
 texLoader.load("img/parking.jpeg", tex => {
     scene.background = tex;
 });
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshPhongMaterial({ map: sharedGroundTex, shininess: 8, color: 0xb8b8b8 }));
+const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(80, 80),
+    new THREE.MeshPhongMaterial({
+        color: 0xb8b8b8,
+        shininess: 8
+    })
+);
 ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.02, -10); ground.receiveShadow = true; scene.add(ground);
 
 // ===== レーン白線 =====
@@ -274,8 +280,6 @@ const wallMat = new THREE.MeshPhongMaterial({ color: 0x111122, transparent: true
     w.castShadow = true;
     scene.add(w);
 });
-const foulLine = new THREE.Mesh(new THREE.PlaneGeometry(6, 0.07), new THREE.MeshBasicMaterial({ color: 0xff2200 }));
-foulLine.rotation.x = -Math.PI / 2; foulLine.position.set(0, 0.01, 7); scene.add(foulLine);
 
 // ===== ファウルライン =====
 const foulLine = new THREE.Mesh(
@@ -310,6 +314,11 @@ function createBall() {
         new THREE.MeshPhongMaterial({ color: 0x080810, shininess: 240, specular: new THREE.Color(0x3355ff) })
     );
     ballGroup.add(core);
+    const lMat1 = new THREE.MeshBasicMaterial({
+        color: 0x00bbff,
+        transparent: true,
+        opacity: 0.7
+    });
     for (let i = 0; i < 3; i++) {
         const m = new THREE.Mesh(new THREE.TorusGeometry(0.503, 0.015, 8, 64), lMat1);
         m.rotation.set(Math.PI / 2, (i * Math.PI * 2) / 3, 0.65);
@@ -590,9 +599,6 @@ function countKnocked() {
     ).length;
 }
 
-// ===== スコアチェック判定と進行 =====
-const KNOCK_THRESHOLD = 0.52; let scoreCheckTimer = null;
-function countKnocked() { return pins.filter(p => Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD).length; }
 function removeKnockedPins() {
     pins.forEach(p => { if (Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD && !p.knocked) { p.knocked = true; World.remove(world, p.body); scene.remove(p.mesh); } });
 }
@@ -617,9 +623,16 @@ function scheduleCheckScore() {
 
 function checkScore() {
     if (scored) return; scored = true; ballLaunched = false; curveActive = false;
-    const fi = frame - 1; if (!frameData[fi]) frameData[fi] = [];
-    const totalKnocked = countKnocked(); const thisThrow = throwCount === 1 ? totalKnocked : totalKnocked - firstThrowKnocked;
+    const fi = frame - 1;
+    if (!frameData[fi]) frameData[fi] = [];
+    const totalKnocked = countKnocked();
+    const thisThrow = throwCount === 1
+        ? totalKnocked
+        : totalKnocked - firstThrowKnocked;
+
     frameData[fi].push(thisThrow);
+
+    const f = frameData[fi];
 
     if (frame === 10) {
         handle10thFrame(f, totalKnocked);
@@ -846,8 +859,6 @@ const guideGeo = new THREE.BufferGeometry();
 const guideLine = new THREE.Line(guideGeo, new THREE.LineBasicMaterial({ color: 0xff2200, transparent: true, opacity: 0.6 }));
 scene.add(guideLine);
 let ballTravelDistance = 0;
-
-let ballTravelDistance = 0;
 let lastKnockedState = "";
 
 // ===== メインループ =====
@@ -946,6 +957,4 @@ function animate() {
     update();
     renderer.render(scene, camera);
 }
-
-function animate() { requestAnimationFrame(animate); update(); renderer.render(scene, camera); }
 switchScreen("title"); animate();
