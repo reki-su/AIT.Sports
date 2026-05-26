@@ -36,6 +36,7 @@ html, body {
   position: absolute;
   top: 1.1rem; left: 1.4rem;
   z-index: 20;
+  display: inline-block;
   font-family: 'Orbitron', sans-serif;
   font-size: clamp(5rem, 2.5vw, 7rem);
   font-weight: 900;
@@ -45,6 +46,8 @@ html, body {
   border-radius: 8px;
   box-shadow: var(--shadow-sm);
   line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .home-logo .logo-ait    { color: #444; }
@@ -87,7 +90,7 @@ html, body {
   display: flex;
   align-items: center;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));
-  transition: transform 0.2s ease;
+  transition: transform 0.25s ease, filter 0.25s ease;
   z-index: 10;
 }
 
@@ -148,6 +151,39 @@ html, body {
   border-radius: 0 100px 100px 0px; 
   white-space: nowrap;
   z-index: -1; 
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.callout__icon {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.callout:hover,
+.callout:focus-visible,
+.callout.keyboard-focus {
+  transform: translate(-50%, -53%) rotate(-2deg) scale(1.05);
+  filter: drop-shadow(0 12px 20px rgba(0,0,0,0.25));
+}
+
+.callout:hover .callout__icon,
+.callout:focus-visible .callout__icon,
+.callout.keyboard-focus .callout__icon {
+  animation: callout-wobble 0.9s ease-in-out infinite;
+  border-color: #49b8e5;
+  box-shadow: 0 0 0 8px rgba(73, 184, 229, 0.2);
+}
+
+.callout:hover .callout__label,
+.callout:focus-visible .callout__label,
+.callout.keyboard-focus .callout__label {
+  background: #c8ebff;
+  color: #236a86;
+}
+
+@keyframes callout-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
 }
 
 /* ═══════════════════════════════════
