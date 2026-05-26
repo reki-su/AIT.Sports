@@ -374,6 +374,31 @@
       <span style="font-size:14px; font-weight:700; color:#4d7c7a; min-width:12px;">R</span>
     </div>
     <div id="curveLabel" style="text-align:center; font-size:16px; font-weight:900; color:#1c4e4d; margin-top:8px; letter-spacing:1px;"></div>
+  <div class="hud-panel" id="hudLeft">
+    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+      <div id="frameLabel" style="font-size:16px; font-weight:900;">FRAME 1</div>
+      <div id="throwLabel" style="font-size:12px; color:rgba(255,255,255,0.7);">1ST THROW</div>
+    </div>
+    <div id="totalScore" style="font-size:24px; font-weight:900; margin-bottom:8px;">TOTAL: 0</div>
+    <div id="framesRow" style="display:flex; gap:3px;"></div>
+    <div id="msgBox" style="min-height:18px; margin-top:6px; font-size:14px; font-weight:900; color:#ffe066;"></div>
+  </div>
+
+  <div class="hud-panel" id="pinMapEl">
+    <div style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:2px; margin-bottom:4px;">PINS</div>
+    <div id="pinDots" style="position:relative; width:140px; height:130px; margin:0 auto;"></div>
+  </div>
+
+  <div class="hud-panel" id="curveEl">
+    <div style="font-size:10px; font-weight:700; color:rgba(255,255,255,0.6); letter-spacing:2px; margin-bottom:6px;">CURVE</div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="font-size:10px; color:rgba(255,255,255,0.5)">L</span>
+      <div style="flex:1; height:8px; background:rgba(0,0,0,0.4); border-radius:4px; position:relative; overflow:hidden;">
+        <div id="curveFill" style="position:absolute; height:100%; width:0%; left:50%; background:#55ccff; transition:all 0.1s;"></div>
+      </div>
+      <span style="font-size:10px; color:rgba(255,255,255,0.5)">R</span>
+    </div>
+    <div id="curveLabel" style="text-align:center; font-size:11px; margin-top:4px; font-weight:700;">NONE</div>
   </div>
 </div>
 

@@ -28,7 +28,7 @@ window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// ===== ゲーム状態 =====
+// ===== ゲーム状態・ユーザー管理 =====
 let gameState = "title";
 let currentUser = "ゲスト";
 let isPaused = false;
@@ -245,6 +245,8 @@ const texLoader = new THREE.TextureLoader();
 texLoader.load("img/parking.jpeg", tex => {
     scene.background = tex;
 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshPhongMaterial({ map: sharedGroundTex, shininess: 8, color: 0xb8b8b8 }));
+ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.02, -10); ground.receiveShadow = true; scene.add(ground);
 
 // ===== レーン白線 =====
 const lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 });
@@ -272,6 +274,8 @@ const wallMat = new THREE.MeshPhongMaterial({ color: 0x111122, transparent: true
     w.castShadow = true;
     scene.add(w);
 });
+const foulLine = new THREE.Mesh(new THREE.PlaneGeometry(6, 0.07), new THREE.MeshBasicMaterial({ color: 0xff2200 }));
+foulLine.rotation.x = -Math.PI / 2; foulLine.position.set(0, 0.01, 7); scene.add(foulLine);
 
 // ===== ファウルライン =====
 const foulLine = new THREE.Mesh(
@@ -300,15 +304,12 @@ function createBall() {
         friction: 0.04, density: 0.08, label: "ball"
     });
     World.add(world, ballBody);
-
     ballGroup = new THREE.Group();
     const core = new THREE.Mesh(
         new THREE.SphereGeometry(0.50, 48, 48),
         new THREE.MeshPhongMaterial({ color: 0x080810, shininess: 240, specular: new THREE.Color(0x3355ff) })
     );
     ballGroup.add(core);
-
-    const lMat1 = new THREE.MeshBasicMaterial({ color: 0x00ccff, transparent: true, opacity: 0.85 });
     for (let i = 0; i < 3; i++) {
         const m = new THREE.Mesh(new THREE.TorusGeometry(0.503, 0.015, 8, 64), lMat1);
         m.rotation.set(Math.PI / 2, (i * Math.PI * 2) / 3, 0.65);
@@ -322,13 +323,9 @@ function createBall() {
 
     const holeMat = new THREE.MeshPhongMaterial({ color: 0x020205 });
     [[0.17, 0.25, 0.16], [-0.04, 0.30, 0.16], [-0.18, 0.21, 0.19]].forEach(([x, y, z]) => {
-        const h = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), holeMat);
-        h.position.set(x, y, z);
-        ballGroup.add(h);
+        const h = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), holeMat); h.position.set(x, y, z); ballGroup.add(h);
     });
-
-    ballGroup.castShadow = true;
-    scene.add(ballGroup);
+    ballGroup.castShadow = true; scene.add(ballGroup);
 }
 
 // ===== ピン =====
@@ -339,7 +336,6 @@ const PIN_POSITIONS = [
     [-1.1,  -14.0], [0,     -14.0], [1.1,   -14.0],
     [-1.65, -15.0], [-0.55, -15.0], [0.55,  -15.0], [1.65,  -15.0]
 ];
-
 function createPinMesh() {
     const g = new THREE.Group();
     const white = new THREE.MeshPhongMaterial({ color: 0xf0f0f0, shininess: 110 });
@@ -361,29 +357,22 @@ function createPinMesh() {
     g.scale.setScalar(2.2);
     return g;
 }
-
 function createPins() {
     pins.forEach(p => { World.remove(world, p.body); scene.remove(p.mesh); });
     pins = [];
     lastKnockedState = "";
     PIN_POSITIONS.forEach(([px, pz]) => {
-        const body = Bodies.circle(px, pz, 0.21, {
-            restitution: 0.6, friction: 0.04,
-            frictionAir: 0.016, density: 0.03, label: "pin"
-        });
-        World.add(world, body);
-        const mesh = createPinMesh();
-        scene.add(mesh);
+        const body = Bodies.circle(px, pz, 0.21, { restitution: 0.6, friction: 0.04, frictionAir: 0.016, density: 0.03, label: "pin" });
+        World.add(world, body); const mesh = createPinMesh(); scene.add(mesh);
         pins.push({ body, mesh, startX: px, startZ: pz, knocked: false });
     });
     updatePinMap();
 }
 
+// 衝突判定
 Events.on(engine, "collisionStart", ev => {
     ev.pairs.forEach(({ bodyA, bodyB }) => {
-        const isPin  = b => b.label === "pin";
-        const isBall = b => b.label === "ball";
-
+        const isPin = b => b.label === "pin"; const isBall = b => b.label === "ball";
         if ((isBall(bodyA) && isPin(bodyB)) || (isBall(bodyB) && isPin(bodyA))) {
             const pin  = isPin(bodyA) ? bodyA : bodyB;
             const ball = isBall(bodyA) ? bodyA : bodyB;
@@ -410,7 +399,6 @@ Events.on(engine, "collisionStart", ev => {
             Body.applyForce(pin, pin.position, { x: nx * forceMag + tx * fLateral, y: ny * forceMag + ty * fLateral });
             Body.applyForce(ball, ball.position, { x: -nx * forceMag * 0.15, y: -ny * forceMag * 0.15 });
         }
-
         if (isPin(bodyA) && isPin(bodyB)) {
             const dx  = bodyB.position.x - bodyA.position.x;
             const dy  = bodyB.position.y - bodyA.position.y;
@@ -438,7 +426,6 @@ document.addEventListener("mousedown", e => {
     startMouseX = e.clientX; startMouseY = e.clientY;
     scored = false;
 });
-
 document.addEventListener("mouseup", e => {
     if (gameState !== "playing" || scored || ballLaunched || isPaused) return;
     if (e.target.id === "pauseTriggerBtn") return;
@@ -457,7 +444,6 @@ document.addEventListener("mouseup", e => {
     scoreCheckScheduled = false;
     hudPauseBox.style.display = "none";
 });
-
 document.addEventListener("keydown", e => {
     if (gameState !== "playing" || isPaused) return;
     if (e.key === "ArrowLeft")          playerX = Math.max(-2.2, playerX - 0.38);
@@ -499,36 +485,22 @@ let frame = 1, throwCount = 1, firstThrowKnocked = 0;
 let frameData = [];
 
 function calcCumulative() {
-    const result = new Array(10).fill(null);
-    let total = 0;
+    const result = new Array(10).fill(null); let total = 0;
     for (let i = 0; i < frameData.length && i < 10; i++) {
-        const f = frameData[i];
-        if (!f || f.length === 0) break;
+        const f = frameData[i]; if (!f || f.length === 0) break;
         if (i === 9) {
-            const need = (f[0] === 10 || (f.length > 1 && f[0] + f[1] === 10)) ? 3 : 2;
-            if (f.length < need) break;
+            if (f.length < ((f[0] === 10 || (f.length > 1 && f[0] + f[1] === 10)) ? 3 : 2)) break;
             total += f.reduce((a, b) => a + b, 0);
         } else if (f[0] === 10) {
-            const next = frameData[i + 1];
-            if (!next || next.length === 0) break;
-            const b1 = next[0] ?? 0;
-            let b2;
-            if (next[0] === 10 && i + 1 < 9) {
-                const next2 = frameData[i + 2];
-                if (!next2 || next2.length === 0) break;
-                b2 = next2[0] ?? 0;
-            } else {
-                if (next.length < 2) break;
-                b2 = next[1] ?? 0;
-            }
-            total += 10 + b1 + b2;
+            const next = frameData[i + 1]; if (!next || next.length === 0) break;
+            let b2 = (next[0] === 10 && i + 1 < 9) ? (frameData[i + 2]?.[0] ?? 0) : (next[1] ?? 0);
+            if (next[0] !== 10 && next.length < 2) break;
+            total += 10 + next[0] + b2;
         } else if (f.length > 1 && f[0] + f[1] === 10) {
-            const next = frameData[i + 1];
-            if (!next || next.length === 0) break;
-            total += 10 + next[0];
+            if (!frameData[i + 1] || frameData[i + 1].length === 0) break;
+            total += 10 + frameData[i + 1][0];
         } else {
-            if (f.length < 2) break;
-            total += f[0] + f[1];
+            if (f.length < 2) break; total += f[0] + f[1];
         }
         result[i] = total;
     }
@@ -536,16 +508,10 @@ function calcCumulative() {
 }
 
 function drawFrameBoard() {
-    const cum = calcCumulative();
-    const framesRow = document.getElementById("framesRow");
-    if (!framesRow) return;
+    const cum = calcCumulative(); const framesRow = document.getElementById("framesRow"); if (!framesRow) return;
     framesRow.innerHTML = "";
-
     for (let i = 0; i < 10; i++) {
-        const f    = frameData[i] || [];
-        const is10 = i === 9;
-        const isCur = i === frame - 1;
-
+        const f = frameData[i] || []; const is10 = i === 9; const isCur = i === frame - 1;
         const box = document.createElement("div");
         box.style.cssText = `
             width:${is10 ? "62px" : "48px"};
@@ -582,7 +548,6 @@ function drawFrameBoard() {
     const totalEl = document.getElementById("totalScore");
     if (totalEl) totalEl.textContent = "合計: " + (last ?? 0);
 }
-
 function symNormal(f) {
     if (f[0] === 10) return ["", `<span style="color:#ff9933;font-weight:900;font-size:15px;">${STRIKE_SYM}</span>`];
     const s1 = f[0] !== undefined ? (f[0] === 0 ? "-" : f[0]) : "";
@@ -593,7 +558,6 @@ function symNormal(f) {
             : (f[1] === 0 ? "-" : f[1]);
     return [s1, s2];
 }
-
 function sym10(f, idx) {
     const v = f[idx];
     if (v === undefined) return "";
@@ -626,15 +590,11 @@ function countKnocked() {
     ).length;
 }
 
+// ===== スコアチェック判定と進行 =====
+const KNOCK_THRESHOLD = 0.52; let scoreCheckTimer = null;
+function countKnocked() { return pins.filter(p => Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD).length; }
 function removeKnockedPins() {
-    pins.forEach(p => {
-        const moved = Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD;
-        if (moved && !p.knocked) {
-            p.knocked = true;
-            World.remove(world, p.body);
-            scene.remove(p.mesh);
-        }
-    });
+    pins.forEach(p => { if (Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD && !p.knocked) { p.knocked = true; World.remove(world, p.body); scene.remove(p.mesh); } });
 }
 
 function scheduleCheckScore() {
@@ -656,18 +616,10 @@ function scheduleCheckScore() {
 }
 
 function checkScore() {
-    if (scored) return;
-    scored = true;
-    ballLaunched = false;
-    curveActive = false;
-
-    const fi = frame - 1;
-    if (!frameData[fi]) frameData[fi] = [];
-
-    const totalKnocked = countKnocked();
-    const thisThrow = throwCount === 1 ? totalKnocked : totalKnocked - firstThrowKnocked;
+    if (scored) return; scored = true; ballLaunched = false; curveActive = false;
+    const fi = frame - 1; if (!frameData[fi]) frameData[fi] = [];
+    const totalKnocked = countKnocked(); const thisThrow = throwCount === 1 ? totalKnocked : totalKnocked - firstThrowKnocked;
     frameData[fi].push(thisThrow);
-    const f = frameData[fi];
 
     if (frame === 10) {
         handle10thFrame(f, totalKnocked);
@@ -710,7 +662,6 @@ function handleNormalFrame(f, totalKnocked, thisThrow) {
 
 function handle10thFrame(f, totalKnocked) {
     const need = (f[0] === 10 || (f.length > 1 && f[0] + f[1] === 10)) ? 3 : 2;
-
     if (f.length === 1) {
         firstThrowKnocked = f[0] === 10 ? 0 : totalKnocked;
         if (f[0] === 10) { setMsg("STRIKE!"); showEvent("strike"); }
@@ -790,8 +741,7 @@ function endGame() {
     rRank.textContent = "RANK " + rank;
     document.getElementById("resultComment").textContent = comment;
 
-    const rf = document.getElementById("resultFrames");
-    rf.innerHTML = "";
+    const rf = document.getElementById("resultFrames"); rf.innerHTML = "";
     for (let i = 0; i < 10; i++) {
         const f    = frameData[i] || [];
         const is10 = i === 9;
@@ -893,9 +843,9 @@ function updatePinMap() {
 
 // ===== ガイドライン =====
 const guideGeo = new THREE.BufferGeometry();
-const guideMat = new THREE.LineBasicMaterial({ color: 0xff2200, transparent: true, opacity: 0.6 });
-const guideLine = new THREE.Line(guideGeo, guideMat);
+const guideLine = new THREE.Line(guideGeo, new THREE.LineBasicMaterial({ color: 0xff2200, transparent: true, opacity: 0.6 }));
 scene.add(guideLine);
+let ballTravelDistance = 0;
 
 let ballTravelDistance = 0;
 let lastKnockedState = "";
@@ -971,13 +921,7 @@ function update() {
     pins.forEach(p => {
         if (p.knocked) return;
         const moved = Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD;
-        if (moved) {
-            p.mesh.position.set(p.body.position.x, 0.14, p.body.position.y);
-            p.mesh.rotation.set(Math.PI / 2, p.body.angle, 0);
-        } else {
-            p.mesh.position.set(p.body.position.x, 0, p.body.position.y);
-            p.mesh.rotation.set(0, p.body.angle, 0);
-        }
+        p.mesh.position.set(p.body.position.x, moved ? 0.14 : 0, p.body.position.y); p.mesh.rotation.set(moved ? Math.PI / 2 : 0, p.body.angle, 0);
     });
 
     const knockedState = pins.map(p => p.knocked).join(",");
@@ -1003,6 +947,5 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// ===== 初期化 =====
-switchScreen("title");
-animate();
+function animate() { requestAnimationFrame(animate); update(); renderer.render(scene, camera); }
+switchScreen("title"); animate();
