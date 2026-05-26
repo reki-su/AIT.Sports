@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル釣りゲーム</title>
+    <title>釣りゲーム（サイズランクシステム）</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,39 +10,143 @@
     <div id="game-container">
         <div id="game-screen">
             
-            <div id="screen-start" class="screen">
-                <h1>釣りゲーム</h1>
-                <button id="start-btn">スタート</button>
+            <div id="game-messages" class="ui-layer hidden">
+                <h2 id="msg-perfect" class="hidden popup-text" style="color: #fbbf24; text-shadow: 2px 2px 0 #ea580c, 0 0 15px #fef08a;">PERFECT!!</h2>
+                <h2 id="msg-warning" class="hidden warning-text" style="color: #ef4444; text-shadow: 2px 2px 0 #7f1d1d, 0 0 15px #f87171;">⚠️ 魚が暴れ出した！ ⚠️</h2>
             </div>
 
-            <div id="screen-aim" class="screen hidden">
-                <p>スペースキーで投げる！</p>
-                <img id="rod-aim" src="images/rod_idle.png" class="rod-img">
-            </div>
-
-            <div id="screen-waiting" class="screen hidden">
-                <p id="status-text">魚を待っています...</p>
-                <img id="rod-waiting" src="images/rod_idle.png" class="rod-img">
-                <div id="bite-icon" class="hidden">！</div>
-            </div>
-
-            <div id="screen-reeling" class="screen hidden">
-                <p>左クリック長押しで巻き上げ！</p>
-                <img id="rod-reeling" src="images/rod_reel.png" class="rod-img">
-                <div class="gauge-container">
-                    <div id="gauge-bar"></div>
+            <div class="screen" id="screen-start">
+                <div class="wii-title-wrapper">
+                    <h1 class="wii-title">釣り</h1>
+                </div>
+                <div class="wii-btn-center-group">
+                    <button class="wii-btn" id="start-btn">はじめる</button>
+                    <button class="wii-btn" id="instr-btn">操作方法</button>
+                </div>
+                <div class="wii-footer">
+                    <button class="wii-btn wii-btn-side" id="quit-btn-start">ホームに戻る</button>
+                    <div>
+                        <button class="wii-btn wii-btn-side" id="modal-trigger-btn">ユーザー選択</button>
+                        <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+                    </div>
                 </div>
             </div>
 
-            <div id="screen-success" class="screen hidden">
-                <h2 id="result-text">小魚を釣った！</h2>
-                <img id="fish-img" src="" class="fish-img">
-                <button onclick="location.reload()">もう一度遊ぶ</button>
+            <div id="userModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h2>ユーザー設定</h2>
+                    <div class="user-list-container" id="modalUserList"></div>
+                    <div class="modal-input-group">
+                        <input type="text" class="modal-input" id="newUserNameInput" placeholder="新しい名前を入力" maxlength="10">
+                        <button class="modal-action-btn primary" id="addUserBtn">追加</button>
+                    </div>
+                    <div>
+                        <button class="modal-action-btn" style="width: 100px;" id="closeUserModalBtn">閉じる</button>
+                    </div>
+                </div>
             </div>
 
-            <div id="screen-fail" class="screen hidden">
-                <h2>逃げられた…</h2>
-                <button onclick="location.reload()">リトライ</button>
+            <div id="pauseModal" class="modal-overlay">
+                <div class="modal-box">
+                    <h2>一時停止中</h2>
+                    <div class="pause-btn-group">
+                        <button class="wii-btn pause-wii-btn" id="resumeGameBtn">ゲームを続ける</button>
+                        <button class="wii-btn pause-wii-btn" id="restartGameBtn">はじめからやり直す</button>
+                        <button class="wii-btn pause-wii-btn" id="showInstrBtn">操作方法の確認</button>
+                        <button class="wii-btn pause-wii-btn" style="background: rgb(245, 214, 214); color: #8a1c1c;" id="exitToHomeBtn">ホームに戻る</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="screen hidden" id="screen-howto">
+                <div class="instr-box">
+                    <h2>操作方法</h2>
+                    <ul class="instr-list">
+                        <li><span class="instr-num">1</span><b>スペースキー</b>で投げ、「！」が出たら<b>即クリック</b>（0.3秒以内でPERFECT!）</li>
+                        <li><span class="instr-num">2</span>リール画面では、<b>左クリック長押し</b>で右ゲージを保ち、左ゲージを満タンにします。</li>
+                        <li><span class="instr-num">3</span>右ゲージの<b>上部(80~95%)</b>を保つと、左ゲージの進行速度が大幅UP！</li>
+                        <li><span class="instr-num">4</span><b>PERFECT</b>フックや早く釣り上げると、釣れる魚のサイズが大きくなります！</li>
+                    </ul>
+
+                    <h3>魚類最大サイズ ランク表</h3>
+                    <div class="rank-grid">
+                        <div class="rank-cell"><div class="rank-letter rank-s">S</div><div class="rank-pts">140cm〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-a">A</div><div class="rank-pts">110cm〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-b">B</div><div class="rank-pts">70cm〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-c">C</div><div class="rank-pts">30cm〜</div></div>
+                        <div class="rank-cell"><div class="rank-letter rank-d">D</div><div class="rank-pts">29.9cm以下</div></div>
+                    </div>
+
+                    <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="instrStartBtn">スタート</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackBtn">戻る</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ui-right-gauge" class="ui-layer">
+                <div id="reeling-ui" class="reeling-ui-container hidden">
+                    <div class="fishing-gauge-wrapper">
+                        <div class="hook-icon"><span style="font-size: 32px;">🪝</span></div>
+                        <div class="gauges-box">
+                            <div class="gauge-bar-bg gauge-a-bg">
+                                <div id="gauge-a-bar"></div>
+                            </div>
+                            <div class="gauge-bar-bg gauge-b-bg">
+                                <div id="gauge-b-bar"></div>
+                                <div class="danger-zone top"></div>
+                                <div class="danger-zone bottom"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="guide-text" style="margin-top: 15px;">
+                        上部(80~95%)キープで<br><span style="color: #fca5a5;">サイズアップ・ブースト！</span>
+                    </p>
+                </div>
+            </div>
+
+            <div id="ui-right" class="ui-layer">
+                <div class="score-panel" id="scorePanelEl">
+                    <span class="score-label">自己ベスト記録</span><br>
+                    <span id="current-points" class="score-value">0.0</span> <span style="font-size:14px; font-weight:900; color:#1c4e4d;">cm</span>
+                </div>
+            </div>
+
+            <div id="hudPauseBox">
+                <button class="wii-pause-trigger" id="pauseTriggerBtn">一時停止</button>
+            </div>
+
+            <div id="main-content">
+                <div id="screen-aim" class="game-content-screen hidden">
+                    <p class="status-msg">スペースキーで投げる！</p>
+                </div>
+
+                <div id="screen-waiting" class="game-content-screen hidden">
+                    <div id="bite-icon" class="hidden">！</div>
+                    <p class="status-msg">魚を待っています...</p>
+                </div>
+
+                <div id="screen-success" class="game-content-screen hidden">
+                    <h2 id="result-text" class="result-title">ゲット！</h2>
+                    <div id="fish-size-display" style="font-size: 38px; font-weight: 900; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); margin-top: 10px;">0.0 cm</div>
+                    <div id="best-update-msg" style="font-size: 18px; font-weight: 900; color: #ef4444; margin-top: 5px;" class="hidden">🎉 自己ベスト更新！ 🎉</div>
+                    
+                    <img id="fish-img" src="" alt="[ 魚の画像 ]" class="fish-display-img" style="margin: 10px 0;">
+                    <div class="button-group">
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="next-btn">もう一度投げる</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-success">終了する</button>
+                    </div>
+                </div>
+
+                <div id="screen-fail" class="game-content-screen hidden">
+                    <h2 class="result-title">逃げられた…</h2>
+                    <div class="button-group" style="margin-top: 40px;">
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="retry-btn">リトライ</button>
+                        <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-fail">終了する</button>
+                    </div>
+                </div>
+
+                <img id="rod-display" src="images/rod_idle.png" alt="[ 釣り竿 ]" class="rod-img">
             </div>
 
         </div>

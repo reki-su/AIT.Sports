@@ -10,94 +10,83 @@
 
 <div class="home-screen">
 
-  <!-- AIT.Sports badge (top-left) -->
   <div class="home-logo">
     <span class="logo-ait">AIT.</span><span class="logo-sports">Sports</span>
   </div>
 
-  <!-- Full-screen map container (position:relative so callouts can be absolute-positioned) -->
   <div class="map-container" id="mapContainer">
 
-    <!-- Background map image -->
     <img class="map-bg" src="../img/map_bg.png" alt="Campus Map"
          onerror="this.style.display='none'; document.getElementById('mapContainer').classList.add('no-image')">
 
-    <!--
-      ╔═══════════════════════════════════════════════════════════╗
-      ║  CALLOUT TEMPLATE                                         ║
-      ║  .callout  →  outer wrapper  (position:absolute)         ║
-      ║    ├─ .callout__bubble  →  the white speech bubble        ║
-      ║    │    ├─ .callout__icon  →  <img> sport icon            ║
-      ║    │    └─ .callout__label →  sport name text             ║
-      ║    └─ (tail is a CSS ::after pseudo-element)              ║
-      ║                                                           ║
-      ║  Position each sport by setting CSS custom props:         ║
-      ║    style="--x: 28%; --y: 62%;"                            ║
-      ╚═══════════════════════════════════════════════════════════╝
-    -->
-
-    <!-- 釣り (Fishing) -->
     <a class="callout" href="../Fishing/src/index.html"
-       style="--x: 26%; --y: 60%;"
+       style="--x: 30%; --y: 50%;"
        data-sport="fishing">
       <div class="callout__bubble">
         <div class="callout__icon">
-          <img src="img/icon_fishing.png" alt="釣り"
+          <img src="../img/icon_fishing.png" alt="釣り"
                onerror="this.outerHTML='<span class=\'icon-emoji\'>🎣</span>'">
         </div>
         <div class="callout__label">釣り</div>
       </div>
     </a>
 
-    <!-- 射的 (Shooting) -->
     <a class="callout" href="../Shooting/index.html"
-       style="--x: 44%; --y: 60%;"
+       style="--x: 49%; --y: 50%;"
        data-sport="shooting">
       <div class="callout__bubble">
         <div class="callout__icon">
-          <img src="img/icon_shooting.png" alt="射的"
+          <img src="../img/icon_shooting.png" alt="射的"
                onerror="this.outerHTML='<span class=\'icon-emoji\'>🔫</span>'">
         </div>
-        <div class="callout__label">射的</div>
+        <div class="callout__label">射撃</div>
       </div>
     </a>
 
-    <!-- ボウリング (Bowling) -->
     <a class="callout" href="../Bowling/index.html"
-       style="--x: 63%; --y: 58%;"
+       style="--x: 65%; --y: 50%;"
        data-sport="bowling">
       <div class="callout__bubble">
         <div class="callout__icon">
-          <img src="img/icon_bowling.png" alt="ボウリング"
+          <img src="../img/icon_bowling.png" alt="ボウリング"
                onerror="this.outerHTML='<span class=\'icon-emoji\'>🎳</span>'">
         </div>
         <div class="callout__label">ボウリング</div>
       </div>
     </a>
 
-    <!-- アーチェリー (Archery) -->
     <a class="callout" href="../Archery/index.html"
-       style="--x: 80%; --y: 18%;"
+       style="--x: 78%; --y: 18%;"
        data-sport="archery">
       <div class="callout__bubble">
         <div class="callout__icon">
-          <img src="img/icon_archery.png" alt="アーチェリー"
+          <img src="../img/icon_archery.png" alt="アーチェリー"
                onerror="this.outerHTML='<span class=\'icon-emoji\'>🏹</span>'">
         </div>
         <div class="callout__label">アーチェリー</div>
       </div>
     </a>
 
-  </div><!-- /map-container -->
+  </div><button class="wii-score-btn" onclick="openScoreModal()">
+    <span class="wii-score-icon">📊</span>
+    <span class="wii-score-label">スコア確認</span>
+  </button>
 
-  <!-- Score button (bottom-right) -->
-  <a class="score-btn" href="score.html">
-    <span class="score-btn__icon">🏆</span>
-    <span class="score-btn__label">スコア</span>
-  </a>
+  <div id="scoreModal" class="wii-modal">
+    <div class="wii-modal-box">
+      <div class="wii-modal-header">
+        <h2>🏆 ユーザー別ランク一覧</h2>
+      </div>
+      
+      <div class="wii-modal-body" id="scoreModalBody">
+        </div>
+      
+      <div class="wii-modal-footer">
+        <button class="wii-modal-close-btn" onclick="closeScoreModal()">閉じる</button>
+      </div>
+    </div>
+  </div>
 
-</div><!-- /home-screen -->
-
-<script src="home.js"></script>
+</div><script src="home.js"></script>
 </body>
 </html>
