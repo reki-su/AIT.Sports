@@ -17,7 +17,6 @@
   }
   .screen.hidden { opacity:0; pointer-events:none; display:none !important; }
 
-  /* START SCREEN (背景のぼかしを完全削除) */
   #startScreen {
     background: url('img/parking.jpeg') no-repeat center center;
     background-size: cover;
@@ -36,14 +35,14 @@
     background: rgba(255, 255, 255, 0.75);
     text-align: center;
     padding: 35px 0;
-    margin-top: 5%;             
-    margin-bottom: 8vh;          
+    margin-top: 5%;
+    margin-bottom: 8vh;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   }
   .wii-title {
-    font-size: clamp(48px, 9vw, 76px); 
+    font-size: clamp(48px, 9vw, 76px);
     font-weight: 900;
-    color: #1c4e4d; 
+    color: #1c4e4d;
     letter-spacing: 0.15em;
     text-shadow: 0 2px 8px rgba(255,255,255,0.8);
   }
@@ -52,17 +51,17 @@
     flex-direction: column;
     gap: 20px;
     align-items: center;
-    margin-top: 5vh;            
+    margin-top: 5vh;
     margin-bottom: 40px;
   }
   .wii-btn {
-    width: 340px;          
-    padding: 18px 0;       
-    font-size: 26px;       
+    width: 340px;
+    padding: 18px 0;
+    font-size: 26px;
     font-weight: 900;
     color: #1c4e4d;
     background: rgba(214, 247, 244, 0.9);
-    border: 5px solid #ffffff; 
+    border: 5px solid #ffffff;
     border-radius: 40px;
     cursor: pointer;
     box-shadow: 0 6px 14px rgba(0,0,0,0.1);
@@ -76,7 +75,7 @@
     background: rgba(180, 245, 240, 0.98);
     box-shadow: 0 8px 20px rgba(0,0,0,0.15);
   }
-  
+
   .wii-footer {
     position: absolute;
     bottom: 45px;
@@ -89,8 +88,8 @@
   }
   .wii-btn-side {
     pointer-events: auto;
-    width: 280px;          
-    font-size: 22px;       
+    width: 280px;
+    font-size: 22px;
     padding: 5px 0;
     border-radius: 35px;
   }
@@ -103,7 +102,6 @@
     text-shadow: 0 1px 4px rgba(255,255,255,0.8);
   }
 
-  /* モーダル共通 UI（ポーズ対応） */
   #userModal, #pauseModal {
     position: fixed; inset: 0; z-index: 300;
     background: rgba(0, 0, 0, 0.3);
@@ -117,7 +115,7 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.2); color: #1c4e4d;
   }
   .modal-box h2 { font-size: 24px; font-weight: 900; margin-bottom: 20px; }
-  
+
   .user-list-container {
     max-height: 160px; overflow-y: auto; margin-bottom: 20px;
     border: 2px solid rgba(28, 78, 77, 0.15); border-radius: 12px; padding: 5px;
@@ -129,7 +127,7 @@
   }
   .user-item-btn:hover { background: rgba(214, 247, 244, 0.9); border-color: #1c4e4d; }
   .user-item-btn.active { background: #1c4e4d; color: #ffffff; border-color: #1c4e4d; }
-  
+
   .modal-input-group {
     display: flex; gap: 8px; margin-bottom: 20px; justify-content: center;
   }
@@ -144,7 +142,6 @@
   }
   .modal-action-btn.primary { background: #1c4e4d; color: #ffffff; }
 
-  /* ポーズモーダル専用グループ */
   .pause-btn-group {
     display: flex; flex-direction: column; gap: 14px; align-items: center;
   }
@@ -152,24 +149,23 @@
     width: 280px; padding: 12px 0; font-size: 20px; border-radius: 30px;
   }
 
-  /* ゲーム中のポーズボタン（完全左下） */
   #hudPauseBox {
-    position: absolute; 
-    bottom: 14px;       
-    left: 14px;         
-    display: none; 
-    z-index: 110;       
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    display: none;
+    z-index: 110;
     pointer-events: auto;
   }
   .wii-pause-trigger {
-    width: 180px;       
-    padding: 14px 0;    
-    font-size: 20px;    
-    font-weight: 900;   
+    width: 180px;
+    padding: 14px 0;
+    font-size: 20px;
+    font-weight: 900;
     color: #1c4e4d;
-    background: rgba(214, 247, 244, 0.9); 
-    border: 4px solid #ffffff;            
-    border-radius: 30px;                  
+    background: rgba(214, 247, 244, 0.9);
+    border: 4px solid #ffffff;
+    border-radius: 30px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -180,7 +176,6 @@
     box-shadow: 0 6px 16px rgba(0,0,0,0.2);
   }
 
-  /* INSTRUCTIONS */
   #instrScreen { background: rgba(230, 235, 235, 0.95); }
   .instr-box { background: #ffffff; border: 4px solid #1c4e4d; border-radius: 20px; padding: 30px 40px; max-width: 600px; width: 95%; text-align: center; color: #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   .instr-box h2 { font-size: 26px; font-weight: 900; margin-bottom: 15px; }
@@ -189,13 +184,11 @@
   .instr-list li { font-size: 14px; font-weight: 700; padding: 8px 0; border-bottom: 1px solid rgba(43, 93, 92, 0.1); display: flex; gap: 8px; line-height: 1.5; }
   .instr-num { font-weight: 900; min-width: 16px; color: #1c4e4d; }
 
-  /* ランクグリッド表示 */
   .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 25px; }
   .rank-cell { text-align: center; background: rgba(214, 247, 244, 0.3); border: 1px solid rgba(28, 78, 77, 0.1); border-radius: 8px; padding: 8px 4px; }
   .rank-letter { font-size: 18px; font-weight: 900; margin-bottom: 2px; }
   .rank-pts { font-size: 11px; font-weight: 700; color: #557776; }
 
-  /* RESULT */
   #resultScreen { background: rgba(230, 235, 235, 0.98); color: #1c4e4d; }
   .result-box { text-align: center; max-width: 540px; width: 90%; background: #ffffff; padding: 40px; border-radius: 20px; border: 4px solid #1c4e4d; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
   .result-lbl { font-size: 14px; letter-spacing: 0.2em; color: #779998; margin-bottom: 4px; font-weight: 700; }
@@ -204,35 +197,57 @@
   .result-comment { font-size: 14px; font-weight: 700; margin-bottom: 30px; color: #557776; }
   #resultFrames { display:flex; gap:3px; justify-content:center; flex-wrap:wrap; margin-bottom:24px; }
 
-  /* ランクカラー定義 */
   .rank-s { color: #ffaa00; }
   .rank-a { color: #ff4444; }
   .rank-b { color: #3377ff; }
   .rank-c { color: #555555; }
   .rank-d { color: #888888; }
 
-  /* GAME HUD */
   #gameUI { position:absolute; inset:0; pointer-events:none; z-index:100; display:none; }
-  .hud-panel {
-    background: rgba(25, 55, 115, 0.85);
-    border: 2px solid rgba(140, 175, 255, 0.55); border-radius: 14px;
-    padding: 12px 18px; color: #fff;
-    box-shadow: 0 4px 20px rgba(0,0,60,0.4);
-  }
-  #hudLeft { position:absolute; top:14px; left:14px; pointer-events:auto; min-width:260px; }
-  
-  /* ボタンと被らないようにピンマップを少し上に配置 */
-  #pinMapEl { 
-    position:absolute; 
-    bottom:85px; 
-    left:14px; 
-    pointer-events:auto; 
-    padding:12px; 
-    min-width:160px; 
-  }
-  #curveEl { position:absolute; bottom:24px; right:14px; pointer-events:auto; padding:12px; min-width:160px; }
 
-  /* イベント演出 */
+  #hudLeft {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    pointer-events: auto;
+    min-width: 240px;
+    background: rgba(214, 247, 244, 0.9);
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 20px;
+    padding: 14px 16px;
+    color: #1c4e4d;
+  }
+
+  #pinMapEl {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    pointer-events: auto;
+    padding: 14px 18px;
+    border-radius: 20px;
+    background: rgba(214, 247, 244, 0.95);
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-family: 'Barlow Condensed', sans-serif;
+    min-width: 240px;
+  }
+
+  #curveEl {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+    padding: 14px 24px;
+    border-radius: 20px;
+    min-width: 260px;
+    background: rgba(214, 247, 244, 0.9);
+    border: 4px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+
   #eventOverlay {
     position:absolute; inset:0; z-index:150; pointer-events:none;
     display:flex; align-items:center; justify-content:center;
@@ -299,7 +314,6 @@
       <li><span class="instr-num">3</span><b>Q / E キー</b>：カーブ（左・右）を設定します（Rキーでリセット）。</li>
       <li><span class="instr-num">4</span><b>マウスドラッグ</b>：上に向かってドラッグして勢いよく投球！</li>
     </ul>
-
     <h3>総合評価ランク</h3>
     <div class="rank-grid">
       <div class="rank-cell"><div class="rank-letter rank-s">S</div><div class="rank-pts">220点〜</div></div>
@@ -308,7 +322,6 @@
       <div class="rank-cell"><div class="rank-letter rank-c">C</div><div class="rank-pts">60点〜</div></div>
       <div class="rank-cell"><div class="rank-letter rank-d">D</div><div class="rank-pts">59点以下</div></div>
     </div>
-
     <div style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
       <button class="wii-btn" style="font-size:20px; width:220px;" id="instrStartBtn">スタート</button>
       <button class="wii-btn" style="font-size:20px; width:220px; background:rgba(200,200,200,0.5);" id="instrBackBtn">戻る</button>
@@ -335,6 +348,32 @@
 </div>
 
 <div id="gameUI">
+  <div id="hudLeft">
+    <div style="font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900; color:#4d7c7a; letter-spacing:2px; margin-bottom:8px;">スコアボード</div>
+    <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+      <div id="frameLabel" style="font-size:15px; font-weight:700; color:#1c4e4d;">第1フレーム</div>
+      <div id="throwLabel" style="font-size:13px; font-weight:700; color:#1c4e4d;">1投目</div>
+    </div>
+    <div id="totalScore" style="font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:900; color:#1c4e4d; letter-spacing:1px; margin-bottom:8px;">合計: 0</div>
+    <div id="framesRow" style="display:flex; gap:4px; flex-wrap:wrap; color:#1c4e4d; font-weight:700;"></div>
+    <div id="msgBox" style="min-height:22px; margin-top:8px; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:900; color:#1c4e4d; letter-spacing:1px;"></div>
+  </div>
+
+  <div id="pinMapEl">
+    <div style="font-size:14px; font-weight:900; color:#1c4e4d; letter-spacing:2px; margin-bottom:10px; text-align:center;">残っているピン</div>
+    <div id="pinDots" style="position:relative; width:200px; height:190px;"></div>
+  </div>
+
+  <div id="curveEl">
+    <div style="font-size:13px; font-weight:900; color:#4d7c7a; letter-spacing:2px; margin-bottom:10px; text-align:center;">カーブ</div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span style="font-size:14px; font-weight:700; color:#4d7c7a; min-width:12px;">L</span>
+      <div style="flex:1; height:10px; background:rgba(255,255,255,0.1); border-radius:4px; position:relative; overflow:hidden;">
+        <div id="curveFill" style="position:absolute; height:100%; width:0%; left:50%; background:linear-gradient(90deg,#00bbff,#ff5500); border-radius:4px; transition:left 0.1s,width 0.1s;"></div>
+      </div>
+      <span style="font-size:14px; font-weight:700; color:#4d7c7a; min-width:12px;">R</span>
+    </div>
+    <div id="curveLabel" style="text-align:center; font-size:16px; font-weight:900; color:#1c4e4d; margin-top:8px; letter-spacing:1px;"></div>
   <div class="hud-panel" id="hudLeft">
     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
       <div id="frameLabel" style="font-size:16px; font-weight:900;">FRAME 1</div>
