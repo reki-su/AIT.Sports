@@ -34,7 +34,7 @@ const fishes = [
     { name: "タイ", img: "images/fish_tai.png", riseSpeed: 3.0, dropSpeed: 2.5, minSize: 35.0, maxSize: 55.0, angryMin: 4, angryMax: 7, ability: "none" },
     { name: "ブリ", img: "images/fish_buri.png", riseSpeed: 4.5, dropSpeed: 4.0, minSize: 80.0, maxSize: 125.0, angryMin: 5, angryMax: 10, ability: "none" },
     { name: "カジキ", img: "images/fish_kajiki.png", riseSpeed: 4.5, dropSpeed: 3.5, minSize: 100.0, maxSize: 150.0, angryMin: 4, angryMax: 8, ability: "jump" },
-    { name: "タコ", img: "images/fish_tako.png", riseSpeed: 3.5, dropSpeed: 2.0, minSize: 40.0, maxSize: 75.0, angryMin: 3, angryMax: 6, ability: "blind" },
+    { name: "タコ", img: "images/fish_tako.png", riseSpeed: 3.0, dropSpeed: 2.5, minSize: 40.0, maxSize: 75.0, angryMin: 3, angryMax: 6, ability: "blind" },
     { name: "リュウグウノツカイ", img: "images/fish_ryuu.png", riseSpeed: 6.0, dropSpeed: 5.5,minSize: 140.0, maxSize: 190.0, angryMin: 8, angryMax: 14, ability: "none" },
 ];
 
@@ -57,11 +57,15 @@ const hudPauseBox = document.getElementById('hudPauseBox');
 const scorePanelEl = document.getElementById('scorePanelEl');
 
 function updateState(newScreen, rodState = 'idle') {
+    if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+    }
+
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
     document.querySelectorAll('.game-content-screen').forEach(l => l.classList.add('hidden'));
     startScreen.classList.add('hidden');
     howtoScreen.classList.add('hidden');
-    
+
     screen = newScreen;
 
     if (newScreen === 'start') {
@@ -80,16 +84,16 @@ function updateState(newScreen, rodState = 'idle') {
 
     const target = document.getElementById(`screen-${newScreen}`);
     if (target) target.classList.remove('hidden');
-    
+
     rodImg.src = `images/rod_${rodState}.png`;
 
     if (newScreen === 'reeling') {
         reelingUI.classList.remove('hidden');
-        hudPauseBox.style.display = 'none'; 
+        hudPauseBox.style.display = 'block';
         scorePanelEl.style.display = 'block';
     } else if (newScreen === 'aim' || newScreen === 'waiting') {
         reelingUI.classList.add('hidden');
-        hudPauseBox.style.display = 'block'; 
+        hudPauseBox.style.display = 'block';
         scorePanelEl.style.display = 'block';
     } else {
         reelingUI.classList.add('hidden');
@@ -103,6 +107,7 @@ function resetToAim() {
     gaugeA = 10;
     gaugeB = 50;
     isAngry = false;
+    isHolding = false;
     boostTicksCount = 0;
     totalTicksCount = 0;
 
@@ -112,10 +117,12 @@ function resetToAim() {
     const bBar = document.getElementById('gauge-b-bar');
     if(bBar) { bBar.style.background = "#f97316"; bBar.style.filter = "none"; }
 
-    if (biteReactionTimer) clearTimeout(biteReactionTimer);
-    if (castTimeoutId) clearTimeout(castTimeoutId);
-    if (angerInterval) clearInterval(angerInterval);
-    
+    // 蓄積してバグの原因になるすべてのタイマー・インターバルを確実にリセット
+    if (biteReactionTimer) { clearTimeout(biteReactionTimer); biteReactionTimer = null; }
+    if (castTimeoutId) { clearTimeout(castTimeoutId); castTimeoutId = null; }
+    if (gameInterval) { clearInterval(gameInterval); gameInterval = null; }
+    if (angerInterval) { clearInterval(angerInterval); angerInterval = null; }
+
     document.getElementById('bite-icon').classList.add('hidden');
     const warnMsg = document.getElementById('msg-warning');
     warnMsg.classList.remove('animate-warning');
@@ -123,7 +130,7 @@ function resetToAim() {
     warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
     document.getElementById('game-messages').classList.add('hidden');
     document.getElementById('best-update-msg').classList.add('hidden');
-    
+
     updateState('aim', 'idle');
 }
 
@@ -145,7 +152,7 @@ function loadUserStatus() {
         const data = JSON.parse(localData);
         if (data.currentUser) currentUser = data.currentUser;
     }
-    
+
     let data = localData ? JSON.parse(localData) : null;
     if (data && data.users && data.users[currentUser]) {
         maxRecordSize = data.users[currentUser].fishing_size || 0.0;
@@ -159,10 +166,10 @@ function loadUserStatus() {
 function openUserModal() {
     let localData = localStorage.getItem("wii_fishing_size_theme_data");
     let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { fishing_size: 0.0, fishing_rank: "D" } } };
-    
+
     const listContainer = document.getElementById('modalUserList');
     listContainer.innerHTML = "";
-    
+
     Object.keys(data.users).forEach(user => {
         const btn = document.createElement('button');
         btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
@@ -194,16 +201,16 @@ function addAndSelectNewUser() {
     const input = document.getElementById('newUserNameInput');
     let name = input.value.trim();
     if (name === "") return;
-    
+
     let localData = localStorage.getItem("wii_fishing_size_theme_data");
     let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
-    
+
     if (data.users[name]) { alert("その名前はすでに登録されています。"); return; }
-    
+
     data.users[name] = { fishing_size: 0.0, fishing_rank: "D" };
     data.currentUser = name;
     localStorage.setItem("wii_fishing_size_theme_data", JSON.stringify(data));
-    
+
     currentUser = name;
     loadUserStatus();
     closeUserModal();
@@ -215,7 +222,7 @@ function saveGameResult(finalSize, finalRank) {
 
     if (!data.users[currentUser]) data.users[currentUser] = {};
     const currentBest = data.users[currentUser].fishing_size || 0.0;
-    
+
     if (finalSize > currentBest) {
         data.users[currentUser].fishing_size = finalSize;
         data.users[currentUser].fishing_rank = finalRank;
@@ -228,8 +235,8 @@ function saveGameResult(finalSize, finalRank) {
 }
 
 function pauseGame() {
-    if (screen !== "aim" && screen !== "waiting") return;
-    prePauseScreen = screen; 
+    if (screen !== "aim" && screen !== "waiting" && screen !== "reeling") return;
+    prePauseScreen = screen;
     isPaused = true;
     pauseModal.classList.add('show');
 
@@ -250,10 +257,162 @@ function pauseGame() {
     }
 }
 
+function startReeling(isPerfect) {
+    updateState('reeling', 'reel');
+    gaugeA = isPerfect ? 30 : 10;
+    gaugeB = 50;
+    currentDropSpeed = currentFish.dropSpeed;
+    isAngry = false;
+    boostTicksCount = 0;
+    totalTicksCount = 0;
+    abilityTimer = 0;
+
+    if (isPerfect) showFloatingMessage('msg-perfect');
+
+    const warnMsg = document.getElementById('msg-warning');
+
+    gameInterval = setInterval(() => {
+        if (screen !== "reeling" || isPaused) return;
+
+        totalTicksCount++;
+        abilityTimer++;
+
+        if (currentFish.ability !== "none") {
+            // ─── カジキの特殊能力（ジャンプ・反転） ───
+            if (currentFish.ability === "jump") {
+                if (abilityTimer % 100 === 50) {
+                    isJumping = true;
+                    document.getElementById('game-messages').classList.remove('hidden');
+                    warnMsg.innerText = "⚠️ カジキが跳ねた！操作反転！ ⚠️";
+                    warnMsg.classList.remove('hidden');
+                    warnMsg.classList.add('animate-warning');
+                }
+                if (isJumping && abilityTimer % 100 === 80) {
+                    isJumping = false;
+                    warnMsg.classList.remove('animate-warning');
+
+                    if (isAngry) {
+                        warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
+                        warnMsg.classList.add('animate-warning');
+                    } else {
+                        warnMsg.classList.add('hidden');
+                        warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
+                        document.getElementById('game-messages').classList.add('hidden');
+                    }
+                }
+            }
+
+            // ─── タコの特殊能力（墨・目隠し） ───
+            if (currentFish.ability === "blind") {
+                const bBar = document.getElementById('gauge-b-bar');
+                if (abilityTimer % 100 === 85) {
+                    isBlinded = true;
+                    bBar.style.filter = "brightness(0%)";
+
+                    document.getElementById('game-messages').classList.remove('hidden');
+                    warnMsg.innerText = "⚠️ 墨でゲージが見えない！ ⚠️";
+                    warnMsg.classList.remove('hidden');
+                    warnMsg.classList.add('animate-warning');
+                }
+                if (isBlinded && abilityTimer % 100 === 0) {
+                    isBlinded = false;
+                    bBar.style.filter = "none";
+
+                    warnMsg.classList.remove('animate-warning');
+                    if (isAngry) {
+                        warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
+                        warnMsg.classList.add('animate-warning');
+                    } else {
+                        warnMsg.classList.add('hidden');
+                        warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
+                        document.getElementById('game-messages').classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        // ─── 魚の怒り状態トリガー ───
+        if (gaugeA > 75 && !isAngry) {
+            isAngry = true;
+            if (!isJumping && !isBlinded) {
+                document.getElementById('game-messages').classList.remove('hidden');
+                if (currentFish.name === "リュウグウノツカイ") {
+                    warnMsg.innerText = "⚠️ 伝説の暴走！耐えきれ！！ ⚠️";
+                } else {
+                    warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
+                }
+                warnMsg.classList.remove('hidden');
+                warnMsg.classList.add('animate-warning');
+            }
+
+            angerInterval = setInterval(() => {
+                if (screen !== "reeling" || isPaused) return;
+                let randomFactor = 0.5 + Math.random();
+                currentDropSpeed = currentFish.dropSpeed * randomFactor;
+
+                let min = currentFish.angryMin;
+                let max = currentFish.angryMax;
+                let randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
+
+                if (Math.random() < 0.5) gaugeB += randomValue;
+                else gaugeB -= randomValue;
+            }, 1000);
+        }
+
+        if (isJumping) {
+            if (isHolding) gaugeB -= currentFish.dropSpeed * 1.5;
+            else gaugeB += currentFish.riseSpeed * 0.8;
+        } else {
+            if (isHolding) gaugeB += currentFish.riseSpeed;
+            else gaugeB -= currentDropSpeed;
+        }
+
+        let isBoost = (gaugeB >= 80 && gaugeB <= 95);
+        let bBar = document.getElementById('gauge-b-bar');
+
+        if (!isBlinded) {
+            if (isBoost) {
+                bBar.style.background = "#ef4444";
+                bBar.style.boxShadow = "0 0 15px #ef4444";
+                if (isHolding && !isJumping) boostTicksCount++;
+            } else {
+                bBar.style.background = "#f97316";
+                bBar.style.boxShadow = "none";
+            }
+        }
+
+        if (gaugeB > 0 && gaugeB < 100) {
+            if (isJumping) {
+                if (!isHolding && isBoost) gaugeA += 4.4;
+                else if (!isHolding) gaugeA += 2.2;
+                else gaugeA -= 2.2;
+            } else {
+                if (isHolding) gaugeA += isBoost ? 4.4 : 2.2;
+                else gaugeA -= 2.2;
+            }
+        }
+
+        document.getElementById('gauge-a-bar').style.height = `${Math.max(0, Math.min(100, gaugeA))}%`;
+        if (!isBlinded) {
+            document.getElementById('gauge-b-bar').style.height = `${Math.max(0, Math.min(100, gaugeB))}%`;
+        }
+
+        if (gaugeA >= 100) finishGame("success");
+        else if (gaugeB >= 100 || gaugeB <= 0 || gaugeA <= 0) finishGame("fail");
+    }, 100);
+}
+
 function resumeGame() {
     isPaused = false;
     pauseModal.classList.remove('show');
-    const restoredRod = (prePauseScreen === "waiting") ? "cast" : "idle";
+
+    let restoredRod = "idle";
+    if (prePauseScreen === "waiting") {
+        restoredRod = "cast";
+    } else if (prePauseScreen === "reeling") {
+        restoredRod = isHolding ? "reel" : "stop";
+    }
+
     updateState(prePauseScreen, restoredRod);
 
     if (screen === "waiting" && !fishBite) {
@@ -272,20 +431,20 @@ function showInstrFromPause() {
     pauseModal.classList.remove('show');
     hudPauseBox.style.display = 'none';
     scorePanelEl.style.display = 'none';
-    
+
     const mainAction = document.getElementById('instrStartBtn');
     const backAction = document.getElementById('instrBackBtn');
-    
+
     mainAction.textContent = "ゲームに戻る";
     mainAction.onclick = function() {
         howtoScreen.classList.add('hidden');
-        resumeGame(); 
+        resumeGame();
     };
     backAction.onclick = function() {
         howtoScreen.classList.add('hidden');
         pauseModal.classList.add('show');
     };
-    
+
     document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
     document.querySelectorAll('.game-content-screen').forEach(l => l.classList.add('hidden'));
     howtoScreen.classList.remove('hidden');
@@ -298,7 +457,7 @@ window.addEventListener('keydown', (e) => {
     if (isPaused) return;
     if (screen === "aim" && e.code === "Space") {
         updateState('waiting', 'cast');
-        
+
         if (Math.random() < 0.05) {
             currentFish = fishes.find(f => f.name === "リュウグウノツカイ");
         } else {
@@ -315,7 +474,7 @@ window.addEventListener('keydown', (e) => {
 function triggerBite() {
     if (screen !== "waiting" || isPaused) return;
     fishBite = true;
-    biteTimestamp = Date.now(); 
+    biteTimestamp = Date.now();
     document.getElementById('bite-icon').classList.remove('hidden');
 
     biteReactionTimer = setTimeout(() => {
@@ -336,7 +495,7 @@ gameScreen.addEventListener('mousedown', (e) => {
         if (biteReactionTimer) clearTimeout(biteReactionTimer);
         fishBite = false;
         let reactionTime = Date.now() - biteTimestamp;
-        perfectBonus = reactionTime <= 300; 
+        perfectBonus = reactionTime <= 300;
         document.getElementById('bite-icon').classList.add('hidden');
         startReeling(perfectBonus);
     }
@@ -353,131 +512,10 @@ window.addEventListener('mouseup', () => {
     }
 });
 
-function startReeling(isPerfect) {
-    updateState('reeling', 'reel');
-    gaugeA = isPerfect ? 30 : 10; 
-    gaugeB = 50;
-    currentDropSpeed = currentFish.dropSpeed;
-    isAngry = false;
-    boostTicksCount = 0;
-    totalTicksCount = 0;
-    abilityTimer = 0; 
-    
-    if (isPerfect) showFloatingMessage('msg-perfect');
-
-    const warnMsg = document.getElementById('msg-warning');
-
-    gameInterval = setInterval(() => {
-        if (screen !== "reeling" || isPaused) return;
-
-        totalTicksCount++;
-        abilityTimer++;
-
-        if (currentFish.ability !== "none") {
-            if (currentFish.ability === "jump") {
-                if (abilityTimer % 100 === 50) { 
-                    isJumping = true;
-                    document.getElementById('game-messages').classList.remove('hidden');
-                    warnMsg.innerText = "⚠️ カジキが跳ねた！操作反転！ ⚠️";
-                    warnMsg.classList.remove('hidden');
-                    warnMsg.classList.add('animate-warning');
-                }
-                if (isJumping && abilityTimer % 100 === 80) { 
-                    isJumping = false;
-                    warnMsg.classList.remove('animate-warning');
-                    warnMsg.classList.add('hidden');
-                    warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
-                    if(!isAngry) document.getElementById('game-messages').classList.add('hidden');
-                }
-            }
-
-            if (currentFish.ability === "blind") {
-                const bBar = document.getElementById('gauge-b-bar');
-                if (abilityTimer % 100 === 85) { // 周期を長くし、発動を遅らせる
-                    isBlinded = true;
-                    bBar.style.filter = "brightness(0%)"; 
-                }
-                if (isBlinded && abilityTimer % 100 === 0) { 
-                    isBlinded = false;
-                    bBar.style.filter = "none";
-                }
-            }
-        }
-
-        if (gaugeA > 75 && !isAngry) {
-            isAngry = true;
-            if(!isJumping) {
-                document.getElementById('game-messages').classList.remove('hidden');
-                if (currentFish.name === "リュウグウノツカイ") {
-                    warnMsg.innerText = "⚠️ 伝説の暴走！耐えきれ！！ ⚠️";
-                } else {
-                    warnMsg.innerText = "⚠️ 魚が暴れ出した！ ⚠️";
-                }
-                warnMsg.classList.remove('hidden');
-                warnMsg.classList.add('animate-warning');
-            }
-
-            angerInterval = setInterval(() => {
-                if (screen !== "reeling" || isPaused) return;
-                let randomFactor = 0.5 + Math.random(); 
-                currentDropSpeed = currentFish.dropSpeed * randomFactor;
-                
-                let min = currentFish.angryMin;
-                let max = currentFish.angryMax;
-                let randomValue = Math.floor(Math.random() * (max - min + 1)) + min; 
-                
-                if (Math.random() < 0.5) gaugeB += randomValue;
-                else gaugeB -= randomValue;
-            }, 1000);
-        }
-
-        if (isJumping) {
-            if (isHolding) gaugeB -= currentFish.dropSpeed * 1.5; 
-            else gaugeB += currentFish.riseSpeed * 0.8;
-        } else {
-            if (isHolding) gaugeB += currentFish.riseSpeed; 
-            else gaugeB -= currentDropSpeed; 
-        }
-
-        let isBoost = (gaugeB >= 80 && gaugeB <= 95);
-        let bBar = document.getElementById('gauge-b-bar');
-        
-        if (!isBlinded) { 
-            if (isBoost) {
-                bBar.style.background = "#ef4444"; 
-                bBar.style.boxShadow = "0 0 15px #ef4444";
-                if (isHolding && !isJumping) boostTicksCount++; 
-            } else {
-                bBar.style.background = "#f97316";
-                bBar.style.boxShadow = "none";
-            }
-        }
-
-        if (gaugeB > 0 && gaugeB < 100) {
-            if (isJumping) {
-                if (!isHolding && isBoost) gaugeA += 4.4;
-                else if (!isHolding) gaugeA += 2.2;
-                else gaugeA -= 2.2;
-            } else {
-                if (isHolding) gaugeA += isBoost ? 4.4 : 2.2;  
-                else gaugeA -= 2.2;
-            }
-        }
-
-        document.getElementById('gauge-a-bar').style.height = `${Math.max(0, Math.min(100, gaugeA))}%`;
-        if (!isBlinded) {
-            document.getElementById('gauge-b-bar').style.height = `${Math.max(0, Math.min(100, gaugeB))}%`;
-        }
-
-        if (gaugeA >= 100) finishGame("success");
-        else if (gaugeB >= 100 || gaugeB <= 0 || gaugeA <= 0) finishGame("fail");
-    }, 100); 
-}
-
 function finishGame(result) {
     if (gameInterval) clearInterval(gameInterval);
     if (angerInterval) clearInterval(angerInterval);
-    
+
     const warnMsg = document.getElementById('msg-warning');
     warnMsg.classList.remove('animate-warning');
     warnMsg.classList.add('hidden');
@@ -486,17 +524,17 @@ function finishGame(result) {
     document.getElementById('gauge-b-bar').style.filter = "none";
 
     updateState(result, 'idle');
-    
+
     if (result === "success") {
         let baseMin = currentFish.minSize;
         let baseMax = currentFish.maxSize;
         let boostRatio = totalTicksCount > 0 ? (boostTicksCount / totalTicksCount) : 0;
         let finalSize = baseMin + (Math.random() * (baseMax - baseMin));
-        
+
         if (perfectBonus) finalSize += (baseMax - baseMin) * 0.15;
         finalSize += (baseMax - baseMin) * (boostRatio * 0.25);
-        
-        let absoluteMax = baseMax * 1.25; 
+
+        let absoluteMax = baseMax * 1.25;
         if (finalSize > absoluteMax) finalSize = absoluteMax;
 
         document.getElementById('result-text').innerText = `${currentFish.name}を釣った！`;
@@ -517,37 +555,25 @@ function finishGame(result) {
     }
 }
 
-// ===== ボタンのクリックイベント（追加分） =====
+// ===== ボタンのクリックイベント =====
 document.addEventListener('DOMContentLoaded', () => {
-    // ホーム・スタート画面
     document.getElementById('start-btn').addEventListener('click', resetToAim);
     document.getElementById('instr-btn').addEventListener('click', () => updateState('howto'));
-    
-    // 操作方法画面
     document.getElementById('instrStartBtn').addEventListener('click', resetToAim);
     document.getElementById('instrBackBtn').addEventListener('click', () => updateState('start'));
-    
-    // リザルト画面
     document.getElementById('next-btn').addEventListener('click', resetToAim);
     document.getElementById('retry-btn').addEventListener('click', resetToAim);
-
-    // 終了ボタン
     document.getElementById('quit-btn-start').addEventListener('click', exitToHome);
     document.getElementById('quit-btn-success').addEventListener('click', quitGame);
     document.getElementById('quit-btn-fail').addEventListener('click', quitGame);
-
-    // ポーズ関連
     document.getElementById('pauseTriggerBtn').addEventListener('click', pauseGame);
     document.getElementById('resumeGameBtn').addEventListener('click', resumeGame);
     document.getElementById('restartGameBtn').addEventListener('click', restartGameFromPause);
     document.getElementById('showInstrBtn').addEventListener('click', showInstrFromPause);
     document.getElementById('exitToHomeBtn').addEventListener('click', exitToHome);
-
-    // ユーザーモーダル関連
     document.getElementById('modal-trigger-btn').addEventListener('click', openUserModal);
     document.getElementById('closeUserModalBtn').addEventListener('click', closeUserModal);
     document.getElementById('addUserBtn').addEventListener('click', addAndSelectNewUser);
 
-    // 初期化起動
     updateState('start');
 });
