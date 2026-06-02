@@ -51,10 +51,10 @@ img {
 /* Wii Sports風 UI */
 .wii-title-wrapper {
     width: 100%; background: rgba(255, 255, 255, 0.78); text-align: center;
-    padding: 35px 0; margin-top: 5%; margin-bottom: 8vh; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    padding: 35px 0; margin-top: clamp(36px, 5vw, 64px); margin-bottom: 0; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 .wii-title { font-size: clamp(48px, 9vw, 76px); font-weight: 900; color: #1c4e4d; letter-spacing: 0.15em; text-shadow: 0 2px 8px rgba(255,255,255,0.8); margin: 0; }
-.wii-btn-center-group { display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: 5vh; margin-bottom: 40px; }
+.wii-btn-center-group { display: flex; flex-direction: column; gap: 20px; align-items: center; margin-top: clamp(54px, 7vw, 90px); margin-bottom: 40px; }
 .wii-btn {
     width: 340px; padding: 18px 0; font-size: 26px; font-weight: 900; color: #1c4e4d;
     background: rgb(214, 247, 244); border: 5px solid #ffffff; border-radius: 40px;

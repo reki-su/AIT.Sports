@@ -85,6 +85,8 @@ html, body {
   position: absolute;
   top: var(--y);
   left: var(--x);
+  top: calc(var(--map-top, 0px) + var(--map-height, 100%) * var(--y-num, 0.5));
+  left: calc(var(--map-left, 0px) + var(--map-width, 100%) * var(--x-num, 0.5));
   transform: translate(-50%, -50%) rotate(-5deg);
   text-decoration: none;
   display: flex;

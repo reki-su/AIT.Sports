@@ -13,12 +13,58 @@
 
   // ── Animate callouts in sequence ──
   const mapImg = document.querySelector('.map-bg');
+  const mapContainer = document.getElementById('mapContainer');
 
   if (mapImg) {
-    mapImg.addEventListener('load', revealCallouts);
-    if (mapImg.complete) revealCallouts();
+    mapImg.addEventListener('load', function () {
+      syncMapBounds();
+      revealCallouts();
+    });
+    if (mapImg.complete) {
+      syncMapBounds();
+      revealCallouts();
+    }
   } else {
     revealCallouts();
+  }
+
+  window.addEventListener('resize', syncMapBounds);
+
+  function syncMapBounds() {
+    if (!mapImg || !mapContainer || !mapImg.naturalWidth || !mapImg.naturalHeight) return;
+
+    const containerRect = mapContainer.getBoundingClientRect();
+    const imageRatio = mapImg.naturalWidth / mapImg.naturalHeight;
+    const containerRatio = containerRect.width / containerRect.height;
+
+    let renderedWidth;
+    let renderedHeight;
+    let renderedLeft;
+    let renderedTop;
+
+    if (containerRatio > imageRatio) {
+      renderedHeight = containerRect.height;
+      renderedWidth = renderedHeight * imageRatio;
+      renderedLeft = (containerRect.width - renderedWidth) / 2;
+      renderedTop = 0;
+    } else {
+      renderedWidth = containerRect.width;
+      renderedHeight = renderedWidth / imageRatio;
+      renderedLeft = 0;
+      renderedTop = (containerRect.height - renderedHeight) / 2;
+    }
+
+    mapContainer.style.setProperty('--map-left', renderedLeft + 'px');
+    mapContainer.style.setProperty('--map-top', renderedTop + 'px');
+    mapContainer.style.setProperty('--map-width', renderedWidth + 'px');
+    mapContainer.style.setProperty('--map-height', renderedHeight + 'px');
+
+    document.querySelectorAll('.callout').forEach(function (el) {
+      const x = parseFloat(el.style.getPropertyValue('--x')) / 100;
+      const y = parseFloat(el.style.getPropertyValue('--y')) / 100;
+      if (!Number.isNaN(x)) el.style.setProperty('--x-num', x);
+      if (!Number.isNaN(y)) el.style.setProperty('--y-num', y);
+    });
   }
 
   function revealCallouts() {
