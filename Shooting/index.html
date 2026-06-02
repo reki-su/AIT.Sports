@@ -120,7 +120,7 @@
     width: 280px;
     font-size: 22px;
     font-weight: 900;
-    padding: 8px 0;
+    padding: 5px 0;
     border-radius: 35px;
     border: 5px solid #ffffff !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -129,13 +129,16 @@
     outline: none;
   }
 
-  /* ホームに戻る系ボタン：落ち着いた不透明の赤 */
+  /* ホームに戻る系ボタン：釣りと同じ赤 */
   #quit-btn-start, #quit-btn-success, #quit-btn-fail, #exitToHomeBtn {
-    background: rgb(214, 247, 244) !important; 
-    color: #1c4e4d !important;
+    background: rgb(245, 214, 214) !important;
+    color: #8a1c1c !important;
+    border: 5px solid #ffffff !important;
   }
+  #quit-btn-start { padding: 18px 0 !important; }
+  #exitToHomeBtn  { padding: 14px 0 !important; }
   #quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover, #exitToHomeBtn:hover {
-    background: rgb(180, 245, 240) !important;
+    background: rgb(245, 195, 195) !important;
     transform: scale(1.05);
   }
 

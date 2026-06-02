@@ -21,12 +21,17 @@
     background: rgba(255, 255, 255, 0.01); 
     justify-content: flex-start;
   }
+  #startScreen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(226, 247, 244, 0.6) 0%, rgba(216, 216, 216, 0.5) 100%);
+    z-index: -1;
+  }
 
   .wii-title-wrapper {
     width: 100%;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.78);
     text-align: center;
     padding: 35px 0;
     margin-top: 5%;             
@@ -81,20 +86,48 @@
     justify-content: space-between;
     pointer-events: none;
   }
+  .wii-user-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    pointer-events: none;
+  }
   .wii-btn-side {
     pointer-events: auto;
-    width: 280px;          
-    font-size: 22px;       
+    width: 280px;
+    font-size: 22px;
+    font-weight: 900;
     padding: 5px 0;
     border-radius: 35px;
+    border: 5px solid #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+  }
+  #quit-btn-start, #exitToHomeBtn {
+    background: rgb(245, 214, 214) !important;
+    color: #8a1c1c !important;
+    border: 5px solid #ffffff !important;
+  }
+  #quit-btn-start { padding: 8px 0 !important; }
+  #exitToHomeBtn  { padding: 14px 0 !important; }
+  #quit-btn-start:hover, #exitToHomeBtn:hover {
+    background: rgb(245, 195, 195) !important;
   }
   .wii-user-status {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 900;
-    color: #1c4e4d;
-    margin-top: 6px;
+    color: #ffffff;
+    background: #1c4e4d;
+    padding: 6px 22px;
+    border-radius: 20px;
     text-align: center;
-    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: inline-block;
+    margin: 0;
+    text-shadow: none;
   }
 
   /* Wii風 モーダル共通デザイン */
@@ -275,10 +308,10 @@
   </div>
   
   <div class="wii-footer">
-    <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
-    <div>
-      <button class="wii-btn wii-btn-side" onclick="openUserModal()">ユーザー選択</button>
+    <button class="wii-btn wii-btn-side" id="quit-btn-start" onclick="location.href='../Home/home.html';">ホームに戻る</button>
+    <div class="wii-user-control-group">
       <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+      <button class="wii-btn wii-btn-side" onclick="openUserModal()">ユーザー選択</button>
     </div>
   </div>
 </div>
@@ -306,7 +339,7 @@
       <button class="wii-btn pause-wii-btn" onclick="resumeGame()">ゲームを続ける</button>
       <button class="wii-btn pause-wii-btn" onclick="restartGameFromPause()">はじめからやり直す</button>
       <button class="wii-btn pause-wii-btn" onclick="showInstrFromPause()">操作方法の確認</button>
-      <button class="wii-btn pause-wii-btn" style="background: rgba(245, 214, 214, 0.9); color: #8a1c1c;" onclick="exitToHome()">ホームに戻る</button>
+      <button class="wii-btn pause-wii-btn" id="exitToHomeBtn" onclick="exitToHome()">ホームに戻る</button>
     </div>
   </div>
 </div>
@@ -1027,6 +1060,7 @@ function animate() {
         handleShotEnd(pts, msg);
       } else {
         handleShotEnd(0, 'MISS');
+        
       }
     }
     
