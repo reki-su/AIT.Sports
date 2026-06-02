@@ -40,10 +40,17 @@ img {
 .screen.hidden { display: none !important; opacity: 0; pointer-events: none; }
 
 #screen-start { justify-content: flex-start; }
+#screen-start::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(226, 247, 244, 0.6) 0%, rgba(216, 216, 216, 0.5) 100%);
+    z-index: -1;
+}
 
 /* Wii Sports風 UI */
 .wii-title-wrapper {
-    width: 100%; background: rgba(255, 255, 255, 0.85); text-align: center;
+    width: 100%; background: rgba(255, 255, 255, 0.78); text-align: center;
     padding: 35px 0; margin-top: 5%; margin-bottom: 8vh; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 .wii-title { font-size: clamp(48px, 9vw, 76px); font-weight: 900; color: #1c4e4d; letter-spacing: 0.15em; text-shadow: 0 2px 8px rgba(255,255,255,0.8); margin: 0; }
@@ -55,9 +62,12 @@ img {
 }
 .wii-btn:hover { transform: scale(1.05); background: rgb(180, 245, 240); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
 .wii-footer { position: absolute; bottom: 45px; left: 45px; right: 45px; display: flex; justify-content: space-between; pointer-events: none; z-index: 210; }
-.wii-btn-side { pointer-events: auto; width: 280px; font-size: 22px; padding: 5px 0; border-radius: 35px; }
-.wii-user-status { font-size: 14px; font-weight: 900; color: #1c4e4d; margin-top: 6px; text-align: center; text-shadow: 0 1px 4px rgba(255,255,255,0.8); }
+.wii-user-control-group { display: flex; flex-direction: column; align-items: center; gap: 12px; pointer-events: none; }
+.wii-btn-side { pointer-events: auto; width: 280px; font-size: 22px; font-weight: 900; padding: 5px 0; border-radius: 35px; border: 5px solid #ffffff !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.2s ease; cursor: pointer; outline: none; }
+.wii-user-status { font-size: 18px; font-weight: 900; color: #ffffff; background: #1c4e4d; padding: 6px 22px; border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: inline-block; margin: 0; text-shadow: none; }
 #quit-btn-start, #quit-btn-success, #quit-btn-fail, .pause-btn-group button[style*="background"] { background: rgb(245, 214, 214) !important; color: #8a1c1c !important; border: 5px solid #ffffff !important; }
+#quit-btn-start { padding: 8px 0 !important; }
+#exitToHomeBtn  { padding: 14px 0 !important; }
 #quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover { background: rgb(245, 195, 195) !important; }
 
 /* モーダル */
