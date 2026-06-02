@@ -79,11 +79,12 @@
   
   .wii-footer {
     position: absolute;
-    bottom: 45px;
+    bottom: 20px;
     left: 45px;
     right: 45px;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     pointer-events: none;
   }
   .wii-user-control-group {
@@ -111,7 +112,15 @@
     color: #8a1c1c !important;
     border: 5px solid #ffffff !important;
   }
-  #quit-btn-start { padding: 8px 0 !important; }
+  #quit-btn-start {
+    height: 64px !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+  }
   #exitToHomeBtn  { padding: 14px 0 !important; }
   #quit-btn-start:hover, #exitToHomeBtn:hover {
     background: rgb(245, 195, 195) !important;

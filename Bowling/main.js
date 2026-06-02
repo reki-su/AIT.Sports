@@ -106,7 +106,11 @@ function closeUserModal() {
 
 function selectUser(name) {
     const localData = localStorage.getItem("wii_sports_theme_data");
-    const data = JSON.parse(localData);
+    const data = localData ? JSON.parse(localData) : {
+        currentUser: "ゲスト",
+        users: { "ゲスト": { bowling_score: 0, bowling_rank: "D" } }
+    };
+    if (!data.users[name]) data.users[name] = { bowling_score: 0, bowling_rank: "D" };
     data.currentUser = name;
     localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
     currentUser = name;
@@ -203,6 +207,9 @@ function exitToHome() {
     pauseModal.classList.remove("show");
     location.href = "../Home/home.html";
 }
+
+window.openUserModal = openUserModal;
+window.addAndSelectNewUser = addAndSelectNewUser;
 
 // ===== イベントリスナー =====
 document.getElementById("startPlayBtn").addEventListener("click", () => switchScreen("playing"));

@@ -55,6 +55,50 @@ const pauseModal = document.getElementById('pauseModal');
 const userModal = document.getElementById('userModal');
 const hudPauseBox = document.getElementById('hudPauseBox');
 const scorePanelEl = document.getElementById('scorePanelEl');
+const STORAGE_KEY = "wii_sports_theme_data";
+const LEGACY_STORAGE_KEY = "wii_fishing_size_theme_data";
+
+function normalizeSportsData(data) {
+    const normalized = data && typeof data === "object" ? data : {};
+    if (!normalized.currentUser) normalized.currentUser = "ゲスト";
+    if (!normalized.users || typeof normalized.users !== "object") normalized.users = {};
+    if (!normalized.users["ゲスト"]) normalized.users["ゲスト"] = {};
+    return normalized;
+}
+
+function loadSportsData() {
+    const sharedData = localStorage.getItem(STORAGE_KEY);
+    const legacyData = localStorage.getItem(LEGACY_STORAGE_KEY);
+    let data = normalizeSportsData(sharedData ? JSON.parse(sharedData) : null);
+
+    if (legacyData) {
+        const legacy = normalizeSportsData(JSON.parse(legacyData));
+        Object.keys(legacy.users).forEach(user => {
+            if (!data.users[user]) data.users[user] = {};
+            if (legacy.users[user].fishing_size !== undefined && data.users[user].fishing_size === undefined) {
+                data.users[user].fishing_size = legacy.users[user].fishing_size;
+            }
+            if (legacy.users[user].fishing_rank !== undefined && data.users[user].fishing_rank === undefined) {
+                data.users[user].fishing_rank = legacy.users[user].fishing_rank;
+            }
+        });
+        if (!sharedData && legacy.currentUser) data.currentUser = legacy.currentUser;
+        saveSportsData(data);
+    }
+
+    return data;
+}
+
+function saveSportsData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeSportsData(data)));
+}
+
+function ensureFishingUser(data, userName) {
+    if (!data.users[userName]) data.users[userName] = {};
+    if (data.users[userName].fishing_size === undefined) data.users[userName].fishing_size = 0.0;
+    if (!data.users[userName].fishing_rank) data.users[userName].fishing_rank = "D";
+    return data.users[userName];
+}
 
 function updateState(newScreen, rodState = 'idle') {
     if (document.activeElement && typeof document.activeElement.blur === 'function') {
@@ -147,38 +191,32 @@ function showFloatingMessage(id) {
 }
 
 function loadUserStatus() {
-    let localData = localStorage.getItem("wii_fishing_size_theme_data");
-    if (localData) {
-        const data = JSON.parse(localData);
-        if (data.currentUser) currentUser = data.currentUser;
-    }
-
-    let data = localData ? JSON.parse(localData) : null;
-    if (data && data.users && data.users[currentUser]) {
-        maxRecordSize = data.users[currentUser].fishing_size || 0.0;
-    } else {
-        maxRecordSize = 0.0;
-    }
+    const data = loadSportsData();
+    currentUser = data.currentUser || "ゲスト";
+    const userData = ensureFishingUser(data, currentUser);
+    maxRecordSize = userData.fishing_size || 0.0;
+    saveSportsData(data);
     pointsDisplay.innerText = maxRecordSize.toFixed(1);
     document.getElementById('wiiUserStatus').textContent = "選択中: " + currentUser;
 }
 
 function openUserModal() {
-    let localData = localStorage.getItem("wii_fishing_size_theme_data");
-    let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: { "ゲスト": { fishing_size: 0.0, fishing_rank: "D" } } };
+    const data = loadSportsData();
 
     const listContainer = document.getElementById('modalUserList');
     listContainer.innerHTML = "";
 
     Object.keys(data.users).forEach(user => {
+        const userData = ensureFishingUser(data, user);
         const btn = document.createElement('button');
         btn.className = "user-item-btn" + (user === currentUser ? " active" : "");
-        const fSize = data.users[user].fishing_size || 0.0;
-        const fRank = data.users[user].fishing_rank || 'D';
+        const fSize = userData.fishing_size || 0.0;
+        const fRank = userData.fishing_rank || 'D';
         btn.textContent = `👤 ${user} (Best: ${fSize.toFixed(1)}cm / Rank ${fRank})`;
         btn.onclick = function() { selectUser(user); };
         listContainer.appendChild(btn);
     });
+    saveSportsData(data);
     userModal.classList.add('show');
 }
 
@@ -188,10 +226,10 @@ function closeUserModal() {
 }
 
 function selectUser(name) {
-    let localData = localStorage.getItem("wii_fishing_size_theme_data");
-    let data = JSON.parse(localData);
+    const data = loadSportsData();
+    ensureFishingUser(data, name);
     data.currentUser = name;
-    localStorage.setItem("wii_fishing_size_theme_data", JSON.stringify(data));
+    saveSportsData(data);
     currentUser = name;
     loadUserStatus();
     closeUserModal();
@@ -202,14 +240,13 @@ function addAndSelectNewUser() {
     let name = input.value.trim();
     if (name === "") return;
 
-    let localData = localStorage.getItem("wii_fishing_size_theme_data");
-    let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
+    const data = loadSportsData();
 
     if (data.users[name]) { alert("その名前はすでに登録されています。"); return; }
 
     data.users[name] = { fishing_size: 0.0, fishing_rank: "D" };
     data.currentUser = name;
-    localStorage.setItem("wii_fishing_size_theme_data", JSON.stringify(data));
+    saveSportsData(data);
 
     currentUser = name;
     loadUserStatus();
@@ -217,16 +254,15 @@ function addAndSelectNewUser() {
 }
 
 function saveGameResult(finalSize, finalRank) {
-    let localData = localStorage.getItem("wii_fishing_size_theme_data");
-    let data = localData ? JSON.parse(localData) : { currentUser: "ゲスト", users: {} };
-
-    if (!data.users[currentUser]) data.users[currentUser] = {};
-    const currentBest = data.users[currentUser].fishing_size || 0.0;
+    const data = loadSportsData();
+    const userData = ensureFishingUser(data, currentUser);
+    const currentBest = userData.fishing_size || 0.0;
 
     if (finalSize > currentBest) {
-        data.users[currentUser].fishing_size = finalSize;
-        data.users[currentUser].fishing_rank = finalRank;
-        localStorage.setItem("wii_fishing_size_theme_data", JSON.stringify(data));
+        userData.fishing_size = finalSize;
+        userData.fishing_rank = finalRank;
+        data.currentUser = currentUser;
+        saveSportsData(data);
         maxRecordSize = finalSize;
         pointsDisplay.innerText = maxRecordSize.toFixed(1);
         return true;

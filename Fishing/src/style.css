@@ -61,12 +61,12 @@ img {
     cursor: pointer; box-shadow: 0 6px 14px rgba(0,0,0,0.15); transition: all 0.2s ease; outline: none;
 }
 .wii-btn:hover { transform: scale(1.05); background: rgb(180, 245, 240); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-.wii-footer { position: absolute; bottom: 45px; left: 45px; right: 45px; display: flex; justify-content: space-between; pointer-events: none; z-index: 210; }
+.wii-footer { position: absolute; bottom: 20px; left: 45px; right: 45px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 210; }
 .wii-user-control-group { display: flex; flex-direction: column; align-items: center; gap: 12px; pointer-events: none; }
 .wii-btn-side { pointer-events: auto; width: 280px; font-size: 22px; font-weight: 900; padding: 5px 0; border-radius: 35px; border: 5px solid #ffffff !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: all 0.2s ease; cursor: pointer; outline: none; }
 .wii-user-status { font-size: 18px; font-weight: 900; color: #ffffff; background: #1c4e4d; padding: 6px 22px; border-radius: 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: inline-block; margin: 0; text-shadow: none; }
 #quit-btn-start, #quit-btn-success, #quit-btn-fail, .pause-btn-group button[style*="background"] { background: rgb(245, 214, 214) !important; color: #8a1c1c !important; border: 5px solid #ffffff !important; }
-#quit-btn-start { padding: 8px 0 !important; }
+#quit-btn-start { height: 64px !important; padding: 0 !important; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; line-height: 1.1; }
 #exitToHomeBtn  { padding: 14px 0 !important; }
 #quit-btn-start:hover, #quit-btn-success:hover, #quit-btn-fail:hover { background: rgb(245, 195, 195) !important; }
 

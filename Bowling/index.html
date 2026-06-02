@@ -78,28 +78,65 @@
 
   .wii-footer {
     position: absolute;
-    bottom: 45px;
+    bottom: 20px;
     left: 45px;
     right: 45px;
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     pointer-events: none;
     z-index: 210;
+  }
+  .wii-user-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    pointer-events: auto;
   }
   .wii-btn-side {
     pointer-events: auto;
     width: 280px;
     font-size: 22px;
+    font-weight: 900;
     padding: 5px 0;
     border-radius: 35px;
+    border: 5px solid #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    outline: none;
+  }
+  #quit-btn-start, #exitToHomeBtn {
+    background: rgb(245, 214, 214) !important;
+    color: #8a1c1c !important;
+    border: 5px solid #ffffff !important;
+  }
+  #quit-btn-start {
+    height: 64px !important;
+    padding: 0 !important;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+  }
+  #exitToHomeBtn { padding: 14px 0 !important; }
+  #quit-btn-start:hover, #exitToHomeBtn:hover {
+    background: rgb(245, 195, 195) !important;
   }
   .wii-user-status {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 900;
-    color: #1c4e4d;
-    margin-top: 6px;
+    color: #ffffff;
+    background: #1c4e4d;
+    padding: 6px 22px;
+    border-radius: 20px;
     text-align: center;
-    text-shadow: 0 1px 4px rgba(255,255,255,0.8);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: inline-block;
+    margin: 0;
+    text-shadow: none;
   }
 
   #userModal, #pauseModal {
@@ -271,10 +308,10 @@
     <button class="wii-btn" id="startInstrBtn">操作方法</button>
   </div>
   <div class="wii-footer">
-    <button class="wii-btn wii-btn-side" onclick="location.href='../Home/home.html';">ホームに戻る</button>
-    <div>
-      <button class="wii-btn wii-btn-side" id="modalTriggerBtn">ユーザー選択</button>
+    <button class="wii-btn wii-btn-side" id="quit-btn-start" onclick="location.href='../Home/home.html';">ホームに戻る</button>
+    <div class="wii-user-control-group">
       <div class="wii-user-status" id="wiiUserStatus">選択中: ゲスト</div>
+      <button class="wii-btn wii-btn-side" id="modalTriggerBtn">ユーザー選択</button>
     </div>
   </div>
 </div>
@@ -300,7 +337,7 @@
       <button class="wii-btn pause-wii-btn" id="resumeGameBtn">ゲームを続ける</button>
       <button class="wii-btn pause-wii-btn" id="restartGameBtn">はじめからやり直す</button>
       <button class="wii-btn pause-wii-btn" id="showInstrBtn">操作方法の確認</button>
-      <button class="wii-btn pause-wii-btn" style="background: rgba(245, 214, 214, 0.9); color: #8a1c1c;" id="exitToHomeBtn">ホームに戻る</button>
+      <button class="wii-btn pause-wii-btn" id="exitToHomeBtn">ホームに戻る</button>
     </div>
   </div>
 </div>
@@ -384,6 +421,6 @@
 <canvas id="game"></canvas>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-<script type="module" src="main.js"></script>
+<script type="module" src="main.js?v=20260602-3"></script>
 </body>
 </html>
