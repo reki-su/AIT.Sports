@@ -106,11 +106,7 @@ function closeUserModal() {
 
 function selectUser(name) {
     const localData = localStorage.getItem("wii_sports_theme_data");
-    const data = localData ? JSON.parse(localData) : {
-        currentUser: "ゲスト",
-        users: { "ゲスト": { bowling_score: 0, bowling_rank: "D" } }
-    };
-    if (!data.users[name]) data.users[name] = { bowling_score: 0, bowling_rank: "D" };
+    const data = JSON.parse(localData);
     data.currentUser = name;
     localStorage.setItem("wii_sports_theme_data", JSON.stringify(data));
     currentUser = name;
@@ -208,9 +204,6 @@ function exitToHome() {
     location.href = "../Home/home.html";
 }
 
-window.openUserModal = openUserModal;
-window.addAndSelectNewUser = addAndSelectNewUser;
-
 // ===== イベントリスナー =====
 document.getElementById("startPlayBtn").addEventListener("click", () => switchScreen("playing"));
 document.getElementById("startInstrBtn").addEventListener("click", () => {
@@ -232,7 +225,191 @@ document.getElementById("exitToHomeBtn").addEventListener("click", exitToHome);
 document.getElementById("resultRetryBtn").addEventListener("click", () => switchScreen("playing"));
 document.getElementById("resultTitleBtn").addEventListener("click", () => switchScreen("title"));
 
-window.addEventListener("DOMContentLoaded", loadUserStatus);
+window.addEventListener("DOMContentLoaded", () => {
+    loadUserStatus();
+    buildControlsGuide();
+});
+
+// ===== 操作ガイドパネルの構築 =====
+// gameUI内の右下に折りたたみ式パネルを動的生成する。
+// curveBar には id がないため curveFill.parentNode で参照し、
+// Q/E キーバッジを両端に付ける。
+// パネル上の mousedown/mouseup はゲームの投球ドラッグに伝播させない。
+
+function buildControlsGuide() {
+
+    // ── カーブバー両端に Q / E キーバッジを追加 ──
+    const curveFill = document.getElementById("curveFill");
+    if (curveFill) {
+        const barTrack = curveFill.parentNode;   // id なしの div（バートラック）
+        barTrack.style.position = "relative";
+        barTrack.style.overflow = "visible";
+
+        const qBadge = document.createElement("span");
+        qBadge.id = "curveKeyHintQ";
+        qBadge.textContent = "Q";
+        qBadge.style.cssText = `
+            position:absolute; left:-26px; top:50%; transform:translateY(-50%);
+            font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:900;
+            color:#4db8ff; background:rgba(0,0,0,0.55);
+            border:1.5px solid #4db8ff; border-radius:4px;
+            padding:0 5px; line-height:1.6;
+            opacity:0.45; transition:opacity 0.15s; pointer-events:none;
+        `;
+
+        const eBadge = document.createElement("span");
+        eBadge.id = "curveKeyHintE";
+        eBadge.textContent = "E";
+        eBadge.style.cssText = `
+            position:absolute; right:-26px; top:50%; transform:translateY(-50%);
+            font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:900;
+            color:#ff9944; background:rgba(0,0,0,0.55);
+            border:1.5px solid #ff9944; border-radius:4px;
+            padding:0 5px; line-height:1.6;
+            opacity:0.45; transition:opacity 0.15s; pointer-events:none;
+        `;
+
+        barTrack.appendChild(qBadge);
+        barTrack.appendChild(eBadge);
+    }
+
+    // ── パネル本体を gameUI に追加 ──
+    const gameUIEl = document.getElementById("gameUI");
+    if (!gameUIEl) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.id = "controlsGuide";
+    wrapper.style.cssText = `
+        position:absolute; bottom:20px; right:16px;
+        z-index:120; font-family:'Barlow Condensed',sans-serif;
+        pointer-events:auto; user-select:none;
+    `;
+
+    // パネル上の操作が投球ドラッグに伝播しないようブロック
+    wrapper.addEventListener("mousedown", e => e.stopPropagation());
+    wrapper.addEventListener("mouseup",   e => e.stopPropagation());
+
+    // 折りたたみボタン
+    const toggleBtn = document.createElement("button");
+    toggleBtn.id = "controlsToggleBtn";
+    toggleBtn.textContent = "⌨ 操作ガイド ▲";
+    toggleBtn.style.cssText = `
+        display:block; width:100%; text-align:right;
+        background:rgba(28,78,77,0.85); color:#d6f7f4;
+        border:1.5px solid rgba(214,247,244,0.45);
+        border-radius:8px 8px 0 0;
+        font-family:'Barlow Condensed',sans-serif;
+        font-size:13px; font-weight:700; letter-spacing:1px;
+        padding:5px 12px; cursor:pointer;
+    `;
+
+    // パネル本体
+    const panel = document.createElement("div");
+    panel.id = "controlsGuidePanel";
+    panel.style.cssText = `
+        background:rgba(8,24,24,0.88);
+        border:1.5px solid rgba(214,247,244,0.22);
+        border-top:none; border-radius:0 0 10px 10px;
+        padding:12px 14px 12px 12px;
+        min-width:244px;
+        backdrop-filter:blur(6px);
+        box-shadow:0 6px 24px rgba(0,0,0,0.5);
+    `;
+
+    // ── ヘルパー: キーバッジ付き行を生成 ──
+    function makeRow(keys, desc, keyColor) {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex; align-items:center; gap:8px; margin-bottom:6px;";
+
+        const keyGroup = document.createElement("div");
+        keyGroup.style.cssText = "display:flex; gap:3px; flex-shrink:0; min-width:76px;";
+
+        keys.forEach(k => {
+            const kbd = document.createElement("span");
+            kbd.textContent = k;
+            kbd.style.cssText = `
+                display:inline-block;
+                background:rgba(255,255,255,0.10);
+                border:1.5px solid rgba(255,255,255,0.30);
+                border-bottom-width:3px;
+                border-radius:4px;
+                padding:1px 7px;
+                font-family:'Barlow Condensed',monospace;
+                font-size:12px; font-weight:900;
+                color:${keyColor || "#d6f7f4"};
+                min-width:22px; text-align:center; line-height:1.5;
+            `;
+            keyGroup.appendChild(kbd);
+        });
+
+        const lbl = document.createElement("span");
+        lbl.textContent = desc;
+        lbl.style.cssText = "color:rgba(214,247,244,0.85); font-size:13px; font-weight:600;";
+
+        row.appendChild(keyGroup);
+        row.appendChild(lbl);
+        return row;
+    }
+
+    // ── ヘルパー: セクション区切り ──
+    function makeSep(text) {
+        const sep = document.createElement("div");
+        sep.style.cssText = `
+            color:rgba(214,247,244,0.4); font-size:10px; font-weight:700;
+            letter-spacing:2px; text-transform:uppercase;
+            margin:7px 0 5px;
+            border-top:1px solid rgba(214,247,244,0.14);
+            padding-top:6px;
+        `;
+        sep.textContent = text;
+        return sep;
+    }
+
+    // ── 投球説明（アイコン付き強調行）──
+    const throwRow = document.createElement("div");
+    throwRow.style.cssText = `
+        display:flex; align-items:flex-start; gap:8px;
+        margin-bottom:8px; padding-bottom:8px;
+        border-bottom:1px solid rgba(214,247,244,0.14);
+    `;
+    throwRow.innerHTML = `
+        <span style="font-size:20px; flex-shrink:0; line-height:1.2;">🖱️</span>
+        <span style="color:rgba(255,220,100,0.95); font-size:13px; font-weight:700; line-height:1.4;">
+            画面を<b>下→上にドラッグ</b>して投球<br>
+            <span style="font-size:11px; font-weight:500; color:rgba(214,247,244,0.55);">
+                上方向ほど速く・横ズレで方向調整
+            </span>
+        </span>
+    `;
+
+    // ── 各操作行 ──
+    panel.appendChild(throwRow);
+
+    panel.appendChild(makeSep("位置・角度"));
+    panel.appendChild(makeRow(["←", "→"], "立ち位置を左右に移動", "#a0e8ff"));
+    panel.appendChild(makeRow(["A", "D"],  "投球角度を左右に調整", "#a0e8ff"));
+
+    panel.appendChild(makeSep("カーブ"));
+    panel.appendChild(makeRow(["Q"], "左カーブをかける",  "#4db8ff"));
+    panel.appendChild(makeRow(["E"], "右カーブをかける",  "#ff9944"));
+    panel.appendChild(makeRow(["R"], "カーブをリセット",  "#aaaaaa"));
+
+    // ── 折りたたみ制御 ──
+    let guideOpen = true;
+    toggleBtn.addEventListener("click", () => {
+        guideOpen = !guideOpen;
+        panel.style.display      = guideOpen ? "block" : "none";
+        toggleBtn.textContent    = guideOpen ? "⌨ 操作ガイド ▲" : "⌨ 操作ガイド ▼";
+        toggleBtn.style.borderRadius = guideOpen ? "8px 8px 0 0" : "8px";
+        toggleBtn.style.border   = guideOpen
+            ? "1.5px solid rgba(214,247,244,0.45)"
+            : "1.5px solid rgba(214,247,244,0.45)";
+    });
+
+    wrapper.appendChild(toggleBtn);
+    wrapper.appendChild(panel);
+    gameUIEl.appendChild(wrapper);
+}
 
 // ===== ライト =====
 scene.add(new THREE.AmbientLight(0xffffff, 0.8));
@@ -331,9 +508,12 @@ function createBall() {
 
     const holeMat = new THREE.MeshPhongMaterial({ color: 0x020205 });
     [[0.17, 0.25, 0.16], [-0.04, 0.30, 0.16], [-0.18, 0.21, 0.19]].forEach(([x, y, z]) => {
-        const h = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), holeMat); h.position.set(x, y, z); ballGroup.add(h);
+        const h = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 12), holeMat);
+        h.position.set(x, y, z);
+        ballGroup.add(h);
     });
-    ballGroup.castShadow = true; scene.add(ballGroup);
+    ballGroup.castShadow = true;
+    scene.add(ballGroup);
 }
 
 // ===== ピン =====
@@ -370,8 +550,12 @@ function createPins() {
     pins = [];
     lastKnockedState = "";
     PIN_POSITIONS.forEach(([px, pz]) => {
-        const body = Bodies.circle(px, pz, 0.21, { restitution: 0.6, friction: 0.04, frictionAir: 0.016, density: 0.03, label: "pin" });
-        World.add(world, body); const mesh = createPinMesh(); scene.add(mesh);
+        const body = Bodies.circle(px, pz, 0.21, {
+            restitution: 0.6, friction: 0.04, frictionAir: 0.016, density: 0.03, label: "pin"
+        });
+        World.add(world, body);
+        const mesh = createPinMesh();
+        scene.add(mesh);
         pins.push({ body, mesh, startX: px, startZ: pz, knocked: false });
     });
     updatePinMap();
@@ -380,7 +564,8 @@ function createPins() {
 // 衝突判定
 Events.on(engine, "collisionStart", ev => {
     ev.pairs.forEach(({ bodyA, bodyB }) => {
-        const isPin = b => b.label === "pin"; const isBall = b => b.label === "ball";
+        const isPin = b => b.label === "pin";
+        const isBall = b => b.label === "ball";
         if ((isBall(bodyA) && isPin(bodyB)) || (isBall(bodyB) && isPin(bodyA))) {
             const pin  = isPin(bodyA) ? bodyA : bodyB;
             const ball = isBall(bodyA) ? bodyA : bodyB;
@@ -404,7 +589,7 @@ Events.on(engine, "collisionStart", ev => {
             const lateralScale = lateralRatio * 1.8;
             const fLateral = (cross > 0 ? 1 : -1) * lateralScale * forceMag;
 
-            Body.applyForce(pin, pin.position, { x: nx * forceMag + tx * fLateral, y: ny * forceMag + ty * fLateral });
+            Body.applyForce(pin,  pin.position,  { x: nx * forceMag + tx * fLateral, y: ny * forceMag + ty * fLateral });
             Body.applyForce(ball, ball.position, { x: -nx * forceMag * 0.15, y: -ny * forceMag * 0.15 });
         }
         if (isPin(bodyA) && isPin(bodyB)) {
@@ -431,12 +616,16 @@ let scoreCheckScheduled = false;
 document.addEventListener("mousedown", e => {
     if (gameState !== "playing" || isPaused) return;
     if (e.target.id === "pauseTriggerBtn") return;
-    startMouseX = e.clientX; startMouseY = e.clientY;
+    // 操作ガイドパネル上のクリックは投球ドラッグに使わない
+    if (e.target.closest && e.target.closest("#controlsGuide")) return;
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
     scored = false;
 });
 document.addEventListener("mouseup", e => {
     if (gameState !== "playing" || scored || ballLaunched || isPaused) return;
     if (e.target.id === "pauseTriggerBtn") return;
+    if (e.target.closest && e.target.closest("#controlsGuide")) return;
     const rawDx = Math.max(-280, Math.min(280, e.clientX - startMouseX));
     const rawDy = Math.max(-380, Math.min(380, startMouseY - e.clientY));
     let vx = rawDx * 0.00014 + Math.sin(angle) * 0.12;
@@ -464,26 +653,38 @@ document.addEventListener("keydown", e => {
     updateCurveUI();
 });
 
+// ===== カーブUI更新（Q/Eバッジの強調も連動）=====
 function updateCurveUI() {
     const fill  = document.getElementById("curveFill");
     const label = document.getElementById("curveLabel");
     if (!fill) return;
+
     if (curveAmount === 0) {
-        fill.style.left = "50%"; fill.style.width = "0%";
-        label.textContent = "";
-        label.style.color = "#1c4e4d";
+        fill.style.left  = "50%";
+        fill.style.width = "0%";
+        if (label) { label.textContent = ""; label.style.color = "#1c4e4d"; }
     } else if (curveAmount > 0) {
-        fill.style.left = "50%";
+        fill.style.left  = "50%";
         fill.style.width = (curveAmount * 50) + "%";
-        label.textContent = "R +" + Math.round(curveAmount * 100) + "%";
-        label.style.color = "#ff8833";
+        if (label) {
+            label.textContent = "右カーブ [E] +" + Math.round(curveAmount * 100) + "%";
+            label.style.color = "#ff8833";
+        }
     } else {
         const w = -curveAmount * 50;
-        fill.style.left = (50 - w) + "%";
+        fill.style.left  = (50 - w) + "%";
         fill.style.width = w + "%";
-        label.textContent = "L +" + Math.round(-curveAmount * 100) + "%";
-        label.style.color = "#0088ff";
+        if (label) {
+            label.textContent = "左カーブ [Q] +" + Math.round(-curveAmount * 100) + "%";
+            label.style.color = "#0088ff";
+        }
     }
+
+    // Q/Eバッジの強調（カーブ方向に合わせて光らせる）
+    const qHint = document.getElementById("curveKeyHintQ");
+    const eHint = document.getElementById("curveKeyHintE");
+    if (qHint) qHint.style.opacity = curveAmount < 0  ? "1" : "0.45";
+    if (eHint) eHint.style.opacity = curveAmount > 0  ? "1" : "0.45";
 }
 
 // ===== スコアロジック =====
@@ -493,14 +694,17 @@ let frame = 1, throwCount = 1, firstThrowKnocked = 0;
 let frameData = [];
 
 function calcCumulative() {
-    const result = new Array(10).fill(null); let total = 0;
+    const result = new Array(10).fill(null);
+    let total = 0;
     for (let i = 0; i < frameData.length && i < 10; i++) {
-        const f = frameData[i]; if (!f || f.length === 0) break;
+        const f = frameData[i];
+        if (!f || f.length === 0) break;
         if (i === 9) {
             if (f.length < ((f[0] === 10 || (f.length > 1 && f[0] + f[1] === 10)) ? 3 : 2)) break;
             total += f.reduce((a, b) => a + b, 0);
         } else if (f[0] === 10) {
-            const next = frameData[i + 1]; if (!next || next.length === 0) break;
+            const next = frameData[i + 1];
+            if (!next || next.length === 0) break;
             let b2 = (next[0] === 10 && i + 1 < 9) ? (frameData[i + 2]?.[0] ?? 0) : (next[1] ?? 0);
             if (next[0] !== 10 && next.length < 2) break;
             total += 10 + next[0] + b2;
@@ -508,7 +712,8 @@ function calcCumulative() {
             if (!frameData[i + 1] || frameData[i + 1].length === 0) break;
             total += 10 + frameData[i + 1][0];
         } else {
-            if (f.length < 2) break; total += f[0] + f[1];
+            if (f.length < 2) break;
+            total += f[0] + f[1];
         }
         result[i] = total;
     }
@@ -516,10 +721,14 @@ function calcCumulative() {
 }
 
 function drawFrameBoard() {
-    const cum = calcCumulative(); const framesRow = document.getElementById("framesRow"); if (!framesRow) return;
+    const cum = calcCumulative();
+    const framesRow = document.getElementById("framesRow");
+    if (!framesRow) return;
     framesRow.innerHTML = "";
     for (let i = 0; i < 10; i++) {
-        const f = frameData[i] || []; const is10 = i === 9; const isCur = i === frame - 1;
+        const f = frameData[i] || [];
+        const is10 = i === 9;
+        const isCur = i === frame - 1;
         const box = document.createElement("div");
         box.style.cssText = `
             width:${is10 ? "62px" : "48px"};
@@ -556,6 +765,7 @@ function drawFrameBoard() {
     const totalEl = document.getElementById("totalScore");
     if (totalEl) totalEl.textContent = "合計: " + (last ?? 0);
 }
+
 function symNormal(f) {
     if (f[0] === 10) return ["", `<span style="color:#ff9933;font-weight:900;font-size:15px;">${STRIKE_SYM}</span>`];
     const s1 = f[0] !== undefined ? (f[0] === 0 ? "-" : f[0]) : "";
@@ -584,9 +794,9 @@ function sym10(f, idx) {
     return "";
 }
 
-function setMsg(txt) { const el = document.getElementById("msgBox"); if (el) el.textContent = txt; }
-function setFrameLabel(txt) { const el = document.getElementById("frameLabel"); if (el) el.textContent = txt; }
-function setThrowLabel(txt) { const el = document.getElementById("throwLabel"); if (el) el.textContent = txt; }
+function setMsg(txt)        { const el = document.getElementById("msgBox");      if (el) el.textContent = txt; }
+function setFrameLabel(txt) { const el = document.getElementById("frameLabel");  if (el) el.textContent = txt; }
+function setThrowLabel(txt) { const el = document.getElementById("throwLabel");  if (el) el.textContent = txt; }
 
 // ===== ピン管理 =====
 const KNOCK_THRESHOLD = 0.52;
@@ -599,7 +809,13 @@ function countKnocked() {
 }
 
 function removeKnockedPins() {
-    pins.forEach(p => { if (Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD && !p.knocked) { p.knocked = true; World.remove(world, p.body); scene.remove(p.mesh); } });
+    pins.forEach(p => {
+        if (Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD && !p.knocked) {
+            p.knocked = true;
+            World.remove(world, p.body);
+            scene.remove(p.mesh);
+        }
+    });
 }
 
 function scheduleCheckScore() {
@@ -621,7 +837,8 @@ function scheduleCheckScore() {
 }
 
 function checkScore() {
-    if (scored) return; scored = true; ballLaunched = false; curveActive = false;
+    if (scored) return;
+    scored = true; ballLaunched = false; curveActive = false;
     const fi = frame - 1;
     if (!frameData[fi]) frameData[fi] = [];
     const totalKnocked = countKnocked();
@@ -630,7 +847,6 @@ function checkScore() {
         : totalKnocked - firstThrowKnocked;
 
     frameData[fi].push(thisThrow);
-
     const f = frameData[fi];
 
     if (frame === 10) {
@@ -698,8 +914,10 @@ function handle10thFrame(f, totalKnocked) {
             throwCount = 3; setThrowLabel("3RD THROW");
             drawFrameBoard();
             setTimeout(() => {
-                if (f[1] === 10 || f[0] + f[1] === 10) { pins.forEach(p => { World.remove(world, p.body); scene.remove(p.mesh); }); pins = []; createPins(); }
-                else { removeKnockedPins(); updatePinMap(); }
+                if (f[1] === 10 || f[0] + f[1] === 10) {
+                    pins.forEach(p => { World.remove(world, p.body); scene.remove(p.mesh); });
+                    pins = []; createPins();
+                } else { removeKnockedPins(); updatePinMap(); }
                 createBall();
                 scored = false; ballLaunched = false; ballPassedPins = false; scoreCheckScheduled = false;
                 if (!isPaused) hudPauseBox.style.display = "block";
@@ -753,7 +971,8 @@ function endGame() {
     rRank.textContent = "RANK " + rank;
     document.getElementById("resultComment").textContent = comment;
 
-    const rf = document.getElementById("resultFrames"); rf.innerHTML = "";
+    const rf = document.getElementById("resultFrames");
+    rf.innerHTML = "";
     for (let i = 0; i < 10; i++) {
         const f    = frameData[i] || [];
         const is10 = i === 9;
@@ -854,7 +1073,7 @@ function updatePinMap() {
 }
 
 // ===== ガイドライン =====
-const guideGeo = new THREE.BufferGeometry();
+const guideGeo  = new THREE.BufferGeometry();
 const guideLine = new THREE.Line(guideGeo, new THREE.LineBasicMaterial({ color: 0xff2200, transparent: true, opacity: 0.6 }));
 scene.add(guideLine);
 let ballTravelDistance = 0;
@@ -871,23 +1090,19 @@ function update() {
     }
 
     if (ballLaunched && ballBody) {
-        const by = ballBody.position.y;
-        const bx = ballBody.position.x;
+        const by    = ballBody.position.y;
+        const bx    = ballBody.position.x;
         const speed = Math.hypot(ballBody.velocity.x, ballBody.velocity.y);
 
-        // ピン位置を超えたら通常スコア判定
         if (!ballPassedPins && (by < -16.0 || bx < -4.5 || bx > 3.9)) {
             ballPassedPins = true;
         }
 
-        // ピンに届く前に止まった場合はガター扱い
         if (!ballPassedPins && by > -11.0 && speed < 0.015 && !scoreCheckScheduled) {
             scoreCheckScheduled = true;
             setMsg("ガター...");
             showEvent("gutter");
-            setTimeout(() => {
-                checkScore();
-            }, 1000);
+            setTimeout(() => { checkScore(); }, 1000);
         }
 
         if (ballPassedPins && !scoreCheckScheduled) {
@@ -931,7 +1146,8 @@ function update() {
     pins.forEach(p => {
         if (p.knocked) return;
         const moved = Math.hypot(p.body.position.x - p.startX, p.body.position.y - p.startZ) > KNOCK_THRESHOLD;
-        p.mesh.position.set(p.body.position.x, moved ? 0.14 : 0, p.body.position.y); p.mesh.rotation.set(moved ? Math.PI / 2 : 0, p.body.angle, 0);
+        p.mesh.position.set(p.body.position.x, moved ? 0.14 : 0, p.body.position.y);
+        p.mesh.rotation.set(moved ? Math.PI / 2 : 0, p.body.angle, 0);
     });
 
     const knockedState = pins.map(p => p.knocked).join(",");
@@ -956,4 +1172,6 @@ function animate() {
     update();
     renderer.render(scene, camera);
 }
-switchScreen("title"); animate();
+
+switchScreen("title");
+animate();
