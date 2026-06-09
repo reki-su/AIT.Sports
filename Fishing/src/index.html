@@ -127,14 +127,21 @@
                 </div>
 
                 <div id="screen-success" class="game-content-screen hidden">
-                    <h2 id="result-text" class="result-title">ゲット！</h2>
-                    <div id="fish-size-display" style="font-size: 38px; font-weight: 900; color: #f59e0b; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); margin-top: 10px;">0.0 cm</div>
-                    <div id="best-update-msg" style="font-size: 18px; font-weight: 900; color: #ef4444; margin-top: 5px;" class="hidden">🎉 自己ベスト更新！ 🎉</div>
-                    
-                    <img id="fish-img" src="" alt="[ 魚の画像 ]" class="fish-display-img" style="margin: 10px 0;">
-                    <div class="button-group">
-                        <button class="wii-btn" style="font-size:20px; width:220px;" id="next-btn">もう一度投げる</button>
-                        <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-success">終了する</button>
+                    <div class="result-box">
+                        <div class="result-lbl">FISH SIZE</div>
+                        <div class="result-total" id="fish-size-display">0.0</div>
+                        <div class="result-max">/190cm</div>
+                        <div class="result-fish-col" id="rRounds">
+                            <div id="result-text">—</div>
+                            <img id="fish-img" src="" alt="[ 魚の画像 ]" class="fish-display-img">
+                        </div>
+                        <div class="result-rank" id="rRank"></div>
+                        <div class="result-comment" id="rComment"></div>
+                        <div id="best-update-msg" class="hidden" style="font-size:14px; font-weight:900; color:#ef4444; margin-bottom:16px;">🎉 自己ベスト更新！ 🎉</div>
+                        <div class="wa-btn-group" style="flex-direction:row; justify-content:center; gap:20px; display:flex;">
+                            <button class="wii-btn" style="font-size:20px; width:220px;" id="next-btn">もう一度</button>
+                            <button class="wii-btn" style="font-size:20px; width:220px;" id="quit-btn-success">終了する</button>
+                        </div>
                     </div>
                 </div>
 

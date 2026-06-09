@@ -573,20 +573,44 @@ function finishGame(result) {
         let absoluteMax = baseMax * 1.25;
         if (finalSize > absoluteMax) finalSize = absoluteMax;
 
-        document.getElementById('result-text').innerText = `${currentFish.name}を釣った！`;
-        document.getElementById('fish-size-display').innerText = `${finalSize.toFixed(1)} cm`;
-        document.getElementById('fish-img').src = currentFish.img;
+        // サイズランク判定
+        const matched = rankTable.find(r => finalSize >= r.min);
+        const thisRank = matched ? matched.rank : "D";
 
+        // 自己ベスト比較
         let currentBestRecord = maxRecordSize;
         let isNewRecord = finalSize > currentBestRecord;
-
         let queryBest = isNewRecord ? finalSize : currentBestRecord;
-        const matched = rankTable.find(r => queryBest >= r.min);
-        const finalRank = matched ? matched.rank : "D";
+        const bestMatched = rankTable.find(r => queryBest >= r.min);
+        const finalRank = bestMatched ? bestMatched.rank : "D";
+
+        // ランクカラー
+        const rankColors = { S: "#ffaa00", A: "#ff4444", B: "#3377ff", C: "#555555", D: "#888888" };
+        const rankColor = rankColors[thisRank] || "#1c4e4d";
+
+        // コメント
+        const comments = {
+            S: "🏆 伝説級の大物！！",
+            A: "🎉 素晴らしい釣果！",
+            B: "👍 なかなかの大きさ！",
+            C: "😊 まずまずの釣り！",
+            D: "🐟 次はもっと大きいのを狙おう"
+        };
+
+        // UI更新
+        document.getElementById('fish-size-display').innerText = finalSize.toFixed(1);
+        document.getElementById('result-text').innerText = `${currentFish.name}を釣った！`;
+        document.getElementById('fish-img').src = currentFish.img;
+        document.getElementById('rRank').innerText = `RANK ${thisRank}`;
+        document.getElementById('rRank').style.color = rankColor;
+        document.getElementById('rComment').innerText = comments[thisRank] || "";
 
         let updated = saveGameResult(queryBest, finalRank);
+        const bestMsg = document.getElementById('best-update-msg');
         if (updated && isNewRecord && currentBestRecord > 0) {
-            document.getElementById('best-update-msg').classList.remove('hidden');
+            bestMsg.classList.remove('hidden');
+        } else {
+            bestMsg.classList.add('hidden');
         }
     }
 }
