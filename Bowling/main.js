@@ -231,17 +231,11 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===== 操作ガイドパネルの構築 =====
-// gameUI内の右下に折りたたみ式パネルを動的生成する。
-// curveBar には id がないため curveFill.parentNode で参照し、
-// Q/E キーバッジを両端に付ける。
-// パネル上の mousedown/mouseup はゲームの投球ドラッグに伝播させない。
-
 function buildControlsGuide() {
 
-    // ── カーブバー両端に Q / E キーバッジを追加 ──
     const curveFill = document.getElementById("curveFill");
     if (curveFill) {
-        const barTrack = curveFill.parentNode;   // id なしの div（バートラック）
+        const barTrack = curveFill.parentNode;
         barTrack.style.position = "relative";
         barTrack.style.overflow = "visible";
 
@@ -273,7 +267,6 @@ function buildControlsGuide() {
         barTrack.appendChild(eBadge);
     }
 
-    // ── パネル本体を gameUI に追加 ──
     const gameUIEl = document.getElementById("gameUI");
     if (!gameUIEl) return;
 
@@ -285,11 +278,9 @@ function buildControlsGuide() {
         pointer-events:auto; user-select:none;
     `;
 
-    // パネル上の操作が投球ドラッグに伝播しないようブロック
     wrapper.addEventListener("mousedown", e => e.stopPropagation());
     wrapper.addEventListener("mouseup",   e => e.stopPropagation());
 
-    // 折りたたみボタン
     const toggleBtn = document.createElement("button");
     toggleBtn.id = "controlsToggleBtn";
     toggleBtn.textContent = "⌨ 操作ガイド ▲";
@@ -303,7 +294,6 @@ function buildControlsGuide() {
         padding:5px 12px; cursor:pointer;
     `;
 
-    // パネル本体
     const panel = document.createElement("div");
     panel.id = "controlsGuidePanel";
     panel.style.cssText = `
@@ -316,7 +306,6 @@ function buildControlsGuide() {
         box-shadow:0 6px 24px rgba(0,0,0,0.5);
     `;
 
-    // ── ヘルパー: キーバッジ付き行を生成 ──
     function makeRow(keys, desc, keyColor) {
         const row = document.createElement("div");
         row.style.cssText = "display:flex; align-items:center; gap:8px; margin-bottom:6px;";
@@ -351,7 +340,6 @@ function buildControlsGuide() {
         return row;
     }
 
-    // ── ヘルパー: セクション区切り ──
     function makeSep(text) {
         const sep = document.createElement("div");
         sep.style.cssText = `
@@ -365,7 +353,6 @@ function buildControlsGuide() {
         return sep;
     }
 
-    // ── 投球説明（アイコン付き強調行）──
     const throwRow = document.createElement("div");
     throwRow.style.cssText = `
         display:flex; align-items:flex-start; gap:8px;
@@ -382,7 +369,6 @@ function buildControlsGuide() {
         </span>
     `;
 
-    // ── 各操作行 ──
     panel.appendChild(throwRow);
 
     panel.appendChild(makeSep("位置・角度"));
@@ -394,7 +380,6 @@ function buildControlsGuide() {
     panel.appendChild(makeRow(["E"], "右カーブをかける",  "#ff9944"));
     panel.appendChild(makeRow(["R"], "カーブをリセット",  "#aaaaaa"));
 
-    // ── 折りたたみ制御 ──
     let guideOpen = true;
     toggleBtn.addEventListener("click", () => {
         guideOpen = !guideOpen;
@@ -616,7 +601,6 @@ let scoreCheckScheduled = false;
 document.addEventListener("mousedown", e => {
     if (gameState !== "playing" || isPaused) return;
     if (e.target.id === "pauseTriggerBtn") return;
-    // 操作ガイドパネル上のクリックは投球ドラッグに使わない
     if (e.target.closest && e.target.closest("#controlsGuide")) return;
     startMouseX = e.clientX;
     startMouseY = e.clientY;
@@ -653,7 +637,7 @@ document.addEventListener("keydown", e => {
     updateCurveUI();
 });
 
-// ===== カーブUI更新（Q/Eバッジの強調も連動）=====
+// ===== カーブUI更新 =====
 function updateCurveUI() {
     const fill  = document.getElementById("curveFill");
     const label = document.getElementById("curveLabel");
@@ -680,7 +664,6 @@ function updateCurveUI() {
         }
     }
 
-    // Q/Eバッジの強調（カーブ方向に合わせて光らせる）
     const qHint = document.getElementById("curveKeyHintQ");
     const eHint = document.getElementById("curveKeyHintE");
     if (qHint) qHint.style.opacity = curveAmount < 0  ? "1" : "0.45";
@@ -693,19 +676,20 @@ const SPARE_SYM  = "/";
 let frame = 1, throwCount = 1, firstThrowKnocked = 0;
 let frameData = [];
 
+// ===== 累計スコア計算（5フレーム版）=====
 function calcCumulative() {
-    const result = new Array(10).fill(null);
+    const result = new Array(5).fill(null);          // 5フレーム分
     let total = 0;
-    for (let i = 0; i < frameData.length && i < 10; i++) {
+    for (let i = 0; i < frameData.length && i < 5; i++) {  // 上限5
         const f = frameData[i];
         if (!f || f.length === 0) break;
-        if (i === 9) {
+        if (i === 4) {                                // 第5フレーム（最終）
             if (f.length < ((f[0] === 10 || (f.length > 1 && f[0] + f[1] === 10)) ? 3 : 2)) break;
             total += f.reduce((a, b) => a + b, 0);
         } else if (f[0] === 10) {
             const next = frameData[i + 1];
             if (!next || next.length === 0) break;
-            let b2 = (next[0] === 10 && i + 1 < 9) ? (frameData[i + 2]?.[0] ?? 0) : (next[1] ?? 0);
+            let b2 = (next[0] === 10 && i + 1 < 4) ? (frameData[i + 2]?.[0] ?? 0) : (next[1] ?? 0);  // i+1 < 4
             if (next[0] !== 10 && next.length < 2) break;
             total += 10 + next[0] + b2;
         } else if (f.length > 1 && f[0] + f[1] === 10) {
@@ -725,13 +709,13 @@ function drawFrameBoard() {
     const framesRow = document.getElementById("framesRow");
     if (!framesRow) return;
     framesRow.innerHTML = "";
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {                    // 5フレーム分
         const f = frameData[i] || [];
-        const is10 = i === 9;
+        const is5  = i === 4;                         // 第5フレームが最終
         const isCur = i === frame - 1;
         const box = document.createElement("div");
         box.style.cssText = `
-            width:${is10 ? "62px" : "48px"};
+            width:${is5 ? "62px" : "48px"};
             background:${isCur ? "rgba(214,247,244,1)" : "rgba(214,247,244,0.78)"};
             border:2px solid #ffffff;
             border-radius:14px; overflow:hidden; text-align:center;
@@ -746,7 +730,7 @@ function drawFrameBoard() {
             c.innerHTML = html;
             return c;
         };
-        if (is10) {
+        if (is5) {                                    // 最終フレームは3マス
             [0, 1, 2].forEach(k => tr.appendChild(cell(sym10(f, k))));
         } else {
             const s = symNormal(f);
@@ -849,7 +833,7 @@ function checkScore() {
     frameData[fi].push(thisThrow);
     const f = frameData[fi];
 
-    if (frame === 10) {
+    if (frame === 5) {                                // 第5フレームが最終
         handle10thFrame(f, totalKnocked);
     } else {
         handleNormalFrame(f, totalKnocked, thisThrow);
@@ -941,7 +925,7 @@ function handle10thFrame(f, totalKnocked) {
 
 function nextFrame() {
     frame++; throwCount = 1; firstThrowKnocked = 0;
-    if (frame > 10) { endGame(); return; }
+    if (frame > 5) { endGame(); return; }             // 5フレームで終了
     setFrameLabel("第" + frame + "フレーム");
     setThrowLabel("1投目");
     setTimeout(() => {
@@ -956,11 +940,12 @@ function endGame() {
     const cum = calcCumulative();
     const finalScore = cum.filter(v => v !== null).pop() ?? 0;
 
+    // 満点120点基準のランクテーブル
     const rankTable = [
-        [220, "S", "rank-s", "神話級の腕前！完全なるストライクマスターです！"],
-        [160, "A", "rank-a", "素晴らしい！安定したコントロールで見事なスコアです！"],
-        [110, "B", "rank-b", "グッジョブ！スペアを確実に拾う適応力があります。"],
-        [60,  "C", "rank-c", "フックの軌道を計算して、ポケット（中心）を狙ってみよう。"],
+        [100, "S", "rank-s", "神話級の腕前！5フレームパーフェクト目前の域です！"],
+        [80,  "A", "rank-a", "素晴らしい！安定したコントロールで見事なスコアです！"],
+        [55,  "B", "rank-b", "グッジョブ！スペアを確実に拾う適応力があります。"],
+        [30,  "C", "rank-c", "フックの軌道を計算して、ポケット（中心）を狙ってみよう。"],
         [0,   "D", "rank-d", "どんまい！まずはガターに落とさない直線エイムを意識しよう！"]
     ];
     const [, rank, rankClass, comment] = rankTable.find(([t]) => finalScore >= t);
@@ -973,19 +958,19 @@ function endGame() {
 
     const rf = document.getElementById("resultFrames");
     rf.innerHTML = "";
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) {                    // 5フレーム分
         const f    = frameData[i] || [];
-        const is10 = i === 9;
+        const is5  = i === 4;                         // 第5フレームが最終
         const box  = document.createElement("div");
         box.style.cssText = `
             background:rgba(28,78,77,0.06); border:1px solid #1c4e4d; border-radius:4px;
-            width:${is10 ? "42px" : "32px"}; text-align:center;
+            width:${is5 ? "42px" : "32px"}; text-align:center;
             font-size:11px; font-family:sans-serif; color:#1c4e4d;
         `;
         const sc = document.createElement("div");
         sc.style.cssText = "font-weight:900;";
         sc.textContent = cum[i] !== null ? cum[i] : "";
-        box.innerHTML = `<div style="font-size:8px; border-bottom:1px solid #1c4e4d; min-height:12px;">${is10 ? sym10(f, 0) + sym10(f, 1) : symNormal(f).join("")}</div>`;
+        box.innerHTML = `<div style="font-size:8px; border-bottom:1px solid #1c4e4d; min-height:12px;">${is5 ? sym10(f, 0) + sym10(f, 1) : symNormal(f).join("")}</div>`;
         box.appendChild(sc);
         rf.appendChild(box);
     }
