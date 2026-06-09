@@ -17,9 +17,9 @@
   
   /* IN-GAME HUD */
   #hud { position:absolute; top:0; left:0; width:100%; display:none; justify-content:space-between; padding:10px 16px; z-index:10; pointer-events:none; }
-  .hb { background:rgba(255,255,255,0.15); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,0.3); border-radius:6px; padding:5px 14px; text-align:center; color:#fff; }
-  .hl { font-size:9px; color:rgba(255,255,255,0.6); letter-spacing:2px; text-transform:uppercase; font-family:'Share Tech Mono', monospace; }
-  .hv { font-size:22px; font-weight:bold; font-family:'Share Tech Mono', monospace; line-height:1.2; }
+  .hb { background:rgb(214, 247, 244); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); border:5px solid #ffffff; border-radius:20px; padding:8px 24px; text-align:center; color:#1c4e4d; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+  .hl { font-size:11px; color:#557776; letter-spacing:2px; text-transform:uppercase; font-family:'Noto Sans JP', sans-serif; font-weight:900; }
+  .hv { font-size:32px; font-weight:900; font-family:'Noto Sans JP', sans-serif; line-height:1.2; color:#1c4e4d; }
   
   /* 照準 */
   #reticle { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:40px; height:40px; pointer-events:none; z-index:5; display:none; }
@@ -376,7 +376,7 @@
 
       <h3>総合評価ランク目安</h3>
       <div class="rank-grid">
-        <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">1200点〜</div></div>
+        <div class="rank-cell"><div class="rank-letter r-s">S</div><div class="rank-pts">900点〜</div></div>
         <div class="rank-cell"><div class="rank-letter r-a">A</div><div class="rank-pts">800点〜</div></div>
         <div class="rank-cell"><div class="rank-letter r-b">B</div><div class="rank-pts">500点〜</div></div>
         <div class="rank-cell"><div class="rank-letter r-c">C</div><div class="rank-pts">200点〜</div></div>
@@ -744,7 +744,7 @@ function showResult() {
   let rcls = 'rank-D';
   let comment = '';
   
-  if (score >= 1200) { rank='S'; rcls='rank-S'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
+  if (score >= 900) { rank='S'; rcls='rank-S'; comment='スゴすぎる！圧倒的なスナイパーの才能です！'; }
   else if (score >= 800)  { rank='A'; rcls='rank-A'; comment='お見事！素晴らしい命中精度とスピードです！'; }
   else if (score >= 500)  { rank='B'; rcls='rank-B'; comment='ナイス！高得点の金マトをもっと狙ってみよう！'; }
   else if (score >= 200)  { rank='C'; rcls='rank-C'; comment='いい調子です！次こそはランクB以上を目指そう！'; }
