@@ -842,7 +842,7 @@ function animate() {
           const scrY = (proj.y * -.5 + .5) * H();
           
           addHitFlash(scrX, scrY);
-          const txtCol = t.userData.score === 100 ? "#ffeb3b" : t.userData.score === 50 ? "#ff4444" : t.userData.score === 30 ? "#4488ff" : "#ffffff";
+          const txtCol = t.userData.score === 100 ? "#ffeb3b" : t.userData.score == 50 ? "#ff4444" : t.userData.score === 30 ? "#4488ff" : "#ffffff";
           addFloatText(`+${t.userData.score}`, scrX, scrY, txtCol);
           
           scene.remove(t);
